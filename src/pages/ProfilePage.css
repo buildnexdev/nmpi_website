@@ -1,0 +1,22 @@
+.digital-id-card-front {
+  background: linear-gradient(135deg, var(--primary-maroon-dark) 0%, var(--primary-maroon) 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--accent-gold);
+  box-shadow: var(--shadow-gold);
+  position: relative;
+  overflow: hidden;
+}
+
+.digital-id-header {
+  border-bottom: 1px solid var(--accent-gold);
+  padding-bottom: 12px;
+}
+
+.id-photo {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--accent-gold);
+}
