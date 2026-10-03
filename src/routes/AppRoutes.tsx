@@ -20,6 +20,9 @@ import { FaqPage } from '../pages/FaqPage';
 import { PrivacyPage } from '../pages/PrivacyPage';
 import { TermsPage } from '../pages/TermsPage';
 import { ProfilePage } from '../pages/ProfilePage';
+import { AchievementsPage } from '../pages/AchievementsPage';
+import { IdeologyPage } from '../pages/IdeologyPage';
+import { ActionsPage } from '../pages/ActionsPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -27,6 +30,9 @@ export const AppRoutes: React.FC = () => {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<HomePage />} />
         <Route path="about" element={<AboutPage />} />
+        <Route path="ideology" element={<IdeologyPage />} />
+        <Route path="actions" element={<ActionsPage />} />
+        <Route path="achievements" element={<AchievementsPage />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="structure" element={<StructurePage />} />
         <Route path="leadership" element={<LeadershipPage />} />

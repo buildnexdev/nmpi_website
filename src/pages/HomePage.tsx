@@ -3,15 +3,16 @@ import { Link } from 'react-router-dom';
 import { HeroSection } from '../components/HeroSection/HeroSection';
 import { NewsCard } from '../components/NewsCard/NewsCard';
 import { apiClient } from '../services/apiClient';
+import { useLanguage } from '../context/LanguageContext';
 import './HomePage.css';
 
 export const HomePage: React.FC = () => {
   const [newsList, setNewsList] = useState<any[]>([]);
   const [eventsList, setEventsList] = useState<any[]>([]);
   const [leadersList, setLeadersList] = useState<any[]>([]);
+  const { lang, t } = useLanguage();
 
   useEffect(() => {
-    // Fetch live data from backend API
     apiClient.get('/news?status=PUBLISHED').then(res => setNewsList(res.data.data.slice(0, 3))).catch(() => {});
     apiClient.get('/events?status=UPCOMING').then(res => setEventsList(res.data.data.slice(0, 2))).catch(() => {});
     apiClient.get('/leadership').then(res => setLeadersList(res.data.data.slice(0, 3))).catch(() => {});
@@ -26,11 +27,15 @@ export const HomePage: React.FC = () => {
         <div className="container">
           <div className="d-flex justify-content-between align-items-end mb-4">
             <div>
-              <span className="text-gold fw-bold text-uppercase small">Official Bulletins</span>
-              <h2 className="home-section-heading m-0">Latest News & Announcements</h2>
+              <span className="text-gold fw-bold text-uppercase small">
+                {lang === 'ta' ? 'அதிகாரப்பூர்வ செய்திகள்' : 'Official Bulletins'}
+              </span>
+              <h2 className="home-section-heading m-0">
+                {lang === 'ta' ? 'இயக்கத்தின் முக்கிய செய்திகள்' : 'Latest News & Bulletins'}
+              </h2>
             </div>
             <Link to="/news" className="btn btn-outline-danger btn-sm">
-              View All News <i className="bi bi-arrow-right ms-1"></i>
+              {lang === 'ta' ? 'அனைத்து செய்திகளும்' : 'View All News'} <i className="bi bi-arrow-right ms-1"></i>
             </Link>
           </div>
 
@@ -56,11 +61,15 @@ export const HomePage: React.FC = () => {
         <div className="container">
           <div className="d-flex justify-content-between align-items-end mb-4">
             <div>
-              <span className="text-gold fw-bold text-uppercase small">Community Calendar</span>
-              <h2 className="home-section-heading m-0">Upcoming Events & Gatherings</h2>
+              <span className="text-gold fw-bold text-uppercase small">
+                {lang === 'ta' ? 'நிகழ்ச்சி நிரல்' : 'Community Calendar'}
+              </span>
+              <h2 className="home-section-heading m-0">
+                {lang === 'ta' ? 'வரவிருக்கும் நிகழ்வுகள்' : 'Upcoming Events & Rallies'}
+              </h2>
             </div>
             <Link to="/events" className="btn btn-outline-danger btn-sm">
-              View Event Calendar <i className="bi bi-arrow-right ms-1"></i>
+              {lang === 'ta' ? 'அனைத்து நிகழ்வுகளும்' : 'View Event Calendar'} <i className="bi bi-arrow-right ms-1"></i>
             </Link>
           </div>
 
@@ -81,7 +90,7 @@ export const HomePage: React.FC = () => {
                     <h5 className="h6 text-maroon fw-bold mb-2">{evt.title}</h5>
                     <p className="small text-muted mb-2"><i className="bi bi-geo-alt me-1 text-gold"></i>{evt.location}</p>
                     <Link to={`/events/${evt.id}`} className="btn btn-maroon btn-sm py-1 px-3">
-                      Event Details
+                      {lang === 'ta' ? 'விவரங்கள்' : 'Event Details'}
                     </Link>
                   </div>
                 </div>
@@ -95,10 +104,16 @@ export const HomePage: React.FC = () => {
       <section className="py-5 bg-light">
         <div className="container">
           <div className="text-center mb-5">
-            <span className="text-gold fw-bold text-uppercase small">Governance</span>
-            <h2 className="home-section-heading mx-auto">Executive Leadership</h2>
+            <span className="text-gold fw-bold text-uppercase small">
+              {lang === 'ta' ? 'நிர்வாகக் குழு' : 'Executive Governance'}
+            </span>
+            <h2 className="home-section-heading mx-auto">
+              {lang === 'ta' ? 'இயக்கத்தின் முக்கிய நிர்வாகிகள்' : 'Executive Leadership'}
+            </h2>
             <p className="text-muted small mx-auto" style={{ maxWidth: 540 }}>
-              Guided by dedicated administrators serving regional units with transparency and accountability.
+              {lang === 'ta'
+                ? 'மக்கள் தொண்டே மகேசன் தொண்டு எனும் உயரிய சிந்தனையுடன் இயங்கும் தலைமை நிர்வாகிகள்.'
+                : 'Dedicated administrators serving regional units with transparency and accountability.'}
             </p>
           </div>
 
@@ -125,12 +140,17 @@ export const HomePage: React.FC = () => {
       {/* CTA Join Membership Banner */}
       <section className="py-5 bg-maroon text-white text-center">
         <div className="container">
-          <h2 className="h3 text-gold fw-bold mb-3">Ready to Join Our Community Network?</h2>
+          <h2 className="h3 text-gold fw-bold mb-3">
+            {lang === 'ta' ? 'இயக்கத்தில் உறுப்பினராக இணையுங்கள்!' : 'Ready to Join Our Movement?'}
+          </h2>
           <p className="lead mx-auto mb-4" style={{ maxWidth: 650 }}>
-            Receive your verified Member ID, digital QR identification card, and active voting participation rights in assembly affairs.
+            {lang === 'ta'
+              ? 'பாதுகாக்கப்பட்ட QR டிஜிட்டல் அடையாள அட்டை பெற்று இயக்கத்தில் உறுப்பினராக இப்போதே இணையுங்கள்.'
+              : 'Receive your verified Member ID, digital QR identification card, and active participation rights.'}
           </p>
-          <Link to="/join" className="btn btn-gold btn-lg px-5 py-3">
-            Start Membership Application
+          <Link to="/join" className="btn btn-gold btn-lg px-5 py-3 fw-bold">
+            <i className="bi bi-person-plus-fill me-2"></i>
+            {t('joinUs')}
           </Link>
         </div>
       </section>
