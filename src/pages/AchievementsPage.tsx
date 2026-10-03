@@ -1,66 +1,73 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { apiClient } from '../services/apiClient';
+import { PageHero } from '../components/ui';
+
+interface Stats {
+  members: number;
+  leaders: number;
+  districts: number;
+  upcoming_events: number;
+}
+
+const MILESTONES = [
+  { icon: 'bi-shield-check', ta: ['உறுப்பினர் பாதுகாப்பு', 'அனைத்து உறுப்பினர்களுக்கும் QR சரிபார்ப்பு டிஜிட்டல் அடையாள அட்டை.'], en: ['Member safety & rights', 'Every member receives a QR-verified digital identity card.'] },
+  { icon: 'bi-tree-fill', ta: ['சுற்றுச்சூழல் & சமூகம்', 'இரத்த தான முகாம்கள், மரக்கன்று நடுதல் மற்றும் விழிப்புணர்வு நிகழ்வுகள்.'], en: ['Eco & community welfare', 'Blood donation drives, tree planting and awareness rallies.'] },
+  { icon: 'bi-mortarboard-fill', ta: ['இளைஞர் வழிகாட்டுதல்', 'மாணவர்களுக்குத் தலைமைப்பண்பு மற்றும் வேலைவாய்ப்பு திறன் பயிற்சி.'], en: ['Youth empowerment', 'Leadership training and career guidance for student volunteers.'] },
+];
 
 export const AchievementsPage: React.FC = () => {
   const { lang } = useLanguage();
+  const ta = lang === 'ta';
+  const [stats, setStats] = useState<Stats | null>(null);
+
+  useEffect(() => {
+    apiClient.get('/public-stats').then((r) => setStats(r.data.data)).catch(() => setStats(null));
+  }, []);
+
+  const figures = stats
+    ? [
+        { value: stats.members, label: ta ? 'பதிவு செய்த உறுப்பினர்கள்' : 'Registered members' },
+        { value: stats.leaders, label: ta ? 'மாவட்ட நிர்வாகிகள்' : 'District executives' },
+        { value: stats.districts, label: ta ? 'மாவட்டங்கள்' : 'Districts covered' },
+        { value: stats.upcoming_events, label: ta ? 'வரவிருக்கும் நிகழ்வுகள்' : 'Upcoming events' },
+      ]
+    : [];
 
   return (
-    <div className="container py-5">
-      <div className="text-center mb-5">
-        <span className="badge gold-badge mb-2">
-          {lang === 'ta' ? 'மக்கள் சேவை சாதனைகள்' : 'Public Service Achievements'}
-        </span>
-        <h1 className="text-maroon fw-bold h2">
-          {lang === 'ta' ? 'இயக்கத்தின் முக்கிய சாதனைகள்' : 'Key Organizational Achievements'}
-        </h1>
-        <p className="text-muted small">
-          {lang === 'ta' ? 'மக்களின் உரிமைகளைப் பாதுகாக்கவும் சமூக வளர்ச்சிக்குமான தொடர் சாதனைகள்' : 'Milestones in protecting public rights and fostering community welfare'}
-        </p>
-      </div>
-
-      <div className="row g-4">
-        <div className="col-md-4">
-          <div className="card-custom p-4 text-center h-100">
-            <div className="bg-maroon text-gold rounded-circle p-3 d-inline-flex mb-3">
-              <i className="bi bi-shield-check fs-2"></i>
+    <>
+      <PageHero
+        eyebrow={ta ? 'சாதனைகள்' : 'Achievements'}
+        title={ta ? 'இயக்கத்தின் முக்கிய சாதனைகள்' : 'Key Achievements'}
+        subtitle={ta ? 'மக்களின் உரிமைகளைப் பாதுகாக்கவும் சமூக வளர்ச்சிக்குமான தொடர் பணிகள்.' : 'Milestones in protecting public rights and fostering community welfare.'}
+      />
+      <section className="page-body">
+        <div className="container">
+          {figures.length > 0 && (
+            <div className="row g-3 mb-5">
+              {figures.map((f) => (
+                <div className="col-6 col-lg-3" key={f.label}>
+                  <div className="card-custom p-4 text-center h-100">
+                    <div className="display-6 fw-bold text-maroon">{f.value.toLocaleString('en-IN')}</div>
+                    <div className="small text-muted fw-semibold">{f.label}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="h5 text-maroon font-bold mb-2">
-              {lang === 'ta' ? 'உறுப்பினர் பாதுகாப்பு' : 'Member Safety & Rights'}
-            </h3>
-            <p className="small text-muted mb-0">
-              {lang === 'ta' ? 'தமிழ்நாடு முழுவதும் 10,000+ உறுப்பினர்களுக்கு முறையான QR டிஜிட்டல் அடையாள அட்டை வழங்கப்பட்டு பாதுகாப்பு உறுதி செய்யப்பட்டுள்ளது.' : 'Successfully implemented verified digital QR identity cards for 10,000+ active members across Tamil Nadu.'}
-            </p>
+          )}
+          <div className="row g-4">
+            {MILESTONES.map((m) => (
+              <div className="col-md-4" key={m.icon}>
+                <div className="card-custom card-hover feature-tile text-center h-100">
+                  <div className="feature-icon mx-auto"><i className={`bi ${m.icon}`}></i></div>
+                  <h2 className="h5">{ta ? m.ta[0] : m.en[0]}</h2>
+                  <p className="mb-0">{ta ? m.ta[1] : m.en[1]}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-
-        <div className="col-md-4">
-          <div className="card-custom p-4 text-center h-100">
-            <div className="bg-maroon text-gold rounded-circle p-3 d-inline-flex mb-3">
-              <i className="bi bi-tree-fill fs-2"></i>
-            </div>
-            <h3 className="h5 text-maroon font-bold mb-2">
-              {lang === 'ta' ? 'சுற்றுச்சூழல் & சமூகம்' : 'Eco & Community Welfare'}
-            </h3>
-            <p className="small text-muted mb-0">
-              {lang === 'ta' ? '50+ இடங்களில் மரக்கன்றுகள் நடுதல், குருதிதான முகாம்கள் மற்றும் இயற்கை விவசாய விழிப்புணர்வு நிகழ்வுகள் நடத்தப்பட்டுள்ளன.' : 'Organized 50+ blood donation drives, tree plantation drives, and sustainable agriculture awareness rallies.'}
-            </p>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card-custom p-4 text-center h-100">
-            <div className="bg-maroon text-gold rounded-circle p-3 d-inline-flex mb-3">
-              <i className="bi bi-mortarboard-fill fs-2"></i>
-            </div>
-            <h3 className="h5 text-maroon font-bold mb-2">
-              {lang === 'ta' ? 'இளைஞர் வழிகாட்டுதல்' : 'Youth Empowerment'}
-            </h3>
-            <p className="small text-muted mb-0">
-              {lang === 'ta' ? 'மாணவர்கள் மற்றும் இளைஞர்களுக்குத் தலைமைப்பண்பு மற்றும் வேலைவாய்ப்பு திறன் பயிற்சிகள் தொடர்ந்து வழங்கப்படுகின்றன.' : 'Provided leadership training, educational aid, and vocational guidance to student volunteers.'}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 };

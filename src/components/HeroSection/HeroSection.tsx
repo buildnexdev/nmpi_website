@@ -1,81 +1,98 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { mediaUrl } from '../../services/apiClient';
 import './HeroSection.css';
 
-interface HeroSectionProps {
-  stats?: {
-    totalMembers: number;
-    unitsCount: number;
-    districtsCount: number;
-  };
+export interface PublicStats {
+  members: number;
+  leaders: number;
+  districts: number;
+  upcoming_events: number;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ stats }) => {
-  const { lang, t } = useLanguage();
+const SLIDES = [
+  { image: '/uploads/IMG-20260925-WA0072.jpg', ta: 'மாநில பொதுக்குழு', en: 'State General Council' },
+  { image: '/uploads/IMG-20260925-WA0000.jpg', ta: 'மண்டல மாநாடு & பேரணி', en: 'Zonal Conference & Rally' },
+  { image: '/uploads/IMG-20260925-WA0010.jpg', ta: 'மாவட்ட நிர்வாகிகள் கூட்டம்', en: 'District Executives Meeting' },
+  { image: '/uploads/IMG-20260925-WA0011.jpg', ta: 'மக்கள் பாதுகாப்பு பிரச்சாரம்', en: 'Public Protection Campaign' },
+];
+
+export const HeroSection: React.FC<{ stats: PublicStats | null }> = ({ stats }) => {
+  const { lang } = useLanguage();
+  const [slide, setSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 7000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const statItems = [
+    { value: stats?.members, ta: 'சரிபார்க்கப்பட்ட உறுப்பினர்கள்', en: 'Verified members' },
+    { value: stats?.leaders, ta: 'மாவட்ட நிர்வாகிகள்', en: 'District executives' },
+    { value: stats?.districts, ta: 'மாவட்டங்கள்', en: 'Districts covered' },
+    { value: stats?.upcoming_events, ta: 'வரவிருக்கும் நிகழ்வுகள்', en: 'Upcoming events' },
+  ];
 
   return (
-    <section className="hero-section">
-      <div className="container position-relative z-1">
-        <div className="row align-items-center g-5">
-          <div className="col-lg-7">
-            <div className="hero-badge">
-              <i className="bi bi-shield-lock-fill text-gold"></i>{' '}
-              {lang === 'ta' ? 'தமிழ்நாடு மாநில பாதுகாப்பு இயக்கம்' : 'TAMIL NADU CIVIC & PROTECTIVE MOVEMENT'}
-            </div>
-            <h1 className="hero-title mb-3">
+    <section className="hero">
+      <div className="hero-slides" aria-hidden="true">
+        {SLIDES.map((s, i) => (
+          <div key={s.image} className={`hero-slide ${i === slide ? 'active' : ''}`} style={{ backgroundImage: `url(${mediaUrl(s.image)}), url(/hero-banner.jpg)` }} />
+        ))}
+      </div>
+      <div className="hero-overlay"></div>
+
+      <div className="container hero-content">
+        <div className="row align-items-center">
+          <div className="col-lg-8 col-xl-7">
+            <span className="hero-pill">
+              <i className="bi bi-shield-fill-check"></i>
+              {lang === 'ta' ? 'தமிழ்நாடு மக்கள் பாதுகாப்பு இயக்கம்' : "Tamil Nadu's people's protection movement"}
+            </span>
+            <h1 className="hero-title">
               {lang === 'ta' ? (
-                <>நேதாஜி மக்கள் <span className="text-gold">பாதுகாப்பு இயக்கம்</span></>
+                <>நேதாஜி மக்கள் <span>பாதுகாப்பு இயக்கம்</span></>
               ) : (
-                <>Netaji Makkal <span className="text-gold">Pathukappu Iyakkam</span></>
+                <>Netaji Makkal <span>Pathukappu Iyakkam</span></>
               )}
             </h1>
-            <p className="hero-subtitle mb-4">
+            <p className="hero-lead">
               {lang === 'ta'
                 ? 'நேதாஜி சுபாஷ் சந்திர போஸ் அவர்களின் கொள்கை வழியில் மக்களின் உரிமைகள், சமூக நலன் மற்றும் பாதுகாப்பிற்கான ஒழுக்கமிக்க மக்கள் இயக்கம்.'
-                : 'A unified civic protective movement upholding Netaji Subhash Chandra Bose\'s principles of public service, member protection, and transparent governance.'}
+                : "A disciplined people's movement for public rights, social welfare and safety — guided by the ideals of Netaji Subhas Chandra Bose."}
             </p>
-
             <div className="d-flex flex-wrap gap-3">
-              <Link to="/join" className="btn btn-gold btn-lg px-4 py-3 fw-bold">
-                <i className="bi bi-person-plus-fill me-2"></i>{t('joinUs')}
+              <Link to="/join" className="btn btn-gold btn-lg">
+                <i className="bi bi-person-plus-fill me-2"></i>
+                {lang === 'ta' ? 'உறுப்பினராக இணையுங்கள்' : 'Become a member'}
               </Link>
-              <Link to="/about" className="btn btn-outline-light btn-lg px-4 py-3">
-                <i className="bi bi-info-circle me-2"></i>{t('navAboutParty')}
+              <Link to="/about" className="btn btn-ghost-light btn-lg">
+                {lang === 'ta' ? 'இயக்கம் பற்றி' : 'About the movement'}
+                <i className="bi bi-arrow-right ms-2"></i>
               </Link>
             </div>
           </div>
+        </div>
 
-          <div className="col-lg-5">
-            <div className="hero-stats-card text-center">
-              <img
-                src="/logo.jpg"
-                alt="Netaji Emblem"
-                className="img-fluid rounded-circle border border-gold mb-3 shadow-lg"
-                style={{ width: 140, height: 140, objectFit: 'cover' }}
-              />
-
-              <h4 className="h5 text-gold fw-bold mb-1">
-                {lang === 'ta' ? 'நேதாஜி மக்கள் பாதுகாப்பு இயக்கம்' : 'Netaji Makkal Pathukappu Iyakkam'}
-              </h4>
-              <p className="small text-white-50 mb-3">{lang === 'ta' ? 'தமிழ்நாடு தலைமை மையம்' : 'State Headquarters, Tamil Nadu'}</p>
-
-              <div className="row text-center g-2 pt-2 border-top border-secondary">
-                <div className="col-6">
-                  <div className="p-2 rounded bg-black bg-opacity-25 border border-gold">
-                    <div className="h4 text-gold mb-0 fw-bold">10,000+</div>
-                    <div className="small text-light" style={{ fontSize: '0.75rem' }}>{lang === 'ta' ? 'உறுப்பினர்கள்' : 'Active Members'}</div>
-                  </div>
-                </div>
-                <div className="col-6">
-                  <div className="p-2 rounded bg-black bg-opacity-25 border border-gold">
-                    <div className="h4 text-gold mb-0 fw-bold">38</div>
-                    <div className="small text-light" style={{ fontSize: '0.75rem' }}>{lang === 'ta' ? 'மாவட்ட பிரிவுகள்' : 'Districts Covered'}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="hero-caption d-none d-md-flex">
+          <span>{lang === 'ta' ? SLIDES[slide].ta : SLIDES[slide].en}</span>
+          <div className="hero-dots">
+            {SLIDES.map((_, i) => (
+              <button key={i} type="button" className={i === slide ? 'active' : ''} onClick={() => setSlide(i)} aria-label={`Slide ${i + 1}`} />
+            ))}
           </div>
+        </div>
+      </div>
+
+      <div className="container hero-stats-wrap">
+        <div className="hero-stats">
+          {statItems.map((s) => (
+            <div className="hero-stat" key={s.en}>
+              <div className="hero-stat-value">{s.value === undefined ? '—' : s.value.toLocaleString('en-IN')}</div>
+              <div className="hero-stat-label">{s[lang]}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

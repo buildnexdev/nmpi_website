@@ -47,7 +47,11 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [lang, setLang] = useState<Language>('ta');
+  const [lang, setLangState] = useState<Language>(() => (localStorage.getItem('nmpi_lang') === 'en' ? 'en' : 'ta'));
+  const setLang = (next: Language) => {
+    localStorage.setItem('nmpi_lang', next);
+    setLangState(next);
+  };
 
   const t = (key: string): string => {
     if (translations[key]) {

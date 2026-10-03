@@ -1,135 +1,88 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HeroSection } from '../components/HeroSection/HeroSection';
-import { NewsCard } from '../components/NewsCard/NewsCard';
-import { apiClient } from '../services/apiClient';
+import { HeroSection, PublicStats } from '../components/HeroSection/HeroSection';
+import { EventCard, EventItem, LeaderPhoto, NewsCard, NewsItem } from '../components/ui';
+import { apiClient, mediaUrl, pick } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
-import './HomePage.css';
 
 export const HomePage: React.FC = () => {
-  const [newsList, setNewsList] = useState<any[]>([]);
-  const [eventsList, setEventsList] = useState<any[]>([]);
-  const [leadersList, setLeadersList] = useState<any[]>([]);
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
+  const ta = lang === 'ta';
+  const [stats, setStats] = useState<PublicStats | null>(null);
+  const [news, setNews] = useState<NewsItem[] | null>(null);
+  const [events, setEvents] = useState<EventItem[] | null>(null);
+  const [leaders, setLeaders] = useState<any[]>([]);
 
   useEffect(() => {
-    apiClient.get('/news?status=PUBLISHED').then(res => setNewsList(res.data.data.slice(0, 3))).catch(() => {});
-    apiClient.get('/events?status=UPCOMING').then(res => setEventsList(res.data.data.slice(0, 2))).catch(() => {});
-    apiClient.get('/leadership').then(res => setLeadersList(res.data.data.slice(0, 3))).catch(() => {});
+    apiClient.get('/public-stats').then((r) => setStats(r.data.data)).catch(() => {});
+    apiClient.get('/news', { params: { limit: 3 } }).then((r) => setNews(r.data.data)).catch(() => setNews([]));
+    apiClient.get('/events', { params: { upcoming: true, limit: 3 } }).then((r) => setEvents(r.data.data)).catch(() => setEvents([]));
+    apiClient.get('/leadership').then((r) => setLeaders(r.data.data.slice(0, 4))).catch(() => {});
   }, []);
 
   return (
-    <div>
-      <HeroSection />
+    <>
+      <HeroSection stats={stats} />
 
-      {/* Latest News Section */}
-      <section className="py-5 bg-light">
+      <section className="section section-white">
         <div className="container">
-          <div className="d-flex justify-content-between align-items-end mb-4">
-            <div>
-              <span className="text-gold fw-bold text-uppercase small">
-                {lang === 'ta' ? 'அதிகாரப்பூர்வ செய்திகள்' : 'Official Bulletins'}
-              </span>
-              <h2 className="home-section-heading m-0">
-                {lang === 'ta' ? 'இயக்கத்தின் முக்கிய செய்திகள்' : 'Latest News & Bulletins'}
-              </h2>
-            </div>
-            <Link to="/news" className="btn btn-outline-danger btn-sm">
-              {lang === 'ta' ? 'அனைத்து செய்திகளும்' : 'View All News'} <i className="bi bi-arrow-right ms-1"></i>
-            </Link>
-          </div>
-
-          <div className="row g-4">
-            {newsList.map(item => (
-              <div className="col-lg-4 col-md-6" key={item.id}>
-                <NewsCard
-                  id={item.id}
-                  title={item.title}
-                  summary={item.summary}
-                  category={item.category_name || 'Announcement'}
-                  publishedAt={item.published_at}
-                  coverImage={item.cover_image}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Upcoming Events Section */}
-      <section className="py-5 bg-white border-top border-bottom">
-        <div className="container">
-          <div className="d-flex justify-content-between align-items-end mb-4">
-            <div>
-              <span className="text-gold fw-bold text-uppercase small">
-                {lang === 'ta' ? 'நிகழ்ச்சி நிரல்' : 'Community Calendar'}
-              </span>
-              <h2 className="home-section-heading m-0">
-                {lang === 'ta' ? 'வரவிருக்கும் நிகழ்வுகள்' : 'Upcoming Events & Rallies'}
-              </h2>
-            </div>
-            <Link to="/events" className="btn btn-outline-danger btn-sm">
-              {lang === 'ta' ? 'அனைத்து நிகழ்வுகளும்' : 'View Event Calendar'} <i className="bi bi-arrow-right ms-1"></i>
-            </Link>
-          </div>
-
-          <div className="row g-4">
-            {eventsList.map(evt => (
-              <div className="col-lg-6" key={evt.id}>
-                <div className="card-custom p-3 d-flex flex-column flex-sm-row gap-3 align-items-center">
-                  <img
-                    src={evt.cover_image || 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800'}
-                    alt={evt.title}
-                    className="rounded"
-                    style={{ width: 140, height: 120, objectFit: 'cover' }}
-                  />
+          <div className="row align-items-center g-5">
+            <div className="col-lg-6">
+              <div className="about-collage">
+                <img src={mediaUrl('/uploads/IMG-20260925-WA0072.jpg')} alt={ta ? 'இயக்க மாநில பொதுக்குழு' : 'State general council'} className="about-img-main" onError={(e) => ((e.target as HTMLImageElement).src = '/hero-banner.jpg')} />
+                <div className="about-badge">
+                  <img src="/logo.jpg" alt="" />
                   <div>
-                    <div className="badge gold-badge mb-2">
-                      <i className="bi bi-calendar-event me-1"></i>{evt.event_date}
-                    </div>
-                    <h5 className="h6 text-maroon fw-bold mb-2">{evt.title}</h5>
-                    <p className="small text-muted mb-2"><i className="bi bi-geo-alt me-1 text-gold"></i>{evt.location}</p>
-                    <Link to={`/events/${evt.id}`} className="btn btn-maroon btn-sm py-1 px-3">
-                      {lang === 'ta' ? 'விவரங்கள்' : 'Event Details'}
-                    </Link>
+                    <strong>{ta ? 'நேதாஜி வழியில்' : 'In the path of Netaji'}</strong>
+                    <span>{ta ? 'ஒழுக்கம் · சேவை · தியாகம்' : 'Discipline · Service · Sacrifice'}</span>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+            <div className="col-lg-6">
+              <div className="eyebrow">{ta ? 'இயக்கம் பற்றி' : 'Who we are'}</div>
+              <h2 className="section-title">
+                {ta ? 'மக்களின் உரிமைகளுக்காக ஒன்றிணைந்த இயக்கம்' : "United for every citizen's rights and safety"}
+              </h2>
+              <p className="section-lead mb-4">
+                {ta
+                  ? 'நேதாஜி மக்கள் பாதுகாப்பு இயக்கம் தமிழகத்தின் அனைத்து மாவட்டங்களிலும் மக்களின் வாழ்வாதாரம், பாதுகாப்பு மற்றும் சமூக நீதிக்காக களப்பணியாற்றி வருகிறது.'
+                  : 'Netaji Makkal Pathukappu Iyakkam works on the ground in every district of Tamil Nadu for livelihoods, public safety and social justice.'}
+              </p>
+              <ul className="check-list mb-4">
+                <li>{ta ? 'அனைத்து மாவட்டங்களிலும் நிர்வாகிகள் கட்டமைப்பு' : 'Structured leadership in every district'}</li>
+                <li>{ta ? 'சட்ட உதவி மற்றும் உரிமை பாதுகாப்பு' : 'Legal aid and rights protection'}</li>
+                <li>{ta ? 'QR சரிபார்ப்புடன் கூடிய டிஜிட்டல் அடையாள அட்டை' : 'Digital ID card with QR verification'}</li>
+              </ul>
+              <div className="d-flex flex-wrap gap-2">
+                <Link to="/about" className="btn btn-maroon">{ta ? 'மேலும் அறிய' : 'Learn more'}<i className="bi bi-arrow-right ms-2"></i></Link>
+                <Link to="/leadership" className="btn btn-outline-maroon">{ta ? 'மாவட்ட நிர்வாகிகள்' : 'District executives'}</Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Leadership Highlights */}
-      <section className="py-5 bg-light">
+      <section className="section section-cream">
         <div className="container">
-          <div className="text-center mb-5">
-            <span className="text-gold fw-bold text-uppercase small">
-              {lang === 'ta' ? 'நிர்வாகக் குழு' : 'Executive Governance'}
-            </span>
-            <h2 className="home-section-heading mx-auto">
-              {lang === 'ta' ? 'இயக்கத்தின் முக்கிய நிர்வாகிகள்' : 'Executive Leadership'}
-            </h2>
-            <p className="text-muted small mx-auto" style={{ maxWidth: 540 }}>
-              {lang === 'ta'
-                ? 'மக்கள் தொண்டே மகேசன் தொண்டு எனும் உயரிய சிந்தனையுடன் இயங்கும் தலைமை நிர்வாகிகள்.'
-                : 'Dedicated administrators serving regional units with transparency and accountability.'}
+          <div className="section-head centered">
+            <div className="eyebrow">{ta ? 'உறுப்பினர் நன்மைகள்' : 'Member benefits'}</div>
+            <h2 className="section-title">{ta ? 'ஏன் இயக்கத்தில் இணைய வேண்டும்?' : 'Why join the movement?'}</h2>
+            <p className="section-lead">
+              {ta ? 'உறுப்பினர் சேர்க்கை முற்றிலும் இலவசம். பதிவு செய்தவுடன் உங்கள் டிஜிட்டல் அடையாள அட்டை உடனடியாக கிடைக்கும்.' : 'Membership is free. Your digital ID card is issued the moment you register.'}
             </p>
           </div>
-
-          <div className="row g-4 justify-content-center">
-            {leadersList.map(leader => (
-              <div className="col-lg-4 col-md-6" key={leader.id}>
-                <div className="card-custom text-center p-4">
-                  <img
-                    src={leader.photo_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400'}
-                    alt={leader.name}
-                    className="rounded-circle mb-3 border border-gold"
-                    style={{ width: 110, height: 110, objectFit: 'cover' }}
-                  />
-                  <h5 className="h6 text-maroon fw-bold m-0">{leader.name}</h5>
-                  <small className="text-gold d-block fw-semibold mb-2">{leader.designation}</small>
-                  <p className="small text-muted mb-0">{leader.biography}</p>
+          <div className="row g-4">
+            {[
+              { icon: 'bi-person-vcard-fill', cls: '', ta: ['டிஜிட்டல் அடையாள அட்டை', 'உறுப்பினர் எண் மற்றும் QR சரிபார்ப்புடன் கூடிய அதிகாரப்பூர்வ அடையாள அட்டை — மொபைல் செயலியிலும் கிடைக்கும்.'], en: ['Digital ID card', 'An official member card with a unique ID and QR verification — also available in the mobile app.'] },
+              { icon: 'bi-shield-fill-check', cls: 'gold', ta: ['சட்ட உதவி & பாதுகாப்பு', 'இயக்கத்தின் வழக்கறிஞரணி மூலம் உறுப்பினர்களின் உரிமைகளுக்கு ஆதரவு.'], en: ['Legal aid & protection', "Support for members' rights through the movement's legal wing."] },
+              { icon: 'bi-diagram-3-fill', cls: 'dark', ta: ['மாவட்ட வலையமைப்பு', 'உங்கள் மாவட்ட, தாலுகா மற்றும் கிளை நிர்வாகிகளுடன் நேரடி தொடர்பு.'], en: ['District network', 'Connect directly with your district, taluk and unit coordinators.'] },
+            ].map((f) => (
+              <div className="col-md-4" key={f.icon}>
+                <div className="card-custom card-hover feature-tile">
+                  <div className={`feature-icon ${f.cls}`}><i className={`bi ${f.icon}`}></i></div>
+                  <h3>{ta ? f.ta[0] : f.en[0]}</h3>
+                  <p>{ta ? f.ta[1] : f.en[1]}</p>
                 </div>
               </div>
             ))}
@@ -137,23 +90,93 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Join Membership Banner */}
-      <section className="py-5 bg-maroon text-white text-center">
+      <section className="section section-white">
         <div className="container">
-          <h2 className="h3 text-gold fw-bold mb-3">
-            {lang === 'ta' ? 'இயக்கத்தில் உறுப்பினராக இணையுங்கள்!' : 'Ready to Join Our Movement?'}
-          </h2>
-          <p className="lead mx-auto mb-4" style={{ maxWidth: 650 }}>
-            {lang === 'ta'
-              ? 'பாதுகாக்கப்பட்ட QR டிஜிட்டல் அடையாள அட்டை பெற்று இயக்கத்தில் உறுப்பினராக இப்போதே இணையுங்கள்.'
-              : 'Receive your verified Member ID, digital QR identification card, and active participation rights.'}
-          </p>
-          <Link to="/join" className="btn btn-gold btn-lg px-5 py-3 fw-bold">
-            <i className="bi bi-person-plus-fill me-2"></i>
-            {t('joinUs')}
-          </Link>
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">{ta ? 'அதிகாரப்பூர்வ செய்திகள்' : 'Latest updates'}</div>
+              <h2 className="section-title mb-0">{ta ? 'இயக்கச் செய்திகள்' : 'News & announcements'}</h2>
+            </div>
+            <Link to="/news" className="btn btn-outline-maroon btn-sm">{ta ? 'அனைத்து செய்திகளும்' : 'All news'}<i className="bi bi-arrow-right ms-1"></i></Link>
+          </div>
+          {news && news.length === 0 ? (
+            <p className="text-muted">{ta ? 'விரைவில் செய்திகள் வெளியிடப்படும்.' : 'News will be published here soon.'}</p>
+          ) : (
+            <div className="row g-4">
+              {(news || []).map((n) => (
+                <div className="col-md-6 col-lg-4" key={n.id}><NewsCard item={n} /></div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
-    </div>
+
+      <section className="section section-cream">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">{ta ? 'நிகழ்ச்சி நிரல்' : 'Calendar'}</div>
+              <h2 className="section-title mb-0">{ta ? 'வரவிருக்கும் நிகழ்வுகள்' : 'Upcoming events'}</h2>
+            </div>
+            <Link to="/events" className="btn btn-outline-maroon btn-sm">{ta ? 'அனைத்து நிகழ்வுகளும்' : 'All events'}<i className="bi bi-arrow-right ms-1"></i></Link>
+          </div>
+          {events && events.length === 0 ? (
+            <p className="text-muted">{ta ? 'தற்போது வரவிருக்கும் நிகழ்வுகள் இல்லை.' : 'No upcoming events right now — check back soon.'}</p>
+          ) : (
+            <div className="row g-4">
+              {(events || []).map((e) => (
+                <div className="col-lg-4 col-md-6" key={e.id}><EventCard item={e} /></div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {leaders.length > 0 && (
+        <section className="section section-white">
+          <div className="container">
+            <div className="section-head">
+              <div>
+                <div className="eyebrow">{ta ? 'தலைமை' : 'Leadership'}</div>
+                <h2 className="section-title mb-0">{ta ? 'மாவட்ட நிர்வாகிகள்' : 'District executives'}</h2>
+              </div>
+              <Link to="/leadership" className="btn btn-outline-maroon btn-sm">{ta ? 'அனைவரையும் காண்க' : 'View all'}<i className="bi bi-arrow-right ms-1"></i></Link>
+            </div>
+            <div className="row g-4">
+              {leaders.map((l) => (
+                <div className="col-6 col-lg-3" key={l.id}>
+                  <div className="card-custom card-hover leader-card">
+                    <LeaderPhoto src={l.photo_url} name={l.name} size={96} />
+                    <h3 className="leader-name">{pick(l, 'name', lang)}</h3>
+                    <div className="leader-role">{pick(l, 'designation', lang)}</div>
+                    {l.district && <div className="small text-muted mt-1"><i className="bi bi-geo-alt me-1"></i>{pick(l, 'district', lang)}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="section-sm section-white pt-0">
+        <div className="container">
+          <div className="cta-band">
+            <div className="row align-items-center g-4">
+              <div className="col-lg-8">
+                <h2 className="mb-2">{ta ? 'இன்றே இயக்கத்தில் உறுப்பினராக இணையுங்கள்' : 'Join the movement today'}</h2>
+                <p className="mb-0">
+                  {ta ? 'இலவச பதிவு · உடனடி உறுப்பினர் எண் · QR சரிபார்ப்புடன் கூடிய டிஜிட்டல் அடையாள அட்டை' : 'Free registration · Instant member number · Digital ID card with QR verification'}
+                </p>
+              </div>
+              <div className="col-lg-4 text-lg-end">
+                <Link to="/join" className="btn btn-gold btn-lg">
+                  <i className="bi bi-person-plus-fill me-2"></i>{ta ? 'இப்போதே இணையுங்கள்' : 'Register now'}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };

@@ -1,44 +1,46 @@
 :root {
-  /* Primary & Brand Colors */
-  --primary-maroon: #7A0016;
-  --primary-maroon-dark: #580010;
-  --primary-maroon-light: #9E0E27;
-  --accent-gold: #D4AF37;
-  --accent-gold-light: #F3E5AB;
-  --accent-gold-dark: #AA820A;
-  
-  /* Supporting Palette */
-  --color-dark-bg: #121417;
-  --color-dark-card: #1A1D23;
-  --color-text-primary: #1F2937;
-  --color-text-secondary: #4B5563;
-  --color-text-muted: #9CA3AF;
-  --color-light-bg: #F9FAFB;
-  --color-light-card: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-border-gold: rgba(212, 175, 55, 0.4);
-  
-  /* Status Colors */
-  --status-pending: #F59E0B;
-  --status-approved: #10B981;
-  --status-rejected: #EF4444;
-  --status-active: #3B82F6;
-  
+  /* Brand */
+  --primary-maroon: #7a0016;
+  --primary-maroon-dark: #4f000e;
+  --primary-maroon-light: #a3132f;
+  --maroon-50: #fbf1f2;
+  --maroon-100: #f6dfe2;
+  --accent-gold: #d4af37;
+  --accent-gold-light: #f6e7b0;
+  --accent-gold-dark: #9c7c12;
+  --gold-50: #fdf8e8;
+  --ink: #111216;
+  --ink-2: #2b2e35;
+
+  /* Neutrals */
+  --color-text-primary: #16181d;
+  --color-text-secondary: #4b5160;
+  --color-text-muted: #7b8191;
+  --color-light-bg: #f7f5f2;
+  --color-light-card: #ffffff;
+  --color-border: #e8e4de;
+  --color-border-gold: rgba(212, 175, 55, 0.45);
+
+  /* Status */
+  --status-pending: #b45309;
+  --status-approved: #15803d;
+  --status-rejected: #b91c1c;
+
   /* Typography */
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  
-  /* Shadows & Radius */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-gold: 0 4px 20px rgba(212, 175, 55, 0.25);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --font-heading: 'Catamaran', 'Noto Sans Tamil', 'Outfit', sans-serif;
+  --font-body: 'Inter', 'Noto Sans Tamil', system-ui, sans-serif;
+
+  /* Shape & depth */
+  --shadow-sm: 0 1px 2px rgba(17, 18, 22, 0.06);
+  --shadow-md: 0 8px 24px rgba(17, 18, 22, 0.08);
+  --shadow-lg: 0 18px 48px rgba(17, 18, 22, 0.14);
+  --shadow-gold: 0 10px 30px rgba(212, 175, 55, 0.3);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 9999px;
-  
-  /* Transitions */
+
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
+  --header-h: 76px;
 }

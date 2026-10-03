@@ -23,6 +23,8 @@ import { ProfilePage } from '../pages/ProfilePage';
 import { AchievementsPage } from '../pages/AchievementsPage';
 import { IdeologyPage } from '../pages/IdeologyPage';
 import { ActionsPage } from '../pages/ActionsPage';
+import { WingsPage } from '../pages/WingsPage';
+import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -36,6 +38,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="history" element={<HistoryPage />} />
         <Route path="structure" element={<StructurePage />} />
         <Route path="leadership" element={<LeadershipPage />} />
+        <Route path="wings" element={<WingsPage />} />
         <Route path="news" element={<NewsPage />} />
         <Route path="news/:id" element={<NewsDetailsPage />} />
         <Route path="events" element={<EventsPage />} />
@@ -50,7 +53,9 @@ export const AppRoutes: React.FC = () => {
         <Route path="privacy-policy" element={<PrivacyPage />} />
         <Route path="terms" element={<TermsPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );
 };
+

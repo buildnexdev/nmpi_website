@@ -1,143 +1,18 @@
-/* ============================================================================
-   COMMUNITY PLATFORM - MASTER RESPONSIVE CSS STYLESHEET
-   Handles Mobile, Tablet, Laptop & Desktop breakpoints seamlessly.
-   ============================================================================ */
-
-/* Large Desktop (> 1200px) */
-@media (min-width: 1200px) {
-  .brand-text-dmk {
-    font-size: 1.15rem;
-  }
-  .nav-link-dmk {
-    font-size: 0.9rem;
-    padding: 6px 10px !important;
-  }
-}
-
-/* Laptop Screens (992px to 1199px) */
-@media (min-width: 992px) and (max-width: 1199px) {
-  .brand-text-dmk {
-    font-size: 1rem;
-  }
-  .nav-link-dmk {
-    font-size: 0.85rem;
-    padding: 6px 8px !important;
-  }
-  .brand-logo-img-dmk {
-    height: 38px;
-    width: 38px;
-  }
-  .hero-title {
-    font-size: 2.3rem;
-  }
-}
-
-/* Tablet Screens (768px to 991px) */
 @media (max-width: 991px) {
-  .hero-section {
-    padding: 50px 0;
-    text-align: center;
-  }
-
-  .hero-subtitle {
-    margin: 0 auto 24px auto;
-  }
-
-  .hero-badge {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .hero-stats-card {
-    margin-top: 20px;
-  }
-
-  .brand-text-dmk {
-    font-size: 1rem;
-    white-space: normal;
-    line-height: 1.2;
-  }
-
-  .mobile-menu-drawer {
-    background-color: #000000;
-    padding: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    margin-top: 10px;
-  }
-
-  .mobile-nav-item {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .mobile-nav-item:last-child {
-    border-bottom: none;
-  }
+  .section { padding: 64px 0; }
+  .cta-band { padding: 40px 28px; text-align: center; }
 }
 
-/* Mobile Screens (< 768px) */
-@media (max-width: 767px) {
-  .brand-text-dmk {
-    font-size: 0.9rem;
-  }
-
-  .brand-logo-img-dmk {
-    height: 36px;
-    width: 36px;
-  }
-
-  .hero-title {
-    font-size: 1.75rem;
-    line-height: 1.25;
-  }
-
-  .hero-subtitle {
-    font-size: 0.95rem;
-  }
-
-  .hero-section {
-    padding: 40px 0;
-  }
-
-  .wizard-step-header {
-    margin-bottom: 20px;
-  }
-
-  .wizard-step-number {
-    width: 30px;
-    height: 30px;
-    font-size: 0.8rem;
-  }
-
-  .digital-id-card-front {
-    padding: 16px;
-  }
-
-  .id-photo {
-    width: 70px;
-    height: 70px;
-  }
-
-  .verify-card {
-    padding: 20px !important;
-  }
-
-  .btn-gold, .btn-maroon {
-    width: 100%;
-    margin-bottom: 8px;
-  }
-}
-
-/* Small Mobile Screens (< 480px) */
-@media (max-width: 479px) {
-  .brand-text-dmk {
-    font-size: 0.8rem;
-  }
-
-  .hero-title {
-    font-size: 1.5rem;
-  }
-
-  .card-custom {
-    padding: 16px !important;
-  }
+@media (max-width: 575px) {
+  .section { padding: 52px 0; }
+  .page-hero { padding: 52px 0 44px; }
+  .page-body { padding: 36px 0 64px; }
+  .event-card { flex-direction: column; }
+  .date-tile { width: 64px; }
+  .id-card { padding: 16px; aspect-ratio: auto; min-height: 210px; }
+  .id-card-main { gap: 12px; }
+  .id-card-photo { width: 64px; height: 80px; }
+  .id-card-qr { width: 72px; height: 72px; }
+  .id-card-name { font-size: 1.05rem; }
+  .wizard-step span.label { display: none; }
 }

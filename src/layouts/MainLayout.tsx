@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Header } from '../components/Header/Header';
 import { Footer } from '../components/Footer/Footer';
-import { LoadingSpinner } from '../components/LoadingSpinner/LoadingSpinner';
+import { logout } from '../store/authSlice';
+import { useLanguage } from '../context/LanguageContext';
 
 export const MainLayout: React.FC = () => {
-  const [loading, setLoading] = useState(false);
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { lang } = useLanguage();
 
   useEffect(() => {
-    // Show smooth loading spinner on navigation changes
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 350);
-    return () => clearTimeout(timer);
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [location.pathname]);
+
+  useEffect(() => {
+    const onExpired = () => dispatch(logout());
+    window.addEventListener('nmpi:session-expired', onExpired);
+    return () => window.removeEventListener('nmpi:session-expired', onExpired);
+  }, [dispatch]);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {loading && <LoadingSpinner fullScreen message="Loading Netaji Iyakkam Platform..." />}
+      <a href="#main" className="skip-link">{lang === 'ta' ? 'உள்ளடக்கத்திற்குச் செல்லவும்' : 'Skip to content'}</a>
       <Header />
-      <main className="flex-grow-1">
+      <main id="main" className="flex-grow-1">
         <Outlet />
       </main>
       <Footer />

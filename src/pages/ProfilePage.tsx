@@ -1,133 +1,256 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, Navigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 import { RootState } from '../store';
-import { apiClient } from '../services/apiClient';
-import './ProfilePage.css';
+import { logout } from '../store/authSlice';
+import { useLanguage } from '../context/LanguageContext';
+import { ADMIN_URL, apiClient, downloadFile, errorMessage, formatDate, pick } from '../services/apiClient';
+import { EmptyState, ErrorBox, Loader, PageHero } from '../components/ui';
+import { DigitalIdCard } from '../components/DigitalIdCard';
 
-export const ProfilePage: React.FC = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
-  const [profile, setProfile] = useState<any>(null);
-  const [qrData, setQrData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+interface MemberProfile {
+  id: number;
+  member_id: string;
+  full_name: string;
+  father_name: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
+  country_code: string | null;
+  phone_number: string;
+  email: string | null;
+  profile_image: string | null;
+  blood_group: string | null;
+  address_line1: string | null;
+  village_custom: string | null;
+  village_name: string | null;
+  block_name: string | null;
+  block_name_ta: string | null;
+  district_name: string | null;
+  district_name_ta: string | null;
+  assembly_name: string | null;
+  assembly_name_ta: string | null;
+  parliament_name: string | null;
+  parliament_name_ta: string | null;
+  role_name: string | null;
+  status: string;
+  created_at: string;
+  aadhaar_masked: string;
+  voter_id_masked: string;
+  qr_data_url: string | null;
+}
 
-  useEffect(() => {
-    apiClient.get('/members/me')
-      .then(res => {
-        setProfile(res.data.data);
-        if (res.data.data?.id) {
-          apiClient.get(`/members/${res.data.data.id}/qr`)
-            .then(qrRes => setQrData(qrRes.data.data))
-            .catch(() => {});
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+const STATUS_CHIP: Record<string, string> = { APPROVED: 'chip-success', PENDING: 'chip-warning', REJECTED: 'chip-danger', SUSPENDED: 'chip-danger' };
+const STATUS_LABEL: Record<string, { ta: string; en: string }> = {
+  APPROVED: { ta: 'அங்கீகரிக்கப்பட்டது', en: 'Approved' },
+  PENDING: { ta: 'பரிசீலனையில்', en: 'Pending review' },
+  REJECTED: { ta: 'நிராகரிக்கப்பட்டது', en: 'Rejected' },
+  SUSPENDED: { ta: 'இடைநீக்கம்', en: 'Suspended' },
+};
 
-  if (loading) {
-    return <div className="container py-5 text-center"><div className="spinner-border text-maroon"></div></div>;
-  }
+const ChangePasswordCard: React.FC<{ ta: boolean }> = ({ ta }) => {
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  const activeProfile = profile || {
-    full_name: user?.member?.full_name || 'Verified Member',
-    member_id: user?.member?.member_id || 'ORG-2026-000003',
-    status: user?.member?.status || 'APPROVED',
-    district_name: 'Central Capital District',
-    unit_name: 'Unit 01 - Civic Center',
-    membership_type_name: 'Life Member',
-    joining_date: '2026-01-01',
-    profile_photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400'
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (next.length < 8) return setMsg({ ok: false, text: ta ? 'புதிய கடவுச்சொல் குறைந்தது 8 எழுத்துகள் இருக்க வேண்டும்.' : 'New password must be at least 8 characters.' });
+    if (next !== confirm) return setMsg({ ok: false, text: ta ? 'கடவுச்சொற்கள் பொருந்தவில்லை.' : 'Passwords do not match.' });
+    setSaving(true);
+    setMsg(null);
+    try {
+      await apiClient.post('/auth/change-password', { current_password: current, new_password: next });
+      setMsg({ ok: true, text: ta ? 'கடவுச்சொல் மாற்றப்பட்டது.' : 'Password updated.' });
+      setCurrent('');
+      setNext('');
+      setConfirm('');
+    } catch (err) {
+      setMsg({ ok: false, text: errorMessage(err) });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="container py-5">
-      <div className="row g-4">
-        {/* Left Col: Digital Identity Card */}
-        <div className="col-lg-5">
-          <div className="h5 text-maroon fw-bold mb-3"><i className="bi bi-card-heading me-2"></i>Official Digital Member ID Card</div>
-          
-          <div className="digital-id-card-front p-4 mb-3">
-            <div className="digital-id-header d-flex align-items-center justify-content-between mb-3">
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-shield-check text-gold fs-3"></i>
-                <span className="fw-bold tracking-wider text-gold small">COMMUNITY PLATFORM</span>
-              </div>
-              <span className="badge bg-gold text-maroon font-bold">VERIFIED</span>
-            </div>
-
-            <div className="d-flex gap-3 align-items-center mb-3">
-              <img
-                src={activeProfile.profile_photo || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400'}
-                alt={activeProfile.full_name}
-                className="id-photo"
-              />
-              <div>
-                <h4 className="h5 fw-bold text-white mb-1">{activeProfile.full_name}</h4>
-                <div className="text-gold fw-bold small mb-1">{activeProfile.member_id}</div>
-                <div className="small text-white-50">{activeProfile.unit_name || 'Unit 01'}</div>
-              </div>
-            </div>
-
-            <div className="d-flex justify-content-between align-items-end pt-3 border-top border-secondary">
-              <div className="small">
-                <div className="text-gold" style={{ fontSize: '0.75rem' }}>DISTRICT JURISDICTION</div>
-                <div className="fw-semibold">{activeProfile.district_name || 'Central District'}</div>
-              </div>
-
-              {qrData?.qr_data_url ? (
-                <img src={qrData.qr_data_url} alt="QR Verification" className="bg-white p-1 rounded" style={{ width: 70, height: 70 }} />
-              ) : (
-                <div className="bg-white p-1 rounded text-dark text-center" style={{ width: 70, height: 70 }}>
-                  <i className="bi bi-qr-code fs-1 text-maroon"></i>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <button className="btn btn-outline-secondary w-100" onClick={() => window.print()}>
-            <i className="bi bi-download me-2"></i>Download Digital ID Card (PDF / Print)
+    <div className="card-custom p-4">
+      <h2 className="h5 mb-3"><i className="bi bi-shield-lock me-2 text-maroon"></i>{ta ? 'கடவுச்சொல்லை மாற்று' : 'Change password'}</h2>
+      {msg && <div className={`alert small ${msg.ok ? 'alert-success' : 'alert-danger'}`} role="status">{msg.text}</div>}
+      <form onSubmit={submit} className="row g-3">
+        <div className="col-md-4">
+          <label htmlFor="pw-current" className="form-label small fw-semibold">{ta ? 'தற்போதைய கடவுச்சொல்' : 'Current password'}</label>
+          <input id="pw-current" type="password" className="form-control" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} required />
+        </div>
+        <div className="col-md-4">
+          <label htmlFor="pw-new" className="form-label small fw-semibold">{ta ? 'புதிய கடவுச்சொல்' : 'New password'}</label>
+          <input id="pw-new" type="password" className="form-control" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} required />
+        </div>
+        <div className="col-md-4">
+          <label htmlFor="pw-confirm" className="form-label small fw-semibold">{ta ? 'உறுதிப்படுத்துக' : 'Confirm new password'}</label>
+          <input id="pw-confirm" type="password" className="form-control" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
+        </div>
+        <div className="col-12">
+          <button type="submit" className="btn btn-outline-maroon" disabled={saving || !current || !next || !confirm}>
+            {saving && <span className="spinner-border spinner-border-sm me-2"></span>}
+            {ta ? 'புதுப்பி' : 'Update password'}
           </button>
         </div>
-
-        {/* Right Col: Member Account Overview */}
-        <div className="col-lg-7">
-          <div className="card-custom p-4">
-            <h5 className="text-maroon fw-bold mb-4 pb-2 border-bottom">Member Account & Security</h5>
-            
-            <div className="row g-3 small mb-4">
-              <div className="col-md-6">
-                <label className="text-muted d-block">Full Name</label>
-                <span className="fw-bold">{activeProfile.full_name}</span>
-              </div>
-              <div className="col-md-6">
-                <label className="text-muted d-block">Member ID</label>
-                <span className="fw-bold text-gold">{activeProfile.member_id || 'Pending Generation'}</span>
-              </div>
-              <div className="col-md-6">
-                <label className="text-muted d-block">Application Status</label>
-                <span className="badge bg-success">{activeProfile.status}</span>
-              </div>
-              <div className="col-md-6">
-                <label className="text-muted d-block">Membership Type</label>
-                <span className="fw-bold">{activeProfile.membership_type_name || 'Regular'}</span>
-              </div>
-              <div className="col-md-6">
-                <label className="text-muted d-block">District</label>
-                <span className="fw-bold">{activeProfile.district_name || 'Central Capital'}</span>
-              </div>
-              <div className="col-md-6">
-                <label className="text-muted d-block">Local Unit</label>
-                <span className="fw-bold">{activeProfile.unit_name || 'Unit 01'}</span>
-              </div>
-            </div>
-
-            <div className="alert alert-warning small">
-              <i className="bi bi-shield-exclamation me-2"></i>
-              To update your registered mobile number or regional unit assignment, submit an amendment request through your local unit officer.
-            </div>
-          </div>
-        </div>
-      </div>
+      </form>
     </div>
+  );
+};
+
+export const ProfilePage: React.FC = () => {
+  const { lang } = useLanguage();
+  const ta = lang === 'ta';
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { isAuthenticated, user } = useSelector((s: RootState) => s.auth);
+  const [profile, setProfile] = useState<MemberProfile | null>(null);
+  const [noMember, setNoMember] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const load = useCallback(() => {
+    if (!isAuthenticated) return;
+    setError(null);
+    apiClient
+      .get('/members/me')
+      .then((r) => setProfile(r.data.data))
+      .catch((err) => {
+        if (axios.isAxiosError(err) && err.response?.status === 404) setNoMember(true);
+        else setError(errorMessage(err));
+      });
+  }, [isAuthenticated]);
+  useEffect(load, [load]);
+
+  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+
+  const download = async () => {
+    setDownloading(true);
+    try {
+      await downloadFile('/members/me/id-card', `${profile?.member_id || 'NMPI'}_ID_Card.pdf`);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const header = (
+    <PageHero
+      eyebrow={ta ? 'உறுப்பினர் தளம்' : 'Member portal'}
+      title={`${ta ? 'வணக்கம்' : 'Welcome'}, ${profile?.full_name || user?.member?.full_name || user?.email || ''}`}
+      subtitle={ta ? 'உங்கள் டிஜிட்டல் அடையாள அட்டை மற்றும் உறுப்பினர் விவரங்கள்.' : 'Your digital ID card and membership details.'}
+    />
+  );
+
+  if (noMember) {
+    return (
+      <>
+        {header}
+        <section className="page-body">
+          <div className="container">
+            <EmptyState
+              icon="bi-person-badge"
+              title={ta ? 'இந்தக் கணக்குடன் உறுப்பினர் பதிவு இணைக்கப்படவில்லை' : 'No membership record is linked to this account'}
+              text={ta ? 'நிர்வாகிகள் நிர்வாகத் தளத்தைப் பயன்படுத்தவும்.' : 'Staff and administrators should use the admin portal.'}
+            >
+              <div className="d-flex gap-2 justify-content-center mt-2">
+                <a href={ADMIN_URL} className="btn btn-maroon">{ta ? 'நிர்வாகத் தளம்' : 'Open admin portal'}</a>
+                <button className="btn btn-outline-maroon" onClick={() => dispatch(logout())}>{ta ? 'வெளியேறு' : 'Log out'}</button>
+              </div>
+            </EmptyState>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  const location2 = profile ? [profile.village_name || profile.village_custom, pick(profile, 'block_name', lang), pick(profile, 'district_name', lang)].filter(Boolean).join(', ') : '';
+  const details: [string, React.ReactNode][] = profile
+    ? [
+        [ta ? 'உறுப்பினர் எண்' : 'Member ID', <code className="text-maroon">{profile.member_id}</code>],
+        [ta ? 'கைபேசி' : 'Mobile', `${profile.country_code || ''} ${profile.phone_number}`.trim()],
+        [ta ? 'மின்னஞ்சல்' : 'Email', profile.email || '—'],
+        [ta ? 'தந்தை / கணவர் பெயர்' : "Father's / husband's name", profile.father_name || '—'],
+        [ta ? 'பிறந்த தேதி' : 'Date of birth', profile.date_of_birth ? formatDate(profile.date_of_birth, lang) : '—'],
+        [ta ? 'பாலினம்' : 'Gender', profile.gender || '—'],
+        [ta ? 'இரத்த வகை' : 'Blood group', profile.blood_group || '—'],
+        [ta ? 'ஆதார்' : 'Aadhaar', profile.aadhaar_masked || '—'],
+        [ta ? 'வாக்காளர் அட்டை' : 'Voter ID', profile.voter_id_masked || '—'],
+        [ta ? 'நாடாளுமன்றத் தொகுதி' : 'Parliament constituency', pick(profile, 'parliament_name', lang) || '—'],
+        [ta ? 'சட்டமன்றத் தொகுதி' : 'Assembly constituency', pick(profile, 'assembly_name', lang) || '—'],
+        [ta ? 'மாவட்டம்' : 'District', pick(profile, 'district_name', lang) || '—'],
+        [ta ? 'ஒன்றியம் / தாலுகா' : 'Block / taluk', pick(profile, 'block_name', lang) || '—'],
+        [ta ? 'கிராமம் / வார்டு' : 'Village / ward', profile.village_name || profile.village_custom || '—'],
+        [ta ? 'முகவரி' : 'Address', profile.address_line1 || '—'],
+        [ta ? 'இணைந்த தேதி' : 'Joined', formatDate(profile.created_at, lang)],
+      ]
+    : [];
+
+  return (
+    <>
+      {header}
+      <section className="page-body">
+        <div className="container">
+          {error && <div className="mb-4"><ErrorBox message={error} onRetry={profile ? undefined : load} /></div>}
+          {!profile ? (
+            !error && <Loader />
+          ) : (
+            <div className="row g-4">
+              <div className="col-lg-5">
+                <div className="position-sticky" style={{ top: 'calc(var(--header-h) + 16px)' }}>
+                  <DigitalIdCard
+                    fullName={profile.full_name}
+                    memberId={profile.member_id}
+                    roleName={profile.role_name}
+                    location={location2}
+                    bloodGroup={profile.blood_group}
+                    profileImage={profile.profile_image}
+                    qrDataUrl={profile.qr_data_url}
+                  />
+                  <div className="d-flex flex-wrap gap-2 mt-3">
+                    <button className="btn btn-maroon flex-grow-1" onClick={download} disabled={downloading}>
+                      {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="bi bi-download me-2"></i>}
+                      {ta ? 'அடையாள அட்டை PDF' : 'Download ID card (PDF)'}
+                    </button>
+                    <Link to="/events" className="btn btn-outline-maroon"><i className="bi bi-calendar-event me-1"></i>{ta ? 'நிகழ்வுகள்' : 'Events'}</Link>
+                  </div>
+                  <p className="small text-muted mt-3 mb-0">
+                    <i className="bi bi-qr-code me-1"></i>
+                    {ta ? 'QR குறியீட்டை ஸ்கேன் செய்தால் உங்கள் உறுப்பினர் நிலை உறுதிப்படுத்தப்படும்.' : 'Scanning the QR code confirms your membership status with the organisation.'}
+                  </p>
+                </div>
+              </div>
+              <div className="col-lg-7 d-flex flex-column gap-4">
+                <div className="card-custom p-4">
+                  <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+                    <h2 className="h5 mb-0"><i className="bi bi-person-vcard me-2 text-maroon"></i>{ta ? 'உறுப்பினர் விவரங்கள்' : 'Membership details'}</h2>
+                    <span className={`chip ${STATUS_CHIP[profile.status] || ''}`}>{STATUS_LABEL[profile.status]?.[lang] || profile.status}</span>
+                  </div>
+                  {profile.status === 'PENDING' && (
+                    <div className="alert alert-warning small">
+                      {ta ? 'உங்கள் பதிவு நிர்வாகிகளால் மறுபரிசீலனை செய்யப்படுகிறது. அங்கீகரிக்கப்பட்ட பின் நிலை புதுப்பிக்கப்படும்.' : 'Your registration is under review by the organisation. Your status will update once it is approved.'}
+                    </div>
+                  )}
+                  <dl className="detail-grid mb-0">
+                    {details.map(([label, value]) => (
+                      <div key={label}>
+                        <dt>{label}</dt>
+                        <dd>{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+                <ChangePasswordCard ta={ta} />
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </>
   );
 };
