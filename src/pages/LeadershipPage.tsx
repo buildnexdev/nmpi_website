@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { apiClient, errorMessage, pick } from '../services/apiClient';
+import { apiClient, asArray, errorMessage, pick } from '../services/apiClient';
 import { EmptyState, ErrorBox, LeaderPhoto, Loader, PageHero } from '../components/ui';
 
 interface Executive {
@@ -28,7 +28,7 @@ export const LeadershipPage: React.FC = () => {
 
   const load = useCallback(() => {
     setError(null);
-    apiClient.get('/leadership').then((r) => setItems(r.data.data)).catch((err) => setError(errorMessage(err)));
+    apiClient.get('/leadership').then((r) => setItems(asArray(r.data.data))).catch((err) => setError(errorMessage(err)));
   }, []);
   useEffect(load, [load]);
 

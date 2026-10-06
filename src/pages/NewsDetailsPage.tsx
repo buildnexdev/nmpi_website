@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { apiClient, errorMessage, formatDate, mediaUrl, pick } from '../services/apiClient';
+import { apiClient, asArray, errorMessage, formatDate, mediaUrl, pick } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { EmptyState, Loader, NewsCard, NewsItem } from '../components/ui';
 
@@ -20,7 +20,7 @@ export const NewsDetailsPage: React.FC = () => {
       .get(`/news/${id}`)
       .then((r) => setItem(r.data.data))
       .catch((err) => setError(err.response?.status === 404 ? 'NOT_FOUND' : errorMessage(err)));
-    apiClient.get('/news', { params: { limit: 4 } }).then((r) => setRelated(r.data.data.filter((n: NewsItem) => String(n.id) !== id).slice(0, 3))).catch(() => {});
+    apiClient.get('/news', { params: { limit: 4 } }).then((r) => setRelated(asArray<NewsItem>(r.data.data).filter((n) => String(n.id) !== id).slice(0, 3))).catch(() => {});
   }, [id]);
 
   const share = async () => {

@@ -2,18 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Field, ErrorMessage, useFormikContext } from 'formik';
 import { masterDataService, ParliamentOption, AssemblyOption, DistrictOption, BlockOption, VillageOption } from '../../services/masterDataService';
+import { DuplicateChecker } from './duplicateCheck';
 
 interface IdentityLocationFormProps {
   lang?: string;
+  duplicates: DuplicateChecker;
   onBack: () => void;
   isSubmitting: boolean;
 }
 
 const optionLabel = (o: { name_en: string; name_ta?: string | null }, ta: boolean) => (ta && o.name_ta ? `${o.name_ta} (${o.name_en})` : o.name_en);
 
-export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ lang = 'en', onBack, isSubmitting }) => {
+export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ lang = 'en', duplicates, onBack, isSubmitting }) => {
   const ta = lang === 'ta';
-  const { values, setFieldValue, errors, touched } = useFormikContext<any>();
+  const { values, setFieldValue, setFieldTouched, errors, touched } = useFormikContext<any>();
   const [parliaments, setParliaments] = useState<ParliamentOption[]>([]);
   const [assemblies, setAssemblies] = useState<AssemblyOption[]>([]);
   const [districts, setDistricts] = useState<DistrictOption[]>([]);
@@ -23,7 +25,36 @@ export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ lang
   const [loadingVillages, setLoadingVillages] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
-  const invalid = (name: string) => (touched[name] && errors[name] ? 'is-invalid' : '');
+  const invalid = (name: string) => (touched[name] && errors[name]) || (duplicates.errors as any)[name] ? 'is-invalid' : '';
+  const dupFeedback = (name: 'aadhaar_number' | 'voter_id') =>
+    duplicates.errors[name] && !(touched[name] && errors[name]) ? <div className="invalid-feedback d-block">{duplicates.errors[name]}</div> : null;
+  const checkingIcon = (name: 'aadhaar_number' | 'voter_id') =>
+    duplicates.checking[name] ? <span className="spinner-border spinner-border-sm text-maroon ms-2 align-middle" aria-hidden="true"></span> : null;
+
+  // Aadhaar: keep digits only (spaces / dashes are not counted). Max 12 digits.
+  const onAadhaarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 12);
+    setFieldValue('aadhaar_number', digits);
+    duplicates.clear('aadhaar_number');
+  };
+  const onAadhaarBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 12);
+    setFieldValue('aadhaar_number', digits, true);
+    setFieldTouched('aadhaar_number', true);
+    duplicates.check('aadhaar_number', { ...values, aadhaar_number: digits });
+  };
+
+  const onVoterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleaned = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 16);
+    setFieldValue('voter_id', cleaned);
+    duplicates.clear('voter_id');
+  };
+  const onVoterBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const cleaned = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 16);
+    setFieldValue('voter_id', cleaned, true);
+    setFieldTouched('voter_id', true);
+    duplicates.check('voter_id', { ...values, voter_id: cleaned });
+  };
 
   useEffect(() => {
     Promise.all([masterDataService.getParliaments(1), masterDataService.getDistricts()])
@@ -78,14 +109,39 @@ export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ lang
       <h3 className="h6 text-uppercase text-muted fw-bold mb-3" style={{ letterSpacing: '.08em' }}>{ta ? 'அடையாளம்' : 'Identity'}</h3>
       <div className="row g-3">
         <div className="col-md-6">
-          <label htmlFor="aadhaar_number" className="form-label small fw-semibold">{ta ? 'ஆதார் எண்' : 'Aadhaar number'} *</label>
-          <Field id="aadhaar_number" name="aadhaar_number" inputMode="numeric" maxLength={14} className={`form-control ${invalid('aadhaar_number')}`} placeholder="XXXX XXXX XXXX" />
+          <label htmlFor="aadhaar_number" className="form-label small fw-semibold">{ta ? 'ஆதார் எண்' : 'Aadhaar number'} *{checkingIcon('aadhaar_number')}</label>
+          <input
+            id="aadhaar_number"
+            name="aadhaar_number"
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={12}
+            placeholder="123412341234"
+            value={values.aadhaar_number}
+            onChange={onAadhaarChange}
+            onBlur={onAadhaarBlur}
+            className={`form-control ${invalid('aadhaar_number')}`}
+          />
           <ErrorMessage name="aadhaar_number" component="div" className="invalid-feedback" />
+          {dupFeedback('aadhaar_number')}
         </div>
         <div className="col-md-6">
-          <label htmlFor="voter_id" className="form-label small fw-semibold">{ta ? 'வாக்காளர் அடையாள எண்' : 'Voter ID (EPIC) number'} *</label>
-          <Field id="voter_id" name="voter_id" className={`form-control text-uppercase ${invalid('voter_id')}`} placeholder="ABC1234567" />
+          <label htmlFor="voter_id" className="form-label small fw-semibold">{ta ? 'வாக்காளர் அடையாள எண்' : 'Voter ID (EPIC) number'} *{checkingIcon('voter_id')}</label>
+          <input
+            id="voter_id"
+            name="voter_id"
+            type="text"
+            autoComplete="off"
+            maxLength={16}
+            placeholder="ABC1234567"
+            value={values.voter_id}
+            onChange={onVoterChange}
+            onBlur={onVoterBlur}
+            className={`form-control text-uppercase ${invalid('voter_id')}`}
+          />
           <ErrorMessage name="voter_id" component="div" className="invalid-feedback" />
+          {dupFeedback('voter_id')}
         </div>
         <div className="col-12">
           <div className="small text-muted"><i className="bi bi-lock-fill me-1 text-success"></i>{ta ? 'ஆதார் மற்றும் வாக்காளர் எண்கள் குறியாக்கம் செய்து சேமிக்கப்படும்; பொதுவில் காட்டப்படாது.' : 'Aadhaar and Voter ID are stored encrypted and are never shown publicly.'}</div>

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Field, ErrorMessage, useFormikContext } from 'formik';
+import { DuplicateChecker } from './duplicateCheck';
 
 interface PersonalInformationFormProps {
   lang?: string;
+  duplicates: DuplicateChecker;
   onNext: () => void;
 }
 
@@ -18,9 +20,9 @@ const countryCodes = [
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'Unknown'];
 
-export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = ({ lang = 'en', onNext }) => {
+export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = ({ lang = 'en', duplicates, onNext }) => {
   const ta = lang === 'ta';
-  const { values, setFieldValue, errors, touched } = useFormikContext<any>();
+  const { values, setFieldValue, setFieldTouched, errors, touched } = useFormikContext<any>();
   const [showPassword, setShowPassword] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -32,7 +34,38 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
     return () => URL.revokeObjectURL(url);
   }, [values.profile_image]);
 
-  const invalid = (name: string) => (touched[name] && errors[name] ? 'is-invalid' : '');
+  const invalid = (name: string) => (touched[name] && errors[name]) || (duplicates.errors as any)[name] ? 'is-invalid' : '';
+  const dupFeedback = (name: 'phone_number' | 'email') =>
+    duplicates.errors[name] && !(touched[name] && errors[name]) ? <div className="invalid-feedback d-block">{duplicates.errors[name]}</div> : null;
+  const checkingIcon = (name: 'phone_number' | 'email') =>
+    duplicates.checking[name] ? <span className="spinner-border spinner-border-sm text-maroon ms-2 align-middle" aria-hidden="true"></span> : null;
+
+  // Mobile: digits only, max 10 (spaces, dashes, "+" are stripped as the user types)
+  const onPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFieldValue('phone_number', e.target.value.replace(/\D/g, '').slice(0, 10));
+    duplicates.clear('phone_number');
+  };
+  const onPhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setFieldValue('phone_number', digits, true);
+    setFieldTouched('phone_number', true);
+    duplicates.check('phone_number', { ...values, phone_number: digits });
+  };
+  const onCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFieldValue('country_code', e.target.value);
+    duplicates.clear('phone_number');
+  };
+
+  const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFieldValue('email', e.target.value.replace(/\s+/g, ''));
+    duplicates.clear('email');
+  };
+  const onEmailBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const email = e.target.value.replace(/\s+/g, '').trim().toLowerCase();
+    setFieldValue('email', email, true);
+    setFieldTouched('email', true);
+    duplicates.check('email', { ...values, email });
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setImageError(null);
@@ -105,28 +138,52 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
               ['OTHER', ta ? 'இதர' : 'Other'],
             ].map(([value, label]) => (
               <React.Fragment key={value}>
-                <Field type="radio" className="btn-check" name="gender" id={`gender-${value}`} value={value} />
+                <input type="radio" className="btn-check" name="gender" id={`gender-${value}`} value={value} checked={values.gender === value} onChange={() => setFieldValue('gender', value)} />
                 <label className="btn btn-outline-maroon" htmlFor={`gender-${value}`}>{label}</label>
               </React.Fragment>
             ))}
           </div>
         </div>
         <div className="col-md-6">
-          <label htmlFor="phone_number" className="form-label small fw-semibold">{ta ? 'கைபேசி எண்' : 'Mobile number'} *</label>
+          <label htmlFor="phone_number" className="form-label small fw-semibold">{ta ? 'கைபேசி எண்' : 'Mobile number'} *{checkingIcon('phone_number')}</label>
           <div className="input-group has-validation">
-            <Field as="select" name="country_code" className="form-select flex-grow-0" style={{ width: 110 }} aria-label={ta ? 'நாட்டுக் குறியீடு' : 'Country code'}>
+            <select name="country_code" value={values.country_code} onChange={onCountryChange} className="form-select flex-grow-0" style={{ width: 110 }} aria-label={ta ? 'நாட்டுக் குறியீடு' : 'Country code'}>
               {countryCodes.map((c) => (
                 <option key={c.code} value={c.code}>{c.label}</option>
               ))}
-            </Field>
-            <Field id="phone_number" name="phone_number" inputMode="numeric" autoComplete="tel-national" maxLength={10} className={`form-control ${invalid('phone_number')}`} />
+            </select>
+            <input
+              id="phone_number"
+              name="phone_number"
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="tel-national"
+              maxLength={10}
+              placeholder={ta ? '10 இலக்க எண்' : '10-digit number'}
+              value={values.phone_number}
+              onChange={onPhoneChange}
+              onBlur={onPhoneBlur}
+              className={`form-control ${invalid('phone_number')}`}
+            />
             <ErrorMessage name="phone_number" component="div" className="invalid-feedback" />
+            {dupFeedback('phone_number')}
           </div>
         </div>
         <div className="col-md-6">
-          <label htmlFor="email" className="form-label small fw-semibold">{ta ? 'மின்னஞ்சல்' : 'Email address'} *</label>
-          <Field id="email" name="email" type="email" autoComplete="email" className={`form-control ${invalid('email')}`} />
+          <label htmlFor="email" className="form-label small fw-semibold">{ta ? 'மின்னஞ்சல்' : 'Email address'} *{checkingIcon('email')}</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={values.email}
+            onChange={onEmailChange}
+            onBlur={onEmailBlur}
+            className={`form-control ${invalid('email')}`}
+          />
           <ErrorMessage name="email" component="div" className="invalid-feedback" />
+          {dupFeedback('email')}
         </div>
         <div className="col-md-6">
           <label htmlFor="password" className="form-label small fw-semibold">{ta ? 'கடவுச்சொல் உருவாக்கவும்' : 'Create password'} *</label>

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { apiClient, errorMessage } from '../services/apiClient';
+import { apiClient, asArray, errorMessage } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { EmptyState, ErrorBox, Loader, NewsCard, NewsItem, PageHero } from '../components/ui';
 
@@ -22,7 +22,7 @@ export const NewsPage: React.FC = () => {
     setItems(null);
     apiClient
       .get('/news', { params: query ? { search: query } : {} })
-      .then((r) => setItems(r.data.data))
+      .then((r) => setItems(asArray(r.data.data)))
       .catch((err) => setError(errorMessage(err)));
   }, [query]);
   useEffect(load, [load]);

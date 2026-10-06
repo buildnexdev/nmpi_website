@@ -1,20 +1,58 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, FormikErrors, FormikTouched } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
 import { useLanguage } from '../context/LanguageContext';
-import { memberService, RegisterMemberPayload } from '../services/memberService';
+import { memberService, RegisterMemberPayload, RegisteredMember } from '../services/memberService';
 import { errorMessage } from '../services/apiClient';
 import { PageHero } from '../components/ui';
 import { RegistrationProgress } from '../components/join/RegistrationProgress';
 import { PersonalInformationForm } from '../components/join/PersonalInformationForm';
 import { IdentityLocationForm } from '../components/join/IdentityLocationForm';
 import { RegistrationSuccess } from '../components/join/RegistrationSuccess';
+import { DuplicateChecker, DuplicateField } from '../components/join/duplicateCheck';
 
 type JoinValues = RegisterMemberPayload & { confirm_password: string; consent_terms: boolean };
 
-const TAB1_FIELDS = ['full_name', 'father_name', 'date_of_birth', 'gender', 'country_code', 'phone_number', 'email', 'password', 'confirm_password', 'blood_group'];
+const TAB1_FIELDS = ['full_name', 'father_name', 'date_of_birth', 'gender', 'country_code', 'phone_number', 'email', 'password', 'confirm_password', 'blood_group', 'profile_image'];
+const TAB1_DUP_FIELDS: DuplicateField[] = ['phone_number', 'email'];
+const TAB2_DUP_FIELDS: DuplicateField[] = ['aadhaar_number', 'voter_id'];
+
+/** Normalise a field exactly the way the backend does before it is compared / stored. */
+function cleanValue(field: DuplicateField, values: JoinValues): string {
+  switch (field) {
+    case 'phone_number':
+      return (values.phone_number || '').replace(/\D/g, '');
+    case 'email':
+      return (values.email || '').trim().toLowerCase();
+    case 'aadhaar_number':
+      return (values.aadhaar_number || '').replace(/\D/g, '');
+    case 'voter_id':
+      return (values.voter_id || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  }
+}
+
+/** Only hit the server once the value is complete enough to be a real candidate. */
+function isCheckable(field: DuplicateField, value: string): boolean {
+  switch (field) {
+    case 'phone_number':
+      return /^\d{10}$/.test(value);
+    case 'email':
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    case 'aadhaar_number':
+      return /^\d{12}$/.test(value);
+    case 'voter_id':
+      return value.length >= 6;
+  }
+}
+
+const DUP_MESSAGES: Record<DuplicateField, { en: string; ta: string }> = {
+  phone_number: { en: 'This mobile number is already registered.', ta: 'இந்தக் கைபேசி எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
+  email: { en: 'This email address is already registered.', ta: 'இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
+  aadhaar_number: { en: 'This Aadhaar number is already registered.', ta: 'இந்த ஆதார் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
+  voter_id: { en: 'This Voter ID is already registered.', ta: 'இந்த வாக்காளர் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
+};
 
 function isAdult(value?: string) {
   if (!value) return false;
@@ -53,12 +91,12 @@ const buildSchemas = (ta: boolean) => {
   const tab2 = yup.object({
     aadhaar_number: yup
       .string()
-      .transform((v) => (v ? v.replace(/\s+/g, '') : ''))
-      .matches(/^\d{12}$/, req('Aadhaar number must be 12 digits', 'ஆதார் எண் 12 இலக்கங்கள் இருக்க வேண்டும்'))
+      .transform((v) => (v ? String(v).replace(/\D/g, '') : ''))
+      .test('aadhaar-12', req('Aadhaar number must be 12 digits', 'ஆதார் எண் 12 இலக்கங்கள் இருக்க வேண்டும்'), (v) => /^\d{12}$/.test(v || ''))
       .required(req('Aadhaar number is required', 'ஆதார் எண் அவசியம்')),
     voter_id: yup
       .string()
-      .transform((v) => (v ? v.replace(/\s+/g, '').toUpperCase() : ''))
+      .transform((v) => (v ? String(v).replace(/[^A-Za-z0-9]/g, '').toUpperCase() : ''))
       .min(6, req('Voter ID must be at least 6 characters', 'வாக்காளர் எண் குறைந்தது 6 எழுத்துகள்'))
       .required(req('Voter ID is required', 'வாக்காளர் எண் அவசியம்')),
     parliament_constituency_id: selectRequired('Select your parliament constituency', 'நாடாளுமன்றத் தொகுதியைத் தேர்ந்தெடுக்கவும்'),
@@ -101,26 +139,79 @@ export const JoinPage: React.FC = () => {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState(1);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [registeredMember, setRegisteredMember] = useState<any | null>(null);
+  const [registeredMember, setRegisteredMember] = useState<RegisteredMember | null>(null);
   const { tab1, tab2 } = buildSchemas(ta);
+
+  // ---- Live duplicate checks (phone / email / Aadhaar / Voter ID) ----
+  const [dupErrors, setDupErrors] = useState<Partial<Record<DuplicateField, string>>>({});
+  const [dupChecking, setDupChecking] = useState<Partial<Record<DuplicateField, boolean>>>({});
+  // Remembers the last value that was checked per field so we don't re-query the same value.
+  const lastChecked = useRef<Partial<Record<DuplicateField, { value: string; exists: boolean }>>>({});
+
+  const clearDuplicate = useCallback((field: DuplicateField) => {
+    setDupErrors((prev) => {
+      if (!(field in prev)) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }, []);
+
+  /** Returns true when the value is already registered. Network failures resolve to false (the server re-checks on submit). */
+  const checkDuplicate = useCallback(
+    async (field: DuplicateField, values: JoinValues): Promise<boolean> => {
+      const value = cleanValue(field, values);
+      if (!isCheckable(field, value)) {
+        clearDuplicate(field);
+        return false;
+      }
+      const cacheKey = field === 'phone_number' ? `${values.country_code}|${value}` : value;
+      const cached = lastChecked.current[field];
+      if (cached && cached.value === cacheKey) {
+        if (cached.exists) setDupErrors((prev) => ({ ...prev, [field]: DUP_MESSAGES[field][ta ? 'ta' : 'en'] }));
+        return cached.exists;
+      }
+      setDupChecking((prev) => ({ ...prev, [field]: true }));
+      try {
+        let exists = false;
+        if (field === 'phone_number') exists = (await memberService.checkPhone(values.country_code || '+91', value)).exists;
+        else if (field === 'email') exists = (await memberService.checkEmail(value)).exists;
+        else if (field === 'aadhaar_number') exists = (await memberService.checkAadhaar(value)).exists;
+        else exists = (await memberService.checkVoterId(value)).exists;
+        lastChecked.current[field] = { value: cacheKey, exists };
+        if (exists) setDupErrors((prev) => ({ ...prev, [field]: DUP_MESSAGES[field][ta ? 'ta' : 'en'] }));
+        else clearDuplicate(field);
+        return exists;
+      } catch {
+        return false;
+      } finally {
+        setDupChecking((prev) => ({ ...prev, [field]: false }));
+      }
+    },
+    [clearDuplicate, ta]
+  );
+
+  const duplicates: DuplicateChecker = { errors: dupErrors, checking: dupChecking, check: checkDuplicate, clear: clearDuplicate };
 
   const goToTab = (tab: number) => {
     setCurrentTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleNext = async (validateForm: () => Promise<FormikErrors<JoinValues>>, setTouched: (t: FormikTouched<JoinValues>) => void) => {
+  const handleNext = async (values: JoinValues, validateForm: () => Promise<FormikErrors<JoinValues>>, setTouched: (t: FormikTouched<JoinValues>) => void) => {
     setTouched(Object.fromEntries(TAB1_FIELDS.map((f) => [f, true])) as FormikTouched<JoinValues>);
     const errors = await validateForm();
-    if (Object.keys(errors).length === 0) {
-      setSubmitError(null);
-      goToTab(2);
-    }
+    if (Object.keys(errors).length > 0) return;
+    const results = await Promise.all(TAB1_DUP_FIELDS.map((f) => checkDuplicate(f, values)));
+    if (results.some(Boolean)) return;
+    setSubmitError(null);
+    goToTab(2);
   };
 
   const failOn = (field: string, message: string, setFieldError: (f: string, m: string) => void) => {
     setSubmitError(message);
     setFieldError(field, message);
+    if (field in DUP_MESSAGES) setDupErrors((prev) => ({ ...prev, [field]: message }));
     if (TAB1_FIELDS.includes(field)) goToTab(1);
   };
 
@@ -132,19 +223,20 @@ export const JoinPage: React.FC = () => {
       return goToTab(2);
     }
     try {
-      const phone = values.phone_number.replace(/\D/g, '');
-      const aadhaar = values.aadhaar_number.replace(/\s+/g, '');
-      const voterId = values.voter_id.replace(/\s+/g, '').toUpperCase();
-      if ((await memberService.checkPhone(values.country_code, phone)).exists) {
-        return failOn('phone_number', ta ? 'இந்தக் கைபேசி எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' : 'This mobile number is already registered.', setFieldError);
+      // Re-run every duplicate check right before submitting (values may have changed since the blur checks)
+      const allDup: DuplicateField[] = [...TAB1_DUP_FIELDS, ...TAB2_DUP_FIELDS];
+      const results = await Promise.all(allDup.map((f) => checkDuplicate(f, values)));
+      const firstDup = allDup.find((_, i) => results[i]);
+      if (firstDup) {
+        return failOn(firstDup, DUP_MESSAGES[firstDup][ta ? 'ta' : 'en'], setFieldError);
       }
-      if ((await memberService.checkAadhaar(aadhaar)).exists) {
-        return failOn('aadhaar_number', ta ? 'இந்த ஆதார் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' : 'This Aadhaar number is already registered.', setFieldError);
-      }
-      if ((await memberService.checkVoterId(voterId)).exists) {
-        return failOn('voter_id', ta ? 'இந்த வாக்காளர் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' : 'This Voter ID is already registered.', setFieldError);
-      }
-      const result = await memberService.registerMember({ ...values, phone_number: phone, aadhaar_number: aadhaar, voter_id: voterId, email: values.email.trim() });
+      const result = await memberService.registerMember({
+        ...values,
+        phone_number: cleanValue('phone_number', values),
+        aadhaar_number: cleanValue('aadhaar_number', values),
+        voter_id: cleanValue('voter_id', values),
+        email: cleanValue('email', values),
+      });
       setRegisteredMember(result);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
@@ -188,12 +280,12 @@ export const JoinPage: React.FC = () => {
                   </div>
                 )}
                 <Formik initialValues={initialValues} validationSchema={currentTab === 1 ? tab1 : tab2} onSubmit={handleSubmit}>
-                  {({ validateForm, setTouched, isSubmitting }) => (
+                  {({ values, validateForm, setTouched, isSubmitting }) => (
                     <Form noValidate>
                       {currentTab === 1 ? (
-                        <PersonalInformationForm lang={lang} onNext={() => handleNext(validateForm, setTouched)} />
+                        <PersonalInformationForm lang={lang} duplicates={duplicates} onNext={() => handleNext(values, validateForm, setTouched)} />
                       ) : (
-                        <IdentityLocationForm lang={lang} onBack={() => goToTab(1)} isSubmitting={isSubmitting} />
+                        <IdentityLocationForm lang={lang} duplicates={duplicates} onBack={() => goToTab(1)} isSubmitting={isSubmitting} />
                       )}
                     </Form>
                   )}

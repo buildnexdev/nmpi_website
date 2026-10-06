@@ -38,6 +38,7 @@
   border-radius: 999px;
   border: 1px solid rgba(212, 175, 55, 0.6);
   background: rgba(255, 255, 255, 0.06);
+  color: #fff;
   font-size: 0.78rem;
   font-weight: 700;
   line-height: 1;
@@ -45,18 +46,24 @@
 .lang-toggle span {
   padding: 5px 10px;
   border-radius: 999px;
-  color: inherit;
-  opacity: 0.75;
+  color: #fff;
+  opacity: 0.85;
 }
 .lang-toggle span.on {
   background: var(--accent-gold);
-  color: var(--ink);
+  color: #fff;
   opacity: 1;
 }
 .mainbar .lang-toggle {
   border-color: var(--color-border);
   color: var(--ink-2);
   background: #fff;
+}
+.mainbar .lang-toggle span {
+  color: var(--ink-2);
+}
+.mainbar .lang-toggle span.on {
+  color: #fff;
 }
 
 /* Main bar */

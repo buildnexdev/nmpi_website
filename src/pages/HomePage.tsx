@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroSection, PublicStats } from '../components/HeroSection/HeroSection';
 import { EventCard, EventItem, LeaderPhoto, NewsCard, NewsItem } from '../components/ui';
-import { apiClient, mediaUrl, pick } from '../services/apiClient';
+import { apiClient, asArray, mediaUrl, pick } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 
 export const HomePage: React.FC = () => {
@@ -15,9 +15,9 @@ export const HomePage: React.FC = () => {
 
   useEffect(() => {
     apiClient.get('/public-stats').then((r) => setStats(r.data.data)).catch(() => {});
-    apiClient.get('/news', { params: { limit: 3 } }).then((r) => setNews(r.data.data)).catch(() => setNews([]));
-    apiClient.get('/events', { params: { upcoming: true, limit: 3 } }).then((r) => setEvents(r.data.data)).catch(() => setEvents([]));
-    apiClient.get('/leadership').then((r) => setLeaders(r.data.data.slice(0, 4))).catch(() => {});
+    apiClient.get('/news', { params: { limit: 3 } }).then((r) => setNews(asArray(r.data.data).slice(0, 3))).catch(() => setNews([]));
+    apiClient.get('/events', { params: { upcoming: true, limit: 3 } }).then((r) => setEvents(asArray(r.data.data).slice(0, 3))).catch(() => setEvents([]));
+    apiClient.get('/leadership').then((r) => setLeaders(asArray(r.data.data).slice(0, 4))).catch(() => {});
   }, []);
 
   return (

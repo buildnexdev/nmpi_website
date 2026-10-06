@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { downloadFile, errorMessage, pick } from '../../services/apiClient';
+import { RegisteredMember } from '../../services/memberService';
 import { DigitalIdCard } from '../DigitalIdCard';
 
 interface RegistrationSuccessProps {
-  member: any;
+  member: RegisteredMember;
   lang?: 'ta' | 'en';
   onLogin: () => void;
 }
@@ -17,7 +18,11 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({ member
     setDownloading(true);
     setError(null);
     try {
-      await downloadFile(`/members/id-card/download?token=${encodeURIComponent(member.id_card_token)}`, `${member.member_id}_ID_Card.pdf`);
+      const token = member.id_card_token || member.verification_token;
+      const url = token
+        ? `/members/id-card/download?token=${encodeURIComponent(token)}`
+        : `/members/${encodeURIComponent(member.member_id)}/id-card`;
+      await downloadFile(url, `${member.member_id}_ID_Card.pdf`);
     } catch (err) {
       setError(
         errorMessage(err, '') ||

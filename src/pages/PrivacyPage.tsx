@@ -20,8 +20,8 @@ const SECTIONS = [
     en: ['QR code', 'The QR code on your card holds only a random verification token. Scanning it shows your name, member ID, role, district and status — never your phone number, address or ID numbers.'],
   },
   {
-    ta: ['உங்கள் உரிமைகள்', 'உங்கள் தகவல்களைத் திருத்த அல்லது உறுப்பினர் பதிவை நீக்க contact@netajimppi.org என்ற முகவரிக்கு எழுதுங்கள்.'],
-    en: ['Your rights', 'To correct your details or delete your membership, write to contact@netajimppi.org.'],
+    ta: ['உங்கள் உரிமைகள்', 'உங்கள் தகவல்களைத் திருத்த அல்லது உறுப்பினர் பதிவை நீக்க nmpiofficial2026@gmail.com என்ற முகவரிக்கு எழுதுங்கள்.'],
+    en: ['Your rights', 'To correct your details or delete your membership, write to nmpiofficial2026@gmail.com.'],
   },
 ];
 

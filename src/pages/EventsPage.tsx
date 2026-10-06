@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { apiClient, errorMessage } from '../services/apiClient';
+import { apiClient, asArray, errorMessage } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { EmptyState, ErrorBox, EventCard, EventItem, Loader, PageHero } from '../components/ui';
 
@@ -18,7 +18,7 @@ export const EventsPage: React.FC = () => {
       .get('/events', { params })
       .then((r) => {
         const today = new Date().toISOString().slice(0, 10);
-        const list: EventItem[] = r.data.data;
+        const list: EventItem[] = asArray(r.data.data);
         setItems(tab === 'upcoming' ? list : list.filter((e) => e.event_date < today || e.status === 'COMPLETED'));
       })
       .catch((err) => setError(errorMessage(err)));
@@ -52,7 +52,7 @@ export const EventsPage: React.FC = () => {
             <ErrorBox message={error} onRetry={load} />
           ) : !items ? (
             <Loader />
-          ) : items.length === 0 ? (
+        ) : (items || []).length === 0 ? (
             <EmptyState
               icon="bi-calendar-event"
               title={tab === 'upcoming' ? (ta ? 'தற்போது வரவிருக்கும் நிகழ்வுகள் இல்லை' : 'No upcoming events right now') : ta ? 'முந்தைய நிகழ்வுகள் இல்லை' : 'No past events yet'}

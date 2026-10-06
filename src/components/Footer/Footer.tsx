@@ -86,7 +86,7 @@ export const Footer: React.FC = () => {
             <ul className="footer-contact">
               <li><i className="bi bi-geo-alt"></i><span>{ta ? 'அண்ணா சாலை, சென்னை – 600002' : 'Anna Salai, Chennai – 600002'}</span></li>
               <li><i className="bi bi-telephone"></i><a href="tel:+919790875933">+91 97908 75933</a></li>
-              <li><i className="bi bi-envelope"></i><a href="mailto:contact@netajimppi.org">contact@netajimppi.org</a></li>
+              <li><i className="bi bi-envelope"></i><a href="mailto:nmpiofficial2026@gmail.com">nmpiofficial2026@gmail.com</a></li>
             </ul>
           </div>
         </div>

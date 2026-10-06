@@ -36,6 +36,11 @@ export const memberService = {
     return res.data.data;
   },
 
+  checkEmail: async (email: string): Promise<CheckResponse> => {
+    const res = await apiClient.get(`/members/check-email?email=${encodeURIComponent(email)}`);
+    return res.data.data;
+  },
+
   checkAadhaar: async (aadhaar: string): Promise<CheckResponse> => {
     const res = await apiClient.get(`/members/check-aadhaar?aadhaar=${encodeURIComponent(aadhaar)}`);
     return res.data.data;
@@ -46,24 +51,51 @@ export const memberService = {
     return res.data.data;
   },
 
-  registerMember: async (payload: RegisterMemberPayload) => {
+  registerMember: async (payload: RegisterMemberPayload): Promise<RegisteredMember> => {
     const formData = new FormData();
     Object.keys(payload).forEach((key) => {
       const val = (payload as any)[key];
       if (val !== undefined && val !== null && val !== '' && !['confirm_password', 'consent_terms'].includes(key)) {
-        if (key === 'profile_image' && val instanceof File) {
-          formData.append('profile_image', val);
+        if (key === 'profile_image') {
+          if (val instanceof File) formData.append('profile_image', val);
         } else {
-          formData.append(key, String(val));
+          formData.append(key, String(val).trim());
         }
       }
     });
 
-    const response = await apiClient.post('/members/register', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Do not set Content-Type manually: the browser adds the multipart boundary itself.
+    const response = await apiClient.post('/members/register', formData);
     return response.data.data;
   },
 };
+
+/** Shape returned by POST /members/register (joined member row, minus encrypted identity columns). */
+export interface RegisteredMember {
+  id: number;
+  user_id: number;
+  member_id: string;
+  full_name: string;
+  father_name?: string;
+  date_of_birth?: string;
+  gender?: string;
+  country_code: string;
+  phone_number: string;
+  email: string;
+  profile_image?: string | null;
+  blood_group?: string;
+  address_line1?: string | null;
+  village_custom?: string | null;
+  village_name?: string | null;
+  block_name?: string | null;
+  block_name_ta?: string | null;
+  district_name?: string | null;
+  district_name_ta?: string | null;
+  parliament_name?: string | null;
+  parliament_name_ta?: string | null;
+  assembly_name?: string | null;
+  role_name?: string | null;
+  status: string;
+  verification_token: string;
+  id_card_token: string;
+}

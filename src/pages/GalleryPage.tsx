@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { apiClient, errorMessage, mediaUrl } from '../services/apiClient';
+import { apiClient, asArray, errorMessage, mediaUrl } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { EmptyState, ErrorBox, Loader, PageHero } from '../components/ui';
 
@@ -20,7 +20,7 @@ export const GalleryPage: React.FC = () => {
     setError(null);
     apiClient
       .get('/uploads/list')
-      .then((res) => setImages((res.data.data as UploadImage[]).filter((img) => !/logo/i.test(img.filename))))
+      .then((res) => setImages(asArray<UploadImage>(res.data.data).filter((img) => !/logo/i.test(img.filename))))
       .catch((err) => setError(errorMessage(err)));
   }, []);
   useEffect(load, [load]);

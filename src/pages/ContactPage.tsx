@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { PageHero } from '../components/ui';
 
-const CONTACT_EMAIL = 'contact@netajimppi.org';
+const CONTACT_EMAIL = 'nmpiofficial2026@gmail.com';
 const CONTACT_PHONE = '+91 97908 75933';
 
 export const ContactPage: React.FC = () => {

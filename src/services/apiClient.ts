@@ -31,6 +31,18 @@ export function errorMessage(err: any, fallback = 'Something went wrong. Please 
   return err.response?.data?.message || fallback;
 }
 
+/** Always return an array so list pages never crash on `.length`. */
+export function asArray<T = any>(value: unknown): T[] {
+  if (Array.isArray(value)) return value as T[];
+  if (value && typeof value === 'object') {
+    const o = value as Record<string, unknown>;
+    if (Array.isArray(o.items)) return o.items as T[];
+    if (Array.isArray(o.rows)) return o.rows as T[];
+    if (Array.isArray(o.data)) return o.data as T[];
+  }
+  return [];
+}
+
 export function mediaUrl(path?: string | null): string | undefined {
   if (!path) return undefined;
   if (/^(https?:|data:|blob:)/.test(path)) return path;
