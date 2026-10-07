@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { PageHero } from '../components/ui';
+import { CONTACT_ADDRESS, CONTACT_ADDRESS_TA, CONTACT_PHONE, CONTACT_PHONE_TEL, CONTACT_PHONE_WHATSAPP } from '../constants/contact';
 
 const CONTACT_EMAIL = 'nmpiofficial2026@gmail.com';
-const CONTACT_PHONE = '+91 97908 75933';
 
 export const ContactPage: React.FC = () => {
   const { lang } = useLanguage();
@@ -18,10 +18,10 @@ export const ContactPage: React.FC = () => {
   };
 
   const channels = [
-    { icon: 'bi-telephone-fill', label: ta ? 'அழைக்கவும்' : 'Call us', value: CONTACT_PHONE, href: `tel:${CONTACT_PHONE.replace(/\s+/g, '')}` },
-    { icon: 'bi-whatsapp', label: 'WhatsApp', value: CONTACT_PHONE, href: `https://wa.me/${CONTACT_PHONE.replace(/\D/g, '')}` },
+    { icon: 'bi-telephone-fill', label: ta ? 'அழைக்கவும்' : 'Call us', value: CONTACT_PHONE, href: CONTACT_PHONE_TEL },
+    { icon: 'bi-whatsapp', label: 'WhatsApp', value: CONTACT_PHONE, href: CONTACT_PHONE_WHATSAPP },
     { icon: 'bi-envelope-fill', label: ta ? 'மின்னஞ்சல்' : 'Email', value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
-    { icon: 'bi-geo-alt-fill', label: ta ? 'தலைமை அலுவலகம்' : 'Head office', value: ta ? 'அண்ணா சாலை, சென்னை, தமிழ்நாடு' : 'Anna Salai, Chennai, Tamil Nadu' },
+    { icon: 'bi-geo-alt-fill', label: ta ? 'தலைமை அலுவலகம்' : 'Head office', value: ta ? CONTACT_ADDRESS_TA : CONTACT_ADDRESS },
   ];
 
   return (

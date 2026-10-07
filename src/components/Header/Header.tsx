@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import { logout } from '../../store/authSlice';
 import { useLanguage } from '../../context/LanguageContext';
 import { mediaUrl } from '../../services/apiClient';
+import { CONTACT_CITY, CONTACT_CITY_TA, CONTACT_PHONE, CONTACT_PHONE_TEL, SOCIAL_LINKS } from '../../constants/contact';
 import './Header.css';
 
 type Label = { ta: string; en: string };
@@ -45,12 +46,6 @@ const NAV: NavEntry[] = [
   { label: { ta: 'தொடர்புக்கு', en: 'Contact' }, to: '/contact' },
 ];
 
-const SOCIALS = [
-  { href: 'https://facebook.com', icon: 'bi-facebook', label: 'Facebook' },
-  { href: 'https://instagram.com', icon: 'bi-instagram', label: 'Instagram' },
-  { href: 'https://twitter.com', icon: 'bi-twitter-x', label: 'X' },
-  { href: 'https://youtube.com', icon: 'bi-youtube', label: 'YouTube' },
-];
 
 export const Header: React.FC = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -123,13 +118,13 @@ export const Header: React.FC = () => {
         <div className="container d-flex align-items-center justify-content-between">
           <span>
             <i className="bi bi-geo-alt-fill me-1"></i>
-            {lang === 'ta' ? 'தமிழ்நாடு மாநில தலைமையகம்' : 'Tamil Nadu State Headquarters'}
+            {lang === 'ta' ? CONTACT_CITY_TA : CONTACT_CITY}
             <span className="mx-3 opacity-50">|</span>
-            <a href="tel:+919790875933"><i className="bi bi-telephone-fill me-1"></i>+91 97908 75933</a>
+            <a href={CONTACT_PHONE_TEL}><i className="bi bi-telephone-fill me-1"></i>{CONTACT_PHONE}</a>
           </span>
           <div className="d-flex align-items-center gap-3">
             <div className="d-flex gap-1">
-              {SOCIALS.map((s) => (
+              {SOCIAL_LINKS.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="topbar-social" aria-label={s.label}>
                   <i className={`bi ${s.icon}`}></i>
                 </a>
@@ -265,8 +260,11 @@ export const Header: React.FC = () => {
               <Link to="/join" className="btn btn-gold flex-fill">{lang === 'ta' ? 'இணையுங்கள்' : 'Join'}</Link>
             </div>
           )}
+          <a href={CONTACT_PHONE_TEL} className="d-flex justify-content-center align-items-center gap-2 mt-3 text-decoration-none">
+            <i className="bi bi-telephone-fill"></i>{CONTACT_PHONE}
+          </a>
           <div className="d-flex justify-content-center gap-2 mt-3">
-            {SOCIALS.map((s) => (
+            {SOCIAL_LINKS.map((s) => (
               <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="drawer-social" aria-label={s.label}>
                 <i className={`bi ${s.icon}`}></i>
               </a>

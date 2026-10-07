@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { ADMIN_URL } from '../../services/apiClient';
+import { CONTACT_ADDRESS, CONTACT_ADDRESS_TA, CONTACT_PHONE, CONTACT_PHONE_TEL, SOCIAL_LINKS } from '../../constants/contact';
 import './Footer.css';
 
 export const Footer: React.FC = () => {
@@ -43,7 +44,7 @@ export const Footer: React.FC = () => {
     <footer className="site-footer">
       <div className="container">
         <div className="row g-5">
-          <div className="col-lg-4">
+          <div className="col-lg-3">
             <div className="footer-brand">
               <img src="/logo.jpg" alt="" />
               <div>
@@ -57,14 +58,9 @@ export const Footer: React.FC = () => {
                 : "A people's movement working for the rights, welfare and safety of the public in the spirit of Netaji Subhas Chandra Bose."}
             </p>
             <div className="footer-social">
-              {[
-                ['https://facebook.com', 'bi-facebook', 'Facebook'],
-                ['https://instagram.com', 'bi-instagram', 'Instagram'],
-                ['https://twitter.com', 'bi-twitter-x', 'X'],
-                ['https://youtube.com', 'bi-youtube', 'YouTube'],
-              ].map(([href, icon, label]) => (
-                <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label}>
-                  <i className={`bi ${icon}`}></i>
+              {SOCIAL_LINKS.map((s) => (
+                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label}>
+                  <i className={`bi ${s.icon}`}></i>
                 </a>
               ))}
             </div>
@@ -81,11 +77,11 @@ export const Footer: React.FC = () => {
             </div>
           ))}
 
-          <div className="col-md-12 col-lg-2">
+          <div className="col-md-12 col-lg-3">
             <h5 className="footer-heading">{ta ? 'தலைமை அலுவலகம்' : 'Head Office'}</h5>
             <ul className="footer-contact">
-              <li><i className="bi bi-geo-alt"></i><span>{ta ? 'அண்ணா சாலை, சென்னை – 600002' : 'Anna Salai, Chennai – 600002'}</span></li>
-              <li><i className="bi bi-telephone"></i><a href="tel:+919790875933">+91 97908 75933</a></li>
+              <li><i className="bi bi-geo-alt"></i><span>{ta ? CONTACT_ADDRESS_TA : CONTACT_ADDRESS}</span></li>
+              <li><i className="bi bi-telephone"></i><a href={CONTACT_PHONE_TEL}>{CONTACT_PHONE}</a></li>
               <li><i className="bi bi-envelope"></i><a href="mailto:nmpiofficial2026@gmail.com">nmpiofficial2026@gmail.com</a></li>
             </ul>
           </div>

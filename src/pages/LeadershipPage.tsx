@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { apiClient, asArray, errorMessage, pick } from '../services/apiClient';
 import { EmptyState, ErrorBox, LeaderPhoto, Loader, PageHero } from '../components/ui';
+import { CONTACT_PHONE, CONTACT_PHONE_TEL } from '../constants/contact';
 
 interface Executive {
   id: number;
@@ -13,7 +14,6 @@ interface Executive {
   district_ta: string | null;
   qualification: string | null;
   photo_url: string | null;
-  phone: string | null;
   email: string | null;
   bio: string | null;
 }
@@ -91,20 +91,17 @@ export const LeadershipPage: React.FC = () => {
                       <div className="mt-2"><span className="gold-badge"><i className="bi bi-geo-alt-fill"></i>{pick(l, 'district', lang)}</span></div>
                     )}
                     {l.bio && <p className="small text-muted mt-3 mb-0">{l.bio}</p>}
-                    {(l.phone || l.email) && (
-                      <div className="d-flex justify-content-center gap-2 mt-auto pt-3">
-                        {l.phone && (
-                          <a href={`tel:${l.phone.replace(/\s+/g, '')}`} className="btn btn-sm btn-outline-maroon" aria-label={`${ta ? 'அழைக்க' : 'Call'} ${l.name}`}>
-                            <i className="bi bi-telephone"></i>
-                          </a>
-                        )}
-                        {l.email && (
-                          <a href={`mailto:${l.email}`} className="btn btn-sm btn-outline-maroon" aria-label={`Email ${l.name}`}>
-                            <i className="bi bi-envelope"></i>
-                          </a>
-                        )}
-                      </div>
-                    )}
+                    <div className="d-flex justify-content-center gap-2 mt-auto pt-3">
+                      <a href={CONTACT_PHONE_TEL} className="btn btn-sm btn-outline-maroon" aria-label={`${ta ? 'அழைக்க' : 'Call'} ${CONTACT_PHONE}`}>
+                        <i className="bi bi-telephone"></i>
+                        <span className="ms-1">{CONTACT_PHONE}</span>
+                      </a>
+                      {l.email && (
+                        <a href={`mailto:${l.email}`} className="btn btn-sm btn-outline-maroon" aria-label={`Email ${l.name}`}>
+                          <i className="bi bi-envelope"></i>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
