@@ -10,12 +10,12 @@ export const PageHero: React.FC<{ eyebrow?: string; title: string; subtitle?: st
   image,
   children,
 }) => {
-  const { lang } = useLanguage();
+  const { t } = useLanguage();
   return (
     <section className="page-hero" style={image ? ({ '--page-hero-image': `url(${image})` } as React.CSSProperties) : undefined}>
       <div className="container position-relative" style={{ zIndex: 1 }}>
-        <nav className="breadcrumb-lite mb-3" aria-label="Breadcrumb">
-          <Link to="/">{lang === 'ta' ? 'முகப்பு' : 'Home'}</Link>
+        <nav className="breadcrumb-lite mb-3" aria-label={t('ui.breadcrumbAria')}>
+          <Link to="/">{t('common.home')}</Link>
           <span>/</span>
           <span>{title}</span>
         </nav>
@@ -29,11 +29,11 @@ export const PageHero: React.FC<{ eyebrow?: string; title: string; subtitle?: st
 };
 
 export const Loader: React.FC<{ label?: string }> = ({ label }) => {
-  const { lang } = useLanguage();
+  const { t } = useLanguage();
   return (
     <div className="state-box" role="status">
       <div className="spinner-border text-maroon"></div>
-      <span>{label || (lang === 'ta' ? 'ஏற்றுகிறது...' : 'Loading...')}</span>
+      <span>{label || t('common.loading')}</span>
     </div>
   );
 };
@@ -48,7 +48,7 @@ export const EmptyState: React.FC<{ icon?: string; title: string; text?: string;
 );
 
 export const ErrorBox: React.FC<{ message: string; onRetry?: () => void }> = ({ message, onRetry }) => {
-  const { lang } = useLanguage();
+  const { t } = useLanguage();
   return (
     <div className="state-box">
       <i className="bi bi-wifi-off state-icon"></i>
@@ -56,7 +56,7 @@ export const ErrorBox: React.FC<{ message: string; onRetry?: () => void }> = ({ 
       {onRetry && (
         <button className="btn btn-sm btn-outline-maroon" onClick={onRetry}>
           <i className="bi bi-arrow-clockwise me-1"></i>
-          {lang === 'ta' ? 'மீண்டும் முயற்சிக்கவும்' : 'Try again'}
+          {t('common.tryAgain')}
         </button>
       )}
     </div>
@@ -92,7 +92,7 @@ export interface NewsItem {
 }
 
 export const NewsCard: React.FC<{ item: NewsItem }> = ({ item }) => {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const cover = mediaUrl(item.cover_image);
   return (
     <Link to={`/news/${item.id}`} className="card-custom card-hover news-card">
@@ -105,7 +105,7 @@ export const NewsCard: React.FC<{ item: NewsItem }> = ({ item }) => {
         <h3 className="news-card-title">{pick(item, 'title', lang)}</h3>
         <p className="news-card-summary">{pick(item, 'summary', lang)}</p>
         <span className="read-more">
-          {lang === 'ta' ? 'மேலும் படிக்க' : 'Read more'} <i className="bi bi-arrow-right"></i>
+          {t('common.readMore')} <i className="bi bi-arrow-right"></i>
         </span>
       </div>
     </Link>
@@ -128,28 +128,34 @@ export interface EventItem {
   capacity?: number;
 }
 
-export const EVENT_STATUS_LABEL: Record<string, { ta: string; en: string; cls: string }> = {
-  UPCOMING: { ta: 'வரவிருக்கிறது', en: 'Upcoming', cls: '' },
-  ONGOING: { ta: 'நடைபெறுகிறது', en: 'Happening now', cls: 'chip-success' },
-  COMPLETED: { ta: 'நிறைவடைந்தது', en: 'Completed', cls: 'chip-warning' },
-  CANCELLED: { ta: 'ரத்து செய்யப்பட்டது', en: 'Cancelled', cls: 'chip-danger' },
+export interface EventStatusLabel {
+  /** Translation key; render with `t(status.key)`. */
+  key: string;
+  cls: string;
+}
+
+export const EVENT_STATUS_LABEL: Record<string, EventStatusLabel> = {
+  UPCOMING: { key: 'ui.eventStatus.upcoming', cls: '' },
+  ONGOING: { key: 'ui.eventStatus.ongoing', cls: 'chip-success' },
+  COMPLETED: { key: 'ui.eventStatus.completed', cls: 'chip-warning' },
+  CANCELLED: { key: 'ui.eventStatus.cancelled', cls: 'chip-danger' },
 };
 
 export const EventCard: React.FC<{ item: EventItem }> = ({ item }) => {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const status = EVENT_STATUS_LABEL[item.status];
   return (
     <Link to={`/events/${item.id}`} className="card-custom card-hover event-card">
       <DateTile date={item.event_date} />
       <div className="min-w-0 d-flex flex-column">
-        {status && item.status !== 'UPCOMING' && <span className={`chip ${status.cls} align-self-start mb-2`}>{status[lang]}</span>}
+        {status && item.status !== 'UPCOMING' && <span className={`chip ${status.cls} align-self-start mb-2`}>{t(status.key)}</span>}
         <h3 className="h5 mb-2">{pick(item, 'title', lang)}</h3>
         <div className="event-meta mb-2">
           <span><i className="bi bi-clock"></i>{formatTime(item.start_time)}{item.end_time ? ` – ${formatTime(item.end_time)}` : ''}</span>
           <span><i className="bi bi-geo-alt"></i>{item.location}</span>
         </div>
         <span className="read-more mt-auto">
-          {lang === 'ta' ? 'விவரங்கள்' : 'View details'} <i className="bi bi-arrow-right"></i>
+          {t('common.viewDetails')} <i className="bi bi-arrow-right"></i>
         </span>
       </div>
     </Link>

@@ -1,0 +1,846 @@
+{
+  "nmpi": "nethaji Makkal nithi mayam",
+  "about": "About",
+  "common": {
+    "brandName": "Netaji Makkal Pathukappu Iyakkam",
+    "brandSubtitle": "Tamil Nadu State Assembly",
+    "home": "Home",
+    "loading": "Loading...",
+    "tryAgain": "Try again",
+    "readMore": "Read more",
+    "viewDetails": "View details",
+    "viewAll": "View all",
+    "learnMore": "Learn more",
+    "registerNow": "Register now",
+    "joinUs": "Join Us",
+    "joinMovement": "Join the movement",
+    "memberLogin": "Member Login",
+    "language": "Language",
+    "langTamil": "தமிழ்",
+    "langEnglish": "English",
+    "pageUpdatedSoon": "This page will be updated soon.",
+    "back": "Back",
+    "close": "Close",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "search": "Search",
+    "required": "This field is required"
+  },
+  "nav": {
+    "home": "Home",
+    "party": "Iyakkam",
+    "aboutParty": "About Iyakkam",
+    "ideology": "Ideology & Principles",
+    "actions": "Actions & Initiatives",
+    "leadership": "Leadership",
+    "achievements": "Achievements",
+    "organization": "Organization",
+    "more": "More",
+    "events": "Events",
+    "news": "News & Bulletins",
+    "gallery": "Gallery",
+    "history": "History",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
+  "loginPage": {
+    "eyebrow": "Member portal",
+    "artTitle": "Your digital identity, in one place.",
+    "artText": "View your profile, QR-verified ID card and membership status.",
+    "logoAlt": "NMPI",
+    "title": "Member login",
+    "subtitle": "Use the email or mobile number you registered with",
+    "loginLabel": "Email or mobile number",
+    "passwordLabel": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "signIn": "Sign in",
+    "notMember": "Not a member yet?",
+    "registerFree": "Register for free",
+    "invalidCredentials": "Invalid email/mobile number or password."
+  },
+  "profilePage": {
+    "eyebrow": "Member portal",
+    "welcome": "Welcome, {name}",
+    "subtitle": "Your digital ID card and membership details.",
+    "noMemberTitle": "No membership record is linked to this account",
+    "noMemberText": "Staff and administrators should use the admin portal.",
+    "openAdminPortal": "Open admin portal",
+    "logout": "Log out",
+    "downloadIdCard": "Download ID card (PDF)",
+    "qrNote": "Scanning the QR code confirms your membership status with the organisation.",
+    "membershipDetails": "Membership details",
+    "pendingNotice": "Your registration is under review by the organisation. Your status will update once it is approved.",
+    "status": {
+      "APPROVED": "Approved",
+      "PENDING": "Pending review",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended"
+    },
+    "fields": {
+      "memberId": "Member ID",
+      "mobile": "Mobile",
+      "email": "Email",
+      "fatherName": "Father's / husband's name",
+      "dateOfBirth": "Date of birth",
+      "gender": "Gender",
+      "bloodGroup": "Blood group",
+      "aadhaar": "Aadhaar",
+      "voterId": "Voter ID",
+      "parliament": "Parliament constituency",
+      "assembly": "Assembly constituency",
+      "district": "District",
+      "block": "Block / taluk",
+      "village": "Village / ward",
+      "address": "Address",
+      "joined": "Joined"
+    },
+    "changePassword": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Update password",
+      "tooShort": "New password must be at least 8 characters.",
+      "mismatch": "Passwords do not match.",
+      "success": "Password updated."
+    }
+  },
+  "verifyPage": {
+    "logoAlt": "NMPI",
+    "eyebrow": "Member verification",
+    "verifying": "Verifying...",
+    "invalidQrTitle": "Invalid QR code",
+    "couldNotVerify": "Could not verify",
+    "invalidQrText": "This QR code does not match any member. The card may not be genuine.",
+    "goHome": "Go to homepage",
+    "checkedAt": "Checked at {time}",
+    "verdicts": {
+      "APPROVED": {
+        "title": "Verified member",
+        "note": "This person is an active, approved member of the organisation."
+      },
+      "PENDING": {
+        "title": "Approval pending",
+        "note": "This registration is genuine but has not been approved yet."
+      },
+      "REJECTED": {
+        "title": "Not a valid member",
+        "note": "This registration was rejected."
+      },
+      "SUSPENDED": {
+        "title": "Membership suspended",
+        "note": "This membership is currently suspended."
+      }
+    },
+    "fields": {
+      "memberId": "Member ID",
+      "role": "Role",
+      "district": "District",
+      "block": "Block / taluk",
+      "parliament": "Parliament constituency",
+      "bloodGroup": "Blood group",
+      "memberSince": "Member since"
+    }
+  },
+  "privacyPage": {
+    "eyebrow": "Legal",
+    "title": "Privacy Policy",
+    "sections": [
+      {
+        "heading": "Information we collect",
+        "text": "Name, father's/husband's name, date of birth, gender, mobile number, email, blood group, an optional photo, Aadhaar and Voter ID numbers, and your constituency and address details."
+      },
+      {
+        "heading": "How we use it",
+        "text": "Only for membership registration, identity verification, communication and running the organisation. We never sell it or share it with third parties."
+      },
+      {
+        "heading": "Security",
+        "text": "Aadhaar and Voter ID numbers are stored encrypted. Coordinators can only see members in their own area, and even then only the last four digits."
+      },
+      {
+        "heading": "QR code",
+        "text": "The QR code on your card holds only a random verification token. Scanning it shows your name, member ID, role, district and status — never your phone number, address or ID numbers."
+      },
+      {
+        "heading": "Your rights",
+        "text": "To correct your details or delete your membership, write to nmpiofficial2026@gmail.com."
+      }
+    ]
+  },
+  "termsPage": {
+    "eyebrow": "Legal",
+    "title": "Terms & Conditions",
+    "sections": [
+      {
+        "heading": "Eligibility",
+        "text": "Any Indian citizen aged 18 or over may become a member."
+      },
+      {
+        "heading": "Accurate information",
+        "text": "Everything you provide must be true and your own. Registrations found to be false may be cancelled."
+      },
+      {
+        "heading": "ID card",
+        "text": "The digital ID card remains the property of the organisation. Misusing it or lending it to others is not allowed."
+      },
+      {
+        "heading": "Conduct",
+        "text": "Members must act lawfully, with discipline and respect for others."
+      },
+      {
+        "heading": "Suspension",
+        "text": "The organisation may suspend or cancel the membership of anyone who breaks these terms."
+      }
+    ]
+  },
+  "joinPage": {
+    "eyebrow": "Membership",
+    "subtitle": "Free registration — get your QR-verified digital ID card in two simple steps.",
+    "submitFailed": "Could not submit your registration.",
+    "duplicates": {
+      "phoneNumber": "This mobile number is already registered.",
+      "email": "This email address is already registered.",
+      "aadhaarNumber": "This Aadhaar number is already registered.",
+      "voterId": "This Voter ID is already registered."
+    },
+    "whatYouGet": "What you get",
+    "benefits": [
+      "A unique member ID",
+      "Digital ID card with QR verification",
+      "Updates on events and news",
+      "A direct line to district leaders"
+    ],
+    "keepReady": "Keep these ready",
+    "keepReadyText": "Your Aadhaar number, Voter ID number and, optionally, a photo.",
+    "alreadyMember": "Already a member?",
+    "logIn": "Log in"
+  },
+  "joinForm": {
+    "validation": {
+      "fullNameMin": "Enter your full name",
+      "fullNameRequired": "Full name is required",
+      "fatherNameRequired": "Father's / husband's name is required",
+      "dobRequired": "Date of birth is required",
+      "dobAdult": "You must be at least 18 years old to join",
+      "phoneInvalid": "Enter a 10-digit mobile number",
+      "phoneRequired": "Mobile number is required",
+      "emailInvalid": "Enter a valid email address",
+      "emailRequired": "Email is required",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordRequired": "Password is required",
+      "passwordMismatch": "Passwords do not match",
+      "confirmPasswordRequired": "Please confirm your password",
+      "aadhaarInvalid": "Aadhaar number must be 12 digits",
+      "aadhaarRequired": "Aadhaar number is required",
+      "voterIdMin": "Voter ID must be at least 6 characters",
+      "voterIdRequired": "Voter ID is required",
+      "parliamentRequired": "Select your parliament constituency",
+      "districtRequired": "Select your district",
+      "blockRequired": "Select your taluk / block",
+      "consentRequired": "Please accept the Privacy Policy and Terms to continue"
+    },
+    "profilePhoto": "Profile photo",
+    "optional": "optional",
+    "profilePhotoHint": "Printed on your ID card. JPG, PNG or WEBP, up to 5 MB.",
+    "change": "Change",
+    "upload": "Upload",
+    "remove": "Remove",
+    "imageTypeError": "Please choose a JPG, PNG or WEBP image.",
+    "imageSizeError": "The image must be smaller than 5 MB.",
+    "fullName": "Full name",
+    "fatherName": "Father's / husband's name",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "genderOther": "Other",
+    "mobileNumber": "Mobile number",
+    "countryCode": "Country code",
+    "phonePlaceholder": "10-digit number",
+    "email": "Email address",
+    "createPassword": "Create password",
+    "passwordPlaceholder": "At least 8 characters",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "confirmPassword": "Confirm password",
+    "bloodGroup": "Blood group",
+    "bloodGroupUnknown": "Not sure",
+    "continue": "Continue",
+    "loadError": "Could not load constituency and district lists. Please refresh the page.",
+    "identity": "Identity",
+    "aadhaarNumber": "Aadhaar number",
+    "voterId": "Voter ID (EPIC) number",
+    "encryptedNote": "Aadhaar and Voter ID are stored encrypted and are never shown publicly.",
+    "constituencyAddress": "Constituency & address",
+    "parliamentConstituency": "Parliament constituency",
+    "assemblyConstituency": "Assembly constituency",
+    "selectPlaceholder": "-- Select --",
+    "district": "District",
+    "talukBlock": "Taluk / block",
+    "village": "Village / panchayat",
+    "villagePlaceholder": "Type your village name",
+    "joinAs": "I want to join as",
+    "roleMember": "Member",
+    "roleVolunteer": "Volunteer",
+    "address": "Door no. & street address",
+    "consentPrefix": "I confirm the information above is accurate and I agree to the ",
+    "consentPrivacy": "Privacy Policy",
+    "consentAnd": " and ",
+    "consentTerms": "Terms & Conditions",
+    "consentSuffix": ". *",
+    "registering": "Registering...",
+    "submitRegistration": "Submit registration"
+  },
+  "registrationProgress": {
+    "ariaLabel": "Registration steps",
+    "steps": {
+      "personal": "Personal details",
+      "identity": "Identity & location",
+      "idCard": "Digital ID card"
+    }
+  },
+  "registrationSuccess": {
+    "title": "Registration complete!",
+    "welcome": "Welcome to the movement",
+    "keepIdSafe": "Keep your member ID safe. Download the official card with its QR code now, or log in any time to get it again.",
+    "downloadExpired": "The download link has expired. Log in and download it from your profile.",
+    "downloadIdCard": "Download ID card (PDF)",
+    "logIn": "Log in to your account"
+  },
+  "membershipPage": {
+    "eyebrow": "Membership",
+    "title": "Membership is free",
+    "subtitle": "No fees, ever. All we ask for is your time and commitment.",
+    "tiers": {
+      "member": {
+        "title": "Member",
+        "points": [
+          "Digital ID card with QR verification",
+          "Take part in public meetings and events",
+          "Organisation news and announcements",
+          "Direct contact with district leaders"
+        ]
+      },
+      "volunteer": {
+        "title": "Volunteer",
+        "points": [
+          "Everything a member gets",
+          "Field service and relief work",
+          "Help run awareness camps",
+          "First in line for responsibilities"
+        ]
+      }
+    },
+    "mostPopular": "Most popular",
+    "free": "Free",
+    "registerNow": "Register now",
+    "howItWorks": "How it works",
+    "threeSteps": "Three simple steps",
+    "stepNumber": "Step {number}",
+    "steps": [
+      {
+        "title": "Fill in your details",
+        "text": "Name, mobile number, email and a password."
+      },
+      {
+        "title": "Identity & constituency",
+        "text": "Aadhaar, Voter ID and where you live."
+      },
+      {
+        "title": "Get your ID card",
+        "text": "Download your QR-verified card instantly."
+      }
+    ]
+  },
+  "leadershipPage": {
+    "eyebrow": "Leadership",
+    "title": "District Executives",
+    "subtitle": "The district secretaries and office-bearers leading the movement across Tamil Nadu.",
+    "searchPlaceholder": "Search by name or district",
+    "searchAria": "Search",
+    "districtAria": "District",
+    "allDistricts": "All districts",
+    "count": "{count} executives",
+    "emptyTitle": "No executives match your search",
+    "callAria": "Call {phone}",
+    "emailAria": "Email {name}"
+  },
+  "eventsPage": {
+    "eyebrow": "Calendar",
+    "title": "Events & Meetings",
+    "subtitle": "Public meetings, rallies and community programmes across Tamil Nadu.",
+    "tabUpcoming": "Upcoming",
+    "tabPast": "Past events",
+    "emptyUpcomingTitle": "No upcoming events right now",
+    "emptyPastTitle": "No past events yet",
+    "emptyUpcomingText": "New events will appear here as soon as they are announced."
+  },
+  "eventDetailsPage": {
+    "notFound": "Event not found",
+    "backToEvents": "Back to events",
+    "breadcrumbEvents": "Events",
+    "aboutEvent": "About this event",
+    "capacity": "Up to {count} people",
+    "addToCalendar": "Add to calendar",
+    "openInMaps": "Open in Maps",
+    "allEvents": "← All events"
+  },
+  "newsPage": {
+    "eyebrow": "Official updates",
+    "title": "News & Announcements",
+    "subtitle": "The latest statements, announcements and field reports from the movement.",
+    "searchPlaceholder": "Search news",
+    "searchAria": "Search",
+    "allCategories": "All",
+    "emptyNoMatch": "No matching news",
+    "emptyNoNews": "No news yet"
+  },
+  "newsDetailsPage": {
+    "notFound": "Article not found",
+    "backToNews": "Back to news",
+    "breadcrumbNews": "News",
+    "allNews": "All news",
+    "share": "Share",
+    "linkCopied": "Link copied",
+    "shareFallbackTitle": "NMPI",
+    "moreNews": "More news"
+  },
+  "galleryPage": {
+    "eyebrow": "Media",
+    "title": "Photo Gallery",
+    "subtitle": "Moments from field programmes, public meetings and community service.",
+    "emptyTitle": "No photos yet",
+    "openPhotoAria": "Open photo {number}",
+    "viewerAria": "Photo viewer",
+    "previousAria": "Previous",
+    "nextAria": "Next"
+  },
+  "faqPage": {
+    "eyebrow": "Help",
+    "title": "Frequently Asked Questions",
+    "items": [
+      {
+        "q": "Is there a membership fee?",
+        "a": "No. Registration is completely free."
+      },
+      {
+        "q": "How do I get my digital ID card?",
+        "a": "You can download it straight after registering. Later, log in and download it again any time from your profile page."
+      },
+      {
+        "q": "Does the QR code expose my phone number or address?",
+        "a": "No. The QR code holds only a secure verification token. Scanning it shows just your name, member ID, district and status."
+      },
+      {
+        "q": "Are my Aadhaar and Voter ID safe?",
+        "a": "Yes. Both are stored encrypted, and even administrators only see the last four digits."
+      },
+      {
+        "q": "My status says \"Pending\" or \"Suspended\". Why?",
+        "a": "Area coordinators can put a registration under review or suspend it. Please contact your district team or our office."
+      },
+      {
+        "q": "I forgot my password. What should I do?",
+        "a": "Contact our office and we will help after verifying your identity. If you are logged in, you can change it on your profile page."
+      }
+    ],
+    "stillQuestion": "Still have a question?",
+    "contactUs": "Contact us"
+  },
+  "contactPage": {
+    "eyebrow": "Contact",
+    "title": "Get in touch",
+    "subtitle": "Reach our team for questions, grievances or help on the ground.",
+    "channelCall": "Call us",
+    "channelWhatsapp": "WhatsApp",
+    "channelEmail": "Email",
+    "channelOffice": "Head office",
+    "formTitle": "Send us a message",
+    "formNote": "This opens the message in your email app, addressed to our office.",
+    "nameLabel": "Your name",
+    "phoneLabel": "Mobile number",
+    "subjectLabel": "Subject",
+    "messageLabel": "Message",
+    "send": "Send message",
+    "defaultSubject": "Website enquiry"
+  },
+  "homePage": {
+    "aboutImageAlt": "State general council",
+    "badgeTitle": "In the path of Netaji",
+    "badgeValues": "Discipline · Service · Sacrifice",
+    "aboutEyebrow": "Who we are",
+    "aboutTitle": "United for every citizen's rights and safety",
+    "aboutLead": "Netaji Makkal Pathukappu Iyakkam works on the ground in every district of Tamil Nadu for livelihoods, public safety and social justice.",
+    "aboutPoints": [
+      "Structured leadership in every district",
+      "Legal aid and rights protection",
+      "Digital ID card with QR verification"
+    ],
+    "districtExecutives": "District executives",
+    "benefitsEyebrow": "Member benefits",
+    "benefitsTitle": "Why join the movement?",
+    "benefitsLead": "Membership is free. Your digital ID card is issued the moment you register.",
+    "benefits": [
+      {
+        "title": "Digital ID card",
+        "text": "An official member card with a unique ID and QR verification — also available in the mobile app."
+      },
+      {
+        "title": "Legal aid & protection",
+        "text": "Support for members' rights through the movement's legal wing."
+      },
+      {
+        "title": "District network",
+        "text": "Connect directly with your district, taluk and unit coordinators."
+      }
+    ],
+    "newsEyebrow": "Latest updates",
+    "newsTitle": "News & announcements",
+    "allNews": "All news",
+    "noNews": "News will be published here soon.",
+    "eventsEyebrow": "Calendar",
+    "eventsTitle": "Upcoming events",
+    "allEvents": "All events",
+    "noEvents": "No upcoming events right now — check back soon.",
+    "leadershipEyebrow": "Leadership",
+    "ctaTitle": "Join the movement today",
+    "ctaText": "Free registration · Instant member number · Digital ID card with QR verification"
+  },
+  "aboutPage": {
+    "eyebrow": "About us",
+    "fallbackTitle": "About Netaji Makkal Pathukappu Iyakkam",
+    "valuesTitle": "Our core values",
+    "values": [
+      "Public safety",
+      "Social justice",
+      "Transparent administration",
+      "Discipline and service"
+    ],
+    "ctaText": "Free registration and an instant digital ID card."
+  },
+  "ideologyPage": {
+    "eyebrow": "Ideology",
+    "title": "Policies & Principles",
+    "subtitle": "Guided by Netaji Subhas Chandra Bose's ideals of patriotic service, discipline and equality.",
+    "policiesTitle": "Policies & Principles",
+    "principles": [
+      {
+        "title": "Creating a Drug-Free India",
+        "text": "We will work towards creating a drug-free India. Strict action will be taken against those involved in tobacco, cannabis, alcohol, injectable drugs, tablets and other forms of substance abuse."
+      },
+      {
+        "title": "Protection of Women and Children",
+        "text": "The safety and protection of women, girls and children will be ensured. Appropriate measures will be taken to protect children and provide them with a safe environment."
+      },
+      {
+        "title": "Free Education & Free Medical Care",
+        "text": "Free education and free medical treatment should reach the people effectively and directly."
+      },
+      {
+        "title": "Free Ambulance & Auto Services",
+        "text": "Free ambulance services will be established in every district. Free auto services will also be arranged for senior citizens and persons with disabilities."
+      },
+      {
+        "title": "Employment Opportunities for Youth",
+        "text": "Employment camps will be conducted for educated youngsters, and employment opportunities will be created by connecting them with leading companies."
+      },
+      {
+        "title": "“Food Is the Medicine for Hunger”",
+        "text": "Under the initiative “Food Is the Medicine for Hunger,” arrangements will be made to provide food to poor and needy people every day, with support available around the clock."
+      },
+      {
+        "title": "A Caste-Free Society",
+        "text": "We will work beyond language, religion and caste differences. A local office will be established in every area to promote equality and a caste-free society."
+      },
+      {
+        "title": "Government Welfare Schemes for People",
+        "text": "District-level administrators will be appointed to identify people living below the poverty line and ensure that government welfare schemes reach them directly, helping improve their livelihood."
+      },
+      {
+        "title": "Free Medical Assistance",
+        "text": "Free medical insurance/support and assistance will be provided to needy patients to help them receive quality medical treatment."
+      },
+      {
+        "title": "“Our Women Are the Eyes of the Nation”",
+        "text": "Under the initiative “Our Women Are the Eyes of the Nation,” support groups, employment opportunities and assistance through vocational opportunities/loans will be provided for widowed women."
+      }
+    ],
+    "welfareTitle": "Administration & People’s Welfare Activities",
+    "welfare": [
+      {
+        "title": "“Your Vote Is Your Right”",
+        "text": "People will be educated about the importance of their vote through regular awareness programmes and small public consultation meetings under the theme “Your Vote Is Your Right.”"
+      },
+      {
+        "title": "Addressing Local Problems",
+        "text": "Every Sunday, our administrators should visit their respective areas, streets and local branches, identify public issues and conduct meetings with our volunteers to find solutions."
+      },
+      {
+        "title": "Dedication to People’s Welfare",
+        "text": "Every administrator should consider the welfare of the people as their highest responsibility and work with complete dedication to protect their rights and welfare."
+      },
+      {
+        "title": "Support During Temple & Public Events",
+        "text": "During temple festivals, Jallikattu events and other major public functions, local administrators and volunteers should work together to arrange water stalls, buttermilk stalls and other public service facilities."
+      },
+      {
+        "title": "“A Journey Towards Freedom Again”",
+        "text": "Once every three months, or once a month where necessary, public awareness programmes will be conducted under the theme “A Journey Towards Freedom Again.”"
+      },
+      {
+        "title": "Action Against Non-Performing Administrators",
+        "text": "Administrators who continuously fail to perform their responsibilities for six months will be removed from their positions. The movement will not provide them with opportunities to contest in future elections."
+      },
+      {
+        "title": "Low-Cost Tuition Centres",
+        "text": "Low-cost tuition centres will be established to support children’s education and improve their future opportunities."
+      },
+      {
+        "title": "District Offices",
+        "text": "District presidents and district secretaries should work together to establish offices in every district. This should be implemented as soon as possible."
+      },
+      {
+        "title": "Free Legal Consultation Centres",
+        "text": "With the assistance of police personnel and legal professionals, free legal consultation centres should be established in every district to help people with legal issues."
+      }
+    ]
+  },
+  "founder": {
+    "eyebrow": "Our message",
+    "movement": "Nethaji People’s Protection Movement",
+    "goal": [
+      "Our Goal!",
+      "For the People!",
+      "We Will Always Stand With You!!"
+    ],
+    "role": "Founder & General Secretary",
+    "name": "Jeyaram Pandiyan",
+    "slogans": [
+      "Let Us Unite!",
+      "Protecting the People Is Our Duty!",
+      "Let Us Move Forward Together!!"
+    ],
+    "photoAlt": "Jeyaram Pandiyan – Founder & General Secretary",
+    "readPolicies": "Read our policies"
+  },
+  "actionsPage": {
+    "eyebrow": "Our work",
+    "title": "Actions & Community Initiatives",
+    "subtitle": "The service work our members carry out across Tamil Nadu.",
+    "actions": [
+      {
+        "title": "Secure member identity",
+        "text": "QR-verified digital ID cards so anyone can confirm a genuine member."
+      },
+      {
+        "title": "Disaster relief",
+        "text": "Rapid relief and support for families during natural calamities."
+      },
+      {
+        "title": "Blood donation camps",
+        "text": "Regular district-level donation camps and emergency donor support."
+      },
+      {
+        "title": "Awareness drives",
+        "text": "Campaigns on legal rights, personal safety and public health."
+      },
+      {
+        "title": "Green initiatives",
+        "text": "Tree planting and protection of local water bodies."
+      },
+      {
+        "title": "Youth guidance",
+        "text": "Leadership and skills training for students and young people."
+      }
+    ],
+    "upcomingEvents": "Upcoming events",
+    "joinContribute": "Join and contribute"
+  },
+  "achievementsPage": {
+    "title": "Key Achievements",
+    "subtitle": "Milestones in protecting public rights and fostering community welfare.",
+    "figures": {
+      "members": "Registered members",
+      "leaders": "District executives",
+      "districts": "Districts covered",
+      "upcomingEvents": "Upcoming events"
+    },
+    "milestones": [
+      {
+        "title": "Member safety & rights",
+        "text": "Every member receives a QR-verified digital identity card."
+      },
+      {
+        "title": "Eco & community welfare",
+        "text": "Blood donation drives, tree planting and awareness rallies."
+      },
+      {
+        "title": "Youth empowerment",
+        "text": "Leadership training and career guidance for student volunteers."
+      }
+    ]
+  },
+  "historyPage": {
+    "eyebrow": "Our journey",
+    "fallbackTitle": "History of the Movement"
+  },
+  "structurePage": {
+    "eyebrow": "Organisation",
+    "fallbackTitle": "Organisational Structure",
+    "level": "Level {level}",
+    "tiers": [
+      {
+        "title": "State leadership",
+        "text": "State executive and general council"
+      },
+      {
+        "title": "District",
+        "text": "District secretary and coordinators"
+      },
+      {
+        "title": "Taluk / Block",
+        "text": "Taluk coordinators"
+      },
+      {
+        "title": "Unit",
+        "text": "Village and ward representatives"
+      }
+    ],
+    "meetExecutives": "Meet the district executives"
+  },
+  "wingsPage": {
+    "eyebrow": "Organisation wings",
+    "title": "Our Wings",
+    "subtitle": "Dedicated wings serving every section of society across Tamil Nadu.",
+    "wings": {
+      "youth": {
+        "name": "Youth Wing",
+        "description": "Empowering young leaders across Tamil Nadu to champion civic rights and social justice."
+      },
+      "women": {
+        "name": "Women Protection Wing",
+        "description": "Dedicated to women empowerment, safety, legal aid, and self-reliance initiatives."
+      },
+      "student": {
+        "name": "Student Wing",
+        "description": "Fostering education welfare, scholarships, leadership development in schools & colleges."
+      },
+      "legal": {
+        "name": "Legal Rights Wing",
+        "description": "Providing pro-bono legal consultation and fighting public interest cases for members."
+      },
+      "itMedia": {
+        "name": "IT & Digital Media Wing",
+        "description": "Managing digital outreach, portal development, member verify apps, and social campaigns."
+      },
+      "farmers": {
+        "name": "Farmers & Environment Wing",
+        "description": "Supporting agricultural rights, water body conservation, and green Tamil Nadu tree drives."
+      }
+    },
+    "ctaTitle": "Want to serve in a wing?",
+    "ctaText": "Register as a volunteer and your district team will get in touch.",
+    "ctaButton": "Join as a volunteer"
+  },
+  "header": {
+    "nav": {
+      "movement": "About",
+      "aboutUs": "About Us",
+      "ideology": "Ideology",
+      "actions": "Actions",
+      "organisation": "Organisation",
+      "districtExecutives": "District Executives",
+      "structure": "Structure",
+      "wings": "Wings",
+      "media": "Media",
+      "news": "News",
+      "contact": "Contact"
+    },
+    "mainNavAria": "Main",
+    "brandHomeAria": "NMPI home",
+    "switchLanguage": "தமிழுக்கு மாறவும்",
+    "langEnShort": "EN",
+    "myAccount": "My account",
+    "myDigitalId": "My Digital ID",
+    "signOut": "Sign out",
+    "login": "Login",
+    "join": "Join",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "movement": "The Movement",
+    "members": "Members",
+    "newsMedia": "News & Media",
+    "becomeMember": "Become a Member",
+    "membershipBenefits": "Membership Benefits",
+    "tagline": "A people's movement working for the rights, welfare and safety of the public in the spirit of Netaji Subhas Chandra Bose.",
+    "headOffice": "Head Office",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "adminPortal": "Admin portal",
+    "builtBy": "Built by"
+  },
+  "hero": {
+    "pill": "Tamil Nadu's people's protection movement",
+    "titleLead": "Netaji Makkal",
+    "titleHighlight": "Pathukappu Iyakkam",
+    "lead": "A disciplined people's movement for public rights, social welfare and safety — guided by the ideals of Netaji Subhas Chandra Bose.",
+    "becomeMember": "Become a member",
+    "aboutMovement": "About the movement",
+    "slideAria": "Slide {number}",
+    "prevSlide": "Previous photo",
+    "nextSlide": "Next photo",
+    "points": [
+      "Free membership",
+      "QR-verified digital ID card",
+      "Leadership in every district"
+    ],
+    "values": "Discipline · Service · Sacrifice",
+    "slides": {
+      "stateGeneralCouncil": "State General Council",
+      "zonalConference": "Zonal Conference & Rally",
+      "districtMeeting": "District Executives Meeting",
+      "protectionCampaign": "Public Protection Campaign"
+    },
+    "stats": {
+      "members": "Verified members",
+      "leaders": "District executives",
+      "districts": "Districts covered",
+      "upcomingEvents": "Upcoming events"
+    }
+  },
+  "ui": {
+    "breadcrumbAria": "Breadcrumb",
+    "eventStatus": {
+      "upcoming": "Upcoming",
+      "ongoing": "Happening now",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "idCard": {
+    "ariaLabel": "Digital member ID card",
+    "subtitle": "Member identity card",
+    "defaultRole": "Member",
+    "qrAlt": "Verification QR code"
+  },
+  "layout": {
+    "skipToContent": "Skip to content"
+  },
+  "notFoundPage": {
+    "title": "Page not found",
+    "text": "The page you are looking for may have been moved or removed.",
+    "backHome": "Back to home"
+  },
+  "contactInfo": {
+    "address": "111, Cauvery Complex, Opp. to Rukmani Theatre, Woraiyur, Trichy 620004",
+    "city": "Woraiyur, Trichy"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Cannot reach the server right now. Please try again shortly."
+  }
+}

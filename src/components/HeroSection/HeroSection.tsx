@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { mediaUrl } from '../../services/apiClient';
+import founderImage from '../../assets/FounderImage.jpg';
 import './HeroSection.css';
 
 export interface PublicStats {
@@ -12,89 +13,130 @@ export interface PublicStats {
 }
 
 const SLIDES = [
-  { image: '/uploads/IMG-20260925-WA0072.jpg', ta: 'மாநில பொதுக்குழு', en: 'State General Council' },
-  { image: '/uploads/IMG-20260925-WA0000.jpg', ta: 'மண்டல மாநாடு & பேரணி', en: 'Zonal Conference & Rally' },
-  { image: '/uploads/IMG-20260925-WA0010.jpg', ta: 'மாவட்ட நிர்வாகிகள் கூட்டம்', en: 'District Executives Meeting' },
-  { image: '/uploads/IMG-20260925-WA0011.jpg', ta: 'மக்கள் பாதுகாப்பு பிரச்சாரம்', en: 'Public Protection Campaign' },
+  { image: '/uploads/IMG-20260925-WA0072.jpg', captionKey: 'hero.slides.stateGeneralCouncil' },
+  { image: '/uploads/IMG-20260925-WA0000.jpg', captionKey: 'hero.slides.zonalConference' },
+  { image: '/uploads/IMG-20260925-WA0010.jpg', captionKey: 'hero.slides.districtMeeting' },
+  { image: '/uploads/IMG-20260925-WA0011.jpg', captionKey: 'hero.slides.protectionCampaign' },
 ];
 
-export const HeroSection: React.FC<{ stats: PublicStats | null }> = ({ stats }) => {
-  const { lang } = useLanguage();
+const STAT_ITEMS: { field: keyof PublicStats; labelKey: string; icon: string }[] = [
+  { field: 'members', labelKey: 'hero.stats.members', icon: 'bi-people-fill' },
+  { field: 'leaders', labelKey: 'hero.stats.leaders', icon: 'bi-person-badge-fill' },
+  { field: 'districts', labelKey: 'hero.stats.districts', icon: 'bi-geo-alt-fill' },
+  { field: 'upcoming_events', labelKey: 'hero.stats.upcomingEvents', icon: 'bi-calendar-event-fill' },
+];
+
+/** `stats`: undefined while loading, null when the request failed (the stats bar is then hidden). */
+export const HeroSection: React.FC<{ stats: PublicStats | null | undefined }> = ({ stats }) => {
+  const { t, tRaw } = useLanguage();
   const [slide, setSlide] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const points = tRaw<string[]>('hero.points') ?? [];
+
+  const go = useCallback((step: number) => setSlide((s) => (s + step + SLIDES.length) % SLIDES.length), []);
 
   useEffect(() => {
-    const timer = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 7000);
+    if (paused) return;
+    const timer = setInterval(() => go(1), 6000);
     return () => clearInterval(timer);
-  }, []);
-
-  const statItems = [
-    { value: stats?.members, ta: 'சரிபார்க்கப்பட்ட உறுப்பினர்கள்', en: 'Verified members' },
-    { value: stats?.leaders, ta: 'மாவட்ட நிர்வாகிகள்', en: 'District executives' },
-    { value: stats?.districts, ta: 'மாவட்டங்கள்', en: 'Districts covered' },
-    { value: stats?.upcoming_events, ta: 'வரவிருக்கும் நிகழ்வுகள்', en: 'Upcoming events' },
-  ];
+  }, [go, paused, slide]);
 
   return (
     <section className="hero">
-      <div className="hero-slides" aria-hidden="true">
-        {SLIDES.map((s, i) => (
-          <div key={s.image} className={`hero-slide ${i === slide ? 'active' : ''}`} style={{ backgroundImage: `url(${mediaUrl(s.image)}), url(/hero-banner.jpg)` }} />
-        ))}
-      </div>
-      <div className="hero-overlay"></div>
+      <div className="hero-bg" aria-hidden="true"></div>
 
       <div className="container hero-content">
-        <div className="row align-items-center">
-          <div className="col-lg-8 col-xl-7">
+        <div className="row align-items-center g-5">
+          <div className="col-lg-6">
             <span className="hero-pill">
               <i className="bi bi-shield-fill-check"></i>
-              {lang === 'ta' ? 'தமிழ்நாடு மக்கள் பாதுகாப்பு இயக்கம்' : "Tamil Nadu's people's protection movement"}
+              {t('hero.pill')}
             </span>
             <h1 className="hero-title">
-              {lang === 'ta' ? (
-                <>நேதாஜி மக்கள் <span>பாதுகாப்பு இயக்கம்</span></>
-              ) : (
-                <>Netaji Makkal <span>Pathukappu Iyakkam</span></>
-              )}
+              {t('hero.titleLead')} <span>{t('hero.titleHighlight')}</span>
             </h1>
-            <p className="hero-lead">
-              {lang === 'ta'
-                ? 'நேதாஜி சுபாஷ் சந்திர போஸ் அவர்களின் கொள்கை வழியில் மக்களின் உரிமைகள், சமூக நலன் மற்றும் பாதுகாப்பிற்கான ஒழுக்கமிக்க மக்கள் இயக்கம்.'
-                : "A disciplined people's movement for public rights, social welfare and safety — guided by the ideals of Netaji Subhas Chandra Bose."}
-            </p>
+            <p className="hero-lead">{t('hero.lead')}</p>
+            <ul className="hero-points">
+              {points.map((point) => (
+                <li key={point}><i className="bi bi-check-circle-fill"></i>{point}</li>
+              ))}
+            </ul>
             <div className="d-flex flex-wrap gap-3">
               <Link to="/join" className="btn btn-gold btn-lg">
                 <i className="bi bi-person-plus-fill me-2"></i>
-                {lang === 'ta' ? 'உறுப்பினராக இணையுங்கள்' : 'Become a member'}
+                {t('hero.becomeMember')}
               </Link>
               <Link to="/about" className="btn btn-ghost-light btn-lg">
-                {lang === 'ta' ? 'இயக்கம் பற்றி' : 'About the movement'}
+                {t('hero.aboutMovement')}
                 <i className="bi bi-arrow-right ms-2"></i>
               </Link>
             </div>
           </div>
-        </div>
 
-        <div className="hero-caption d-none d-md-flex">
-          <span>{lang === 'ta' ? SLIDES[slide].ta : SLIDES[slide].en}</span>
-          <div className="hero-dots">
-            {SLIDES.map((_, i) => (
-              <button key={i} type="button" className={i === slide ? 'active' : ''} onClick={() => setSlide(i)} aria-label={`Slide ${i + 1}`} />
-            ))}
+          <div className="col-lg-6">
+            <div className="hero-visual" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+              <div className="hero-frame">
+                {SLIDES.map((s, i) => (
+                  <div
+                    key={s.image}
+                    className={`hero-slide ${i === slide ? 'active' : ''}`}
+                    style={{ backgroundImage: `url(${mediaUrl(s.image)}), url(/hero-banner.jpg)` }}
+                    role="img"
+                    aria-label={t(s.captionKey)}
+                    aria-hidden={i !== slide}
+                  />
+                ))}
+                <div className="hero-frame-bar">
+                  <span className="hero-frame-caption">{t(SLIDES[slide].captionKey)}</span>
+                  <div className="hero-dots">
+                    {SLIDES.map((_, i) => (
+                      <button key={i} type="button" className={i === slide ? 'active' : ''} onClick={() => setSlide(i)} aria-label={t('hero.slideAria', { number: i + 1 })} />
+                    ))}
+                  </div>
+                </div>
+                <button type="button" className="hero-arrow prev" onClick={() => go(-1)} aria-label={t('hero.prevSlide')}>
+                  <i className="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" className="hero-arrow next" onClick={() => go(1)} aria-label={t('hero.nextSlide')}>
+                  <i className="bi bi-chevron-right"></i>
+                </button>
+              </div>
+
+              <div className="hero-founder">
+                <img src={founderImage} alt={t('founder.photoAlt')} />
+                <div>
+                  <strong>{t('founder.name')}</strong>
+                  <span>{t('founder.role')}</span>
+                </div>
+              </div>
+              <div className="hero-values d-none d-sm-flex">
+                <img src="/logo.jpg" alt="" />
+                <span>{t('hero.values')}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container hero-stats-wrap">
-        <div className="hero-stats">
-          {statItems.map((s) => (
-            <div className="hero-stat" key={s.en}>
-              <div className="hero-stat-value">{s.value === undefined ? '—' : s.value.toLocaleString('en-IN')}</div>
-              <div className="hero-stat-label">{s[lang]}</div>
-            </div>
-          ))}
+      {stats !== null && (
+        <div className="container hero-stats-wrap">
+          <div className="hero-stats">
+            {STAT_ITEMS.map((s) => (
+              <div className="hero-stat" key={s.field}>
+                <span className="hero-stat-icon"><i className={`bi ${s.icon}`}></i></span>
+                <div>
+                  {stats === undefined ? (
+                    <div className="hero-stat-skeleton" aria-hidden="true"></div>
+                  ) : (
+                    <div className="hero-stat-value">{(stats[s.field] ?? 0).toLocaleString('en-IN')}</div>
+                  )}
+                  <div className="hero-stat-label">{t(s.labelKey)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };

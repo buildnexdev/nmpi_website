@@ -10,16 +10,12 @@ interface Stats {
   upcoming_events: number;
 }
 
-const MILESTONES = [
-  { icon: 'bi-shield-check', ta: ['உறுப்பினர் பாதுகாப்பு', 'அனைத்து உறுப்பினர்களுக்கும் QR சரிபார்ப்பு டிஜிட்டல் அடையாள அட்டை.'], en: ['Member safety & rights', 'Every member receives a QR-verified digital identity card.'] },
-  { icon: 'bi-tree-fill', ta: ['சுற்றுச்சூழல் & சமூகம்', 'இரத்த தான முகாம்கள், மரக்கன்று நடுதல் மற்றும் விழிப்புணர்வு நிகழ்வுகள்.'], en: ['Eco & community welfare', 'Blood donation drives, tree planting and awareness rallies.'] },
-  { icon: 'bi-mortarboard-fill', ta: ['இளைஞர் வழிகாட்டுதல்', 'மாணவர்களுக்குத் தலைமைப்பண்பு மற்றும் வேலைவாய்ப்பு திறன் பயிற்சி.'], en: ['Youth empowerment', 'Leadership training and career guidance for student volunteers.'] },
-];
+const MILESTONE_ICONS = ['bi-shield-check', 'bi-tree-fill', 'bi-mortarboard-fill'];
 
 export const AchievementsPage: React.FC = () => {
-  const { lang } = useLanguage();
-  const ta = lang === 'ta';
+  const { t, tRaw } = useLanguage();
   const [stats, setStats] = useState<Stats | null>(null);
+  const milestones = tRaw<{ title: string; text: string }[]>('achievementsPage.milestones') ?? [];
 
   useEffect(() => {
     apiClient.get('/public-stats').then((r) => setStats(r.data.data)).catch(() => setStats(null));
@@ -27,19 +23,19 @@ export const AchievementsPage: React.FC = () => {
 
   const figures = stats
     ? [
-        { value: stats.members, label: ta ? 'பதிவு செய்த உறுப்பினர்கள்' : 'Registered members' },
-        { value: stats.leaders, label: ta ? 'மாவட்ட நிர்வாகிகள்' : 'District executives' },
-        { value: stats.districts, label: ta ? 'மாவட்டங்கள்' : 'Districts covered' },
-        { value: stats.upcoming_events, label: ta ? 'வரவிருக்கும் நிகழ்வுகள்' : 'Upcoming events' },
+        { value: stats.members, label: t('achievementsPage.figures.members') },
+        { value: stats.leaders, label: t('achievementsPage.figures.leaders') },
+        { value: stats.districts, label: t('achievementsPage.figures.districts') },
+        { value: stats.upcoming_events, label: t('achievementsPage.figures.upcomingEvents') },
       ]
     : [];
 
   return (
     <>
       <PageHero
-        eyebrow={ta ? 'சாதனைகள்' : 'Achievements'}
-        title={ta ? 'இயக்கத்தின் முக்கிய சாதனைகள்' : 'Key Achievements'}
-        subtitle={ta ? 'மக்களின் உரிமைகளைப் பாதுகாக்கவும் சமூக வளர்ச்சிக்குமான தொடர் பணிகள்.' : 'Milestones in protecting public rights and fostering community welfare.'}
+        eyebrow={t('nav.achievements')}
+        title={t('achievementsPage.title')}
+        subtitle={t('achievementsPage.subtitle')}
       />
       <section className="page-body">
         <div className="container">
@@ -56,12 +52,12 @@ export const AchievementsPage: React.FC = () => {
             </div>
           )}
           <div className="row g-4">
-            {MILESTONES.map((m) => (
-              <div className="col-md-4" key={m.icon}>
+            {MILESTONE_ICONS.map((icon, i) => (
+              <div className="col-md-4" key={icon}>
                 <div className="card-custom card-hover feature-tile text-center h-100">
-                  <div className="feature-icon mx-auto"><i className={`bi ${m.icon}`}></i></div>
-                  <h2 className="h5">{ta ? m.ta[0] : m.en[0]}</h2>
-                  <p className="mb-0">{ta ? m.ta[1] : m.en[1]}</p>
+                  <div className="feature-icon mx-auto"><i className={`bi ${icon}`}></i></div>
+                  <h2 className="h5">{milestones[i]?.title}</h2>
+                  <p className="mb-0">{milestones[i]?.text}</p>
                 </div>
               </div>
             ))}

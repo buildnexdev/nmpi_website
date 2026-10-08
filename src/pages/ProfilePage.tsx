@@ -41,14 +41,9 @@ interface MemberProfile {
 }
 
 const STATUS_CHIP: Record<string, string> = { APPROVED: 'chip-success', PENDING: 'chip-warning', REJECTED: 'chip-danger', SUSPENDED: 'chip-danger' };
-const STATUS_LABEL: Record<string, { ta: string; en: string }> = {
-  APPROVED: { ta: 'அங்கீகரிக்கப்பட்டது', en: 'Approved' },
-  PENDING: { ta: 'பரிசீலனையில்', en: 'Pending review' },
-  REJECTED: { ta: 'நிராகரிக்கப்பட்டது', en: 'Rejected' },
-  SUSPENDED: { ta: 'இடைநீக்கம்', en: 'Suspended' },
-};
 
-const ChangePasswordCard: React.FC<{ ta: boolean }> = ({ ta }) => {
+const ChangePasswordCard: React.FC = () => {
+  const { t } = useLanguage();
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -57,13 +52,13 @@ const ChangePasswordCard: React.FC<{ ta: boolean }> = ({ ta }) => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (next.length < 8) return setMsg({ ok: false, text: ta ? 'புதிய கடவுச்சொல் குறைந்தது 8 எழுத்துகள் இருக்க வேண்டும்.' : 'New password must be at least 8 characters.' });
-    if (next !== confirm) return setMsg({ ok: false, text: ta ? 'கடவுச்சொற்கள் பொருந்தவில்லை.' : 'Passwords do not match.' });
+    if (next.length < 8) return setMsg({ ok: false, text: t('profilePage.changePassword.tooShort') });
+    if (next !== confirm) return setMsg({ ok: false, text: t('profilePage.changePassword.mismatch') });
     setSaving(true);
     setMsg(null);
     try {
       await apiClient.post('/auth/change-password', { current_password: current, new_password: next });
-      setMsg({ ok: true, text: ta ? 'கடவுச்சொல் மாற்றப்பட்டது.' : 'Password updated.' });
+      setMsg({ ok: true, text: t('profilePage.changePassword.success') });
       setCurrent('');
       setNext('');
       setConfirm('');
@@ -76,25 +71,25 @@ const ChangePasswordCard: React.FC<{ ta: boolean }> = ({ ta }) => {
 
   return (
     <div className="card-custom p-4">
-      <h2 className="h5 mb-3"><i className="bi bi-shield-lock me-2 text-maroon"></i>{ta ? 'கடவுச்சொல்லை மாற்று' : 'Change password'}</h2>
+      <h2 className="h5 mb-3"><i className="bi bi-shield-lock me-2 text-maroon"></i>{t('profilePage.changePassword.title')}</h2>
       {msg && <div className={`alert small ${msg.ok ? 'alert-success' : 'alert-danger'}`} role="status">{msg.text}</div>}
       <form onSubmit={submit} className="row g-3">
         <div className="col-md-4">
-          <label htmlFor="pw-current" className="form-label small fw-semibold">{ta ? 'தற்போதைய கடவுச்சொல்' : 'Current password'}</label>
+          <label htmlFor="pw-current" className="form-label small fw-semibold">{t('profilePage.changePassword.current')}</label>
           <input id="pw-current" type="password" className="form-control" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} required />
         </div>
         <div className="col-md-4">
-          <label htmlFor="pw-new" className="form-label small fw-semibold">{ta ? 'புதிய கடவுச்சொல்' : 'New password'}</label>
+          <label htmlFor="pw-new" className="form-label small fw-semibold">{t('profilePage.changePassword.new')}</label>
           <input id="pw-new" type="password" className="form-control" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} required />
         </div>
         <div className="col-md-4">
-          <label htmlFor="pw-confirm" className="form-label small fw-semibold">{ta ? 'உறுதிப்படுத்துக' : 'Confirm new password'}</label>
+          <label htmlFor="pw-confirm" className="form-label small fw-semibold">{t('profilePage.changePassword.confirm')}</label>
           <input id="pw-confirm" type="password" className="form-control" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
         </div>
         <div className="col-12">
           <button type="submit" className="btn btn-outline-maroon" disabled={saving || !current || !next || !confirm}>
             {saving && <span className="spinner-border spinner-border-sm me-2"></span>}
-            {ta ? 'புதுப்பி' : 'Update password'}
+            {t('profilePage.changePassword.submit')}
           </button>
         </div>
       </form>
@@ -103,8 +98,7 @@ const ChangePasswordCard: React.FC<{ ta: boolean }> = ({ ta }) => {
 };
 
 export const ProfilePage: React.FC = () => {
-  const { lang } = useLanguage();
-  const ta = lang === 'ta';
+  const { lang, t, tRaw } = useLanguage();
   const dispatch = useDispatch();
   const location = useLocation();
   const { isAuthenticated, user } = useSelector((s: RootState) => s.auth);
@@ -141,9 +135,9 @@ export const ProfilePage: React.FC = () => {
 
   const header = (
     <PageHero
-      eyebrow={ta ? 'உறுப்பினர் தளம்' : 'Member portal'}
-      title={`${ta ? 'வணக்கம்' : 'Welcome'}, ${profile?.full_name || user?.member?.full_name || user?.email || ''}`}
-      subtitle={ta ? 'உங்கள் டிஜிட்டல் அடையாள அட்டை மற்றும் உறுப்பினர் விவரங்கள்.' : 'Your digital ID card and membership details.'}
+      eyebrow={t('profilePage.eyebrow')}
+      title={t('profilePage.welcome', { name: profile?.full_name || user?.member?.full_name || user?.email || '' })}
+      subtitle={t('profilePage.subtitle')}
     />
   );
 
@@ -155,12 +149,12 @@ export const ProfilePage: React.FC = () => {
           <div className="container">
             <EmptyState
               icon="bi-person-badge"
-              title={ta ? 'இந்தக் கணக்குடன் உறுப்பினர் பதிவு இணைக்கப்படவில்லை' : 'No membership record is linked to this account'}
-              text={ta ? 'நிர்வாகிகள் நிர்வாகத் தளத்தைப் பயன்படுத்தவும்.' : 'Staff and administrators should use the admin portal.'}
+              title={t('profilePage.noMemberTitle')}
+              text={t('profilePage.noMemberText')}
             >
               <div className="d-flex gap-2 justify-content-center mt-2">
-                <a href={ADMIN_URL} className="btn btn-maroon">{ta ? 'நிர்வாகத் தளம்' : 'Open admin portal'}</a>
-                <button className="btn btn-outline-maroon" onClick={() => dispatch(logout())}>{ta ? 'வெளியேறு' : 'Log out'}</button>
+                <a href={ADMIN_URL} className="btn btn-maroon">{t('profilePage.openAdminPortal')}</a>
+                <button className="btn btn-outline-maroon" onClick={() => dispatch(logout())}>{t('profilePage.logout')}</button>
               </div>
             </EmptyState>
           </div>
@@ -172,22 +166,22 @@ export const ProfilePage: React.FC = () => {
   const location2 = profile ? [profile.village_name || profile.village_custom, pick(profile, 'block_name', lang), pick(profile, 'district_name', lang)].filter(Boolean).join(', ') : '';
   const details: [string, React.ReactNode][] = profile
     ? [
-        [ta ? 'உறுப்பினர் எண்' : 'Member ID', <code className="text-maroon">{profile.member_id}</code>],
-        [ta ? 'கைபேசி' : 'Mobile', `${profile.country_code || ''} ${profile.phone_number}`.trim()],
-        [ta ? 'மின்னஞ்சல்' : 'Email', profile.email || '—'],
-        [ta ? 'தந்தை / கணவர் பெயர்' : "Father's / husband's name", profile.father_name || '—'],
-        [ta ? 'பிறந்த தேதி' : 'Date of birth', profile.date_of_birth ? formatDate(profile.date_of_birth, lang) : '—'],
-        [ta ? 'பாலினம்' : 'Gender', profile.gender || '—'],
-        [ta ? 'இரத்த வகை' : 'Blood group', profile.blood_group || '—'],
-        [ta ? 'ஆதார்' : 'Aadhaar', profile.aadhaar_masked || '—'],
-        [ta ? 'வாக்காளர் அட்டை' : 'Voter ID', profile.voter_id_masked || '—'],
-        [ta ? 'நாடாளுமன்றத் தொகுதி' : 'Parliament constituency', pick(profile, 'parliament_name', lang) || '—'],
-        [ta ? 'சட்டமன்றத் தொகுதி' : 'Assembly constituency', pick(profile, 'assembly_name', lang) || '—'],
-        [ta ? 'மாவட்டம்' : 'District', pick(profile, 'district_name', lang) || '—'],
-        [ta ? 'ஒன்றியம் / தாலுகா' : 'Block / taluk', pick(profile, 'block_name', lang) || '—'],
-        [ta ? 'கிராமம் / வார்டு' : 'Village / ward', profile.village_name || profile.village_custom || '—'],
-        [ta ? 'முகவரி' : 'Address', profile.address_line1 || '—'],
-        [ta ? 'இணைந்த தேதி' : 'Joined', formatDate(profile.created_at, lang)],
+        [t('profilePage.fields.memberId'), <code className="text-maroon">{profile.member_id}</code>],
+        [t('profilePage.fields.mobile'), `${profile.country_code || ''} ${profile.phone_number}`.trim()],
+        [t('profilePage.fields.email'), profile.email || '—'],
+        [t('profilePage.fields.fatherName'), profile.father_name || '—'],
+        [t('profilePage.fields.dateOfBirth'), profile.date_of_birth ? formatDate(profile.date_of_birth, lang) : '—'],
+        [t('profilePage.fields.gender'), profile.gender || '—'],
+        [t('profilePage.fields.bloodGroup'), profile.blood_group || '—'],
+        [t('profilePage.fields.aadhaar'), profile.aadhaar_masked || '—'],
+        [t('profilePage.fields.voterId'), profile.voter_id_masked || '—'],
+        [t('profilePage.fields.parliament'), pick(profile, 'parliament_name', lang) || '—'],
+        [t('profilePage.fields.assembly'), pick(profile, 'assembly_name', lang) || '—'],
+        [t('profilePage.fields.district'), pick(profile, 'district_name', lang) || '—'],
+        [t('profilePage.fields.block'), pick(profile, 'block_name', lang) || '—'],
+        [t('profilePage.fields.village'), profile.village_name || profile.village_custom || '—'],
+        [t('profilePage.fields.address'), profile.address_line1 || '—'],
+        [t('profilePage.fields.joined'), formatDate(profile.created_at, lang)],
       ]
     : [];
 
@@ -215,25 +209,25 @@ export const ProfilePage: React.FC = () => {
                   <div className="d-flex flex-wrap gap-2 mt-3">
                     <button className="btn btn-maroon flex-grow-1" onClick={download} disabled={downloading}>
                       {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="bi bi-download me-2"></i>}
-                      {ta ? 'அடையாள அட்டை PDF' : 'Download ID card (PDF)'}
+                      {t('profilePage.downloadIdCard')}
                     </button>
-                    <Link to="/events" className="btn btn-outline-maroon"><i className="bi bi-calendar-event me-1"></i>{ta ? 'நிகழ்வுகள்' : 'Events'}</Link>
+                    <Link to="/events" className="btn btn-outline-maroon"><i className="bi bi-calendar-event me-1"></i>{t('nav.events')}</Link>
                   </div>
                   <p className="small text-muted mt-3 mb-0">
                     <i className="bi bi-qr-code me-1"></i>
-                    {ta ? 'QR குறியீட்டை ஸ்கேன் செய்தால் உங்கள் உறுப்பினர் நிலை உறுதிப்படுத்தப்படும்.' : 'Scanning the QR code confirms your membership status with the organisation.'}
+                    {t('profilePage.qrNote')}
                   </p>
                 </div>
               </div>
               <div className="col-lg-7 d-flex flex-column gap-4">
                 <div className="card-custom p-4">
                   <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-                    <h2 className="h5 mb-0"><i className="bi bi-person-vcard me-2 text-maroon"></i>{ta ? 'உறுப்பினர் விவரங்கள்' : 'Membership details'}</h2>
-                    <span className={`chip ${STATUS_CHIP[profile.status] || ''}`}>{STATUS_LABEL[profile.status]?.[lang] || profile.status}</span>
+                    <h2 className="h5 mb-0"><i className="bi bi-person-vcard me-2 text-maroon"></i>{t('profilePage.membershipDetails')}</h2>
+                    <span className={`chip ${STATUS_CHIP[profile.status] || ''}`}>{tRaw<Record<string, string>>('profilePage.status')?.[profile.status] || profile.status}</span>
                   </div>
                   {profile.status === 'PENDING' && (
                     <div className="alert alert-warning small">
-                      {ta ? 'உங்கள் பதிவு நிர்வாகிகளால் மறுபரிசீலனை செய்யப்படுகிறது. அங்கீகரிக்கப்பட்ட பின் நிலை புதுப்பிக்கப்படும்.' : 'Your registration is under review by the organisation. Your status will update once it is approved.'}
+                      {t('profilePage.pendingNotice')}
                     </div>
                   )}
                   <dl className="detail-grid mb-0">
@@ -245,7 +239,7 @@ export const ProfilePage: React.FC = () => {
                     ))}
                   </dl>
                 </div>
-                <ChangePasswordCard ta={ta} />
+                <ChangePasswordCard />
               </div>
             </div>
           )}

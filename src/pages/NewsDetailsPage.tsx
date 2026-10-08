@@ -6,8 +6,7 @@ import { EmptyState, Loader, NewsCard, NewsItem } from '../components/ui';
 
 export const NewsDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { lang } = useLanguage();
-  const ta = lang === 'ta';
+  const { lang, t } = useLanguage();
   const [item, setItem] = useState<NewsItem | null>(null);
   const [related, setRelated] = useState<NewsItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +25,7 @@ export const NewsDetailsPage: React.FC = () => {
   const share = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      navigator.share({ title: item ? pick(item, 'title', lang) : 'NMPI', url }).catch(() => {});
+      navigator.share({ title: item ? pick(item, 'title', lang) : t('newsDetailsPage.shareFallbackTitle'), url }).catch(() => {});
       return;
     }
     await navigator.clipboard.writeText(url).catch(() => {});
@@ -37,8 +36,8 @@ export const NewsDetailsPage: React.FC = () => {
   if (error) {
     return (
       <div className="container page-body">
-        <EmptyState icon="bi-newspaper" title={error === 'NOT_FOUND' ? (ta ? 'செய்தி கிடைக்கவில்லை' : 'Article not found') : error}>
-          <Link to="/news" className="btn btn-maroon btn-sm mt-2">{ta ? 'அனைத்து செய்திகளும்' : 'Back to news'}</Link>
+        <EmptyState icon="bi-newspaper" title={error === 'NOT_FOUND' ? t('newsDetailsPage.notFound') : error}>
+          <Link to="/news" className="btn btn-maroon btn-sm mt-2">{t('newsDetailsPage.backToNews')}</Link>
         </EmptyState>
       </div>
     );
@@ -53,7 +52,7 @@ export const NewsDetailsPage: React.FC = () => {
         <header className="page-hero" style={cover ? ({ '--page-hero-image': `url(${cover})` } as React.CSSProperties) : undefined}>
           <div className="container position-relative" style={{ zIndex: 1, maxWidth: 900 }}>
             <nav className="breadcrumb-lite mb-3">
-              <Link to="/">{ta ? 'முகப்பு' : 'Home'}</Link><span>/</span><Link to="/news">{ta ? 'செய்திகள்' : 'News'}</Link>
+              <Link to="/">{t('common.home')}</Link><span>/</span><Link to="/news">{t('newsDetailsPage.breadcrumbNews')}</Link>
             </nav>
             <span className="chip mb-3" style={{ background: 'var(--accent-gold)', color: 'var(--ink)' }}>{item.category}</span>
             <h1>{pick(item, 'title', lang)}</h1>
@@ -70,10 +69,10 @@ export const NewsDetailsPage: React.FC = () => {
               <p className="lead fw-semibold text-ink">{pick(item, 'summary', lang)}</p>
               <div className="rich-text" dangerouslySetInnerHTML={{ __html: pick(item, 'content', lang) }} />
               <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center border-top pt-4 mt-4">
-                <Link to="/news" className="btn btn-outline-maroon btn-sm"><i className="bi bi-arrow-left me-1"></i>{ta ? 'அனைத்து செய்திகளும்' : 'All news'}</Link>
+                <Link to="/news" className="btn btn-outline-maroon btn-sm"><i className="bi bi-arrow-left me-1"></i>{t('newsDetailsPage.allNews')}</Link>
                 <button className="btn btn-maroon btn-sm" onClick={share}>
                   <i className={`bi ${copied ? 'bi-check2' : 'bi-share'} me-1`}></i>
-                  {copied ? (ta ? 'இணைப்பு நகலெடுக்கப்பட்டது' : 'Link copied') : ta ? 'பகிர்' : 'Share'}
+                  {copied ? t('newsDetailsPage.linkCopied') : t('newsDetailsPage.share')}
                 </button>
               </div>
             </div>
@@ -84,7 +83,7 @@ export const NewsDetailsPage: React.FC = () => {
       {related.length > 0 && (
         <section className="section-sm section-white">
           <div className="container">
-            <h2 className="h4 mb-4">{ta ? 'மேலும் செய்திகள்' : 'More news'}</h2>
+            <h2 className="h4 mb-4">{t('newsDetailsPage.moreNews')}</h2>
             <div className="row g-4">
               {related.map((n) => (
                 <div className="col-md-4" key={n.id}><NewsCard item={n} /></div>

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Field, ErrorMessage, useFormikContext } from 'formik';
 import { DuplicateChecker } from './duplicateCheck';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface PersonalInformationFormProps {
-  lang?: string;
   duplicates: DuplicateChecker;
   onNext: () => void;
 }
@@ -20,8 +20,8 @@ const countryCodes = [
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'Unknown'];
 
-export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = ({ lang = 'en', duplicates, onNext }) => {
-  const ta = lang === 'ta';
+export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = ({ duplicates, onNext }) => {
+  const { t } = useLanguage();
   const { values, setFieldValue, setFieldTouched, errors, touched } = useFormikContext<any>();
   const [showPassword, setShowPassword] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -73,10 +73,10 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
     event.target.value = '';
     if (!file) return;
     if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
-      return setImageError(ta ? 'JPG, PNG அல்லது WEBP படத்தைத் தேர்ந்தெடுக்கவும்.' : 'Please choose a JPG, PNG or WEBP image.');
+      return setImageError(t('joinForm.imageTypeError'));
     }
     if (file.size > 5 * 1024 * 1024) {
-      return setImageError(ta ? 'படம் 5MB-க்கு குறைவாக இருக்க வேண்டும்.' : 'The image must be smaller than 5 MB.');
+      return setImageError(t('joinForm.imageSizeError'));
     }
     setFieldValue('profile_image', file);
   };
@@ -96,16 +96,16 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
           )}
         </div>
         <div className="flex-grow-1">
-          <div className="fw-semibold">{ta ? 'சுயவிவரப் படம்' : 'Profile photo'} <span className="text-muted fw-normal small">({ta ? 'விருப்பம்' : 'optional'})</span></div>
-          <div className="small text-muted mb-2">{ta ? 'உங்கள் அடையாள அட்டையில் அச்சிடப்படும். JPG/PNG/WEBP, அதிகபட்சம் 5MB.' : 'Printed on your ID card. JPG, PNG or WEBP, up to 5 MB.'}</div>
+          <div className="fw-semibold">{t('joinForm.profilePhoto')} <span className="text-muted fw-normal small">({t('joinForm.optional')})</span></div>
+          <div className="small text-muted mb-2">{t('joinForm.profilePhotoHint')}</div>
           <div className="d-flex gap-2">
             <label className="btn btn-sm btn-outline-maroon mb-0">
-              <i className="bi bi-upload me-1"></i>{imagePreview ? (ta ? 'மாற்று' : 'Change') : (ta ? 'பதிவேற்று' : 'Upload')}
+              <i className="bi bi-upload me-1"></i>{imagePreview ? t('joinForm.change') : t('joinForm.upload')}
               <input type="file" accept="image/jpeg,image/png,image/webp" className="d-none" onChange={handleImageChange} />
             </label>
             {imagePreview && (
               <button type="button" className="btn btn-sm btn-link text-danger" onClick={() => setFieldValue('profile_image', null)}>
-                {ta ? 'நீக்கு' : 'Remove'}
+                {t('joinForm.remove')}
               </button>
             )}
           </div>
@@ -115,27 +115,27 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
 
       <div className="row g-3">
         <div className="col-md-6">
-          <label htmlFor="full_name" className="form-label small fw-semibold">{ta ? 'முழு பெயர்' : 'Full name'} *</label>
+          <label htmlFor="full_name" className="form-label small fw-semibold">{t('joinForm.fullName')} *</label>
           <Field id="full_name" name="full_name" autoComplete="name" className={`form-control ${invalid('full_name')}`} />
           <ErrorMessage name="full_name" component="div" className="invalid-feedback" />
         </div>
         <div className="col-md-6">
-          <label htmlFor="father_name" className="form-label small fw-semibold">{ta ? 'தந்தை / கணவர் பெயர்' : "Father's / husband's name"} *</label>
+          <label htmlFor="father_name" className="form-label small fw-semibold">{t('joinForm.fatherName')} *</label>
           <Field id="father_name" name="father_name" className={`form-control ${invalid('father_name')}`} />
           <ErrorMessage name="father_name" component="div" className="invalid-feedback" />
         </div>
         <div className="col-md-6">
-          <label htmlFor="date_of_birth" className="form-label small fw-semibold">{ta ? 'பிறந்த தேதி' : 'Date of birth'} *</label>
+          <label htmlFor="date_of_birth" className="form-label small fw-semibold">{t('joinForm.dateOfBirth')} *</label>
           <Field id="date_of_birth" name="date_of_birth" type="date" max={maxDob} className={`form-control ${invalid('date_of_birth')}`} />
           <ErrorMessage name="date_of_birth" component="div" className="invalid-feedback" />
         </div>
         <div className="col-md-6">
-          <span className="form-label small fw-semibold d-block">{ta ? 'பாலினம்' : 'Gender'} *</span>
-          <div className="btn-group w-100" role="radiogroup" aria-label={ta ? 'பாலினம்' : 'Gender'}>
+          <span className="form-label small fw-semibold d-block">{t('joinForm.gender')} *</span>
+          <div className="btn-group w-100" role="radiogroup" aria-label={t('joinForm.gender')}>
             {[
-              ['MALE', ta ? 'ஆண்' : 'Male'],
-              ['FEMALE', ta ? 'பெண்' : 'Female'],
-              ['OTHER', ta ? 'இதர' : 'Other'],
+              ['MALE', t('joinForm.genderMale')],
+              ['FEMALE', t('joinForm.genderFemale')],
+              ['OTHER', t('joinForm.genderOther')],
             ].map(([value, label]) => (
               <React.Fragment key={value}>
                 <input type="radio" className="btn-check" name="gender" id={`gender-${value}`} value={value} checked={values.gender === value} onChange={() => setFieldValue('gender', value)} />
@@ -145,9 +145,9 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
           </div>
         </div>
         <div className="col-md-6">
-          <label htmlFor="phone_number" className="form-label small fw-semibold">{ta ? 'கைபேசி எண்' : 'Mobile number'} *{checkingIcon('phone_number')}</label>
+          <label htmlFor="phone_number" className="form-label small fw-semibold">{t('joinForm.mobileNumber')} *{checkingIcon('phone_number')}</label>
           <div className="input-group has-validation">
-            <select name="country_code" value={values.country_code} onChange={onCountryChange} className="form-select flex-grow-0" style={{ width: 110 }} aria-label={ta ? 'நாட்டுக் குறியீடு' : 'Country code'}>
+            <select name="country_code" value={values.country_code} onChange={onCountryChange} className="form-select flex-grow-0" style={{ width: 110 }} aria-label={t('joinForm.countryCode')}>
               {countryCodes.map((c) => (
                 <option key={c.code} value={c.code}>{c.label}</option>
               ))}
@@ -160,7 +160,7 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
               pattern="[0-9]*"
               autoComplete="tel-national"
               maxLength={10}
-              placeholder={ta ? '10 இலக்க எண்' : '10-digit number'}
+              placeholder={t('joinForm.phonePlaceholder')}
               value={values.phone_number}
               onChange={onPhoneChange}
               onBlur={onPhoneBlur}
@@ -171,7 +171,7 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
           </div>
         </div>
         <div className="col-md-6">
-          <label htmlFor="email" className="form-label small fw-semibold">{ta ? 'மின்னஞ்சல்' : 'Email address'} *{checkingIcon('email')}</label>
+          <label htmlFor="email" className="form-label small fw-semibold">{t('joinForm.email')} *{checkingIcon('email')}</label>
           <input
             id="email"
             name="email"
@@ -186,25 +186,25 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
           {dupFeedback('email')}
         </div>
         <div className="col-md-6">
-          <label htmlFor="password" className="form-label small fw-semibold">{ta ? 'கடவுச்சொல் உருவாக்கவும்' : 'Create password'} *</label>
+          <label htmlFor="password" className="form-label small fw-semibold">{t('joinForm.createPassword')} *</label>
           <div className="input-group has-validation">
-            <Field id="password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" className={`form-control ${invalid('password')}`} placeholder={ta ? 'குறைந்தது 8 எழுத்துகள்' : 'At least 8 characters'} />
-            <button type="button" className="btn btn-outline-secondary" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+            <Field id="password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" className={`form-control ${invalid('password')}`} placeholder={t('joinForm.passwordPlaceholder')} />
+            <button type="button" className="btn btn-outline-secondary" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? t('joinForm.hidePassword') : t('joinForm.showPassword')}>
               <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
             </button>
             <ErrorMessage name="password" component="div" className="invalid-feedback" />
           </div>
         </div>
         <div className="col-md-6">
-          <label htmlFor="confirm_password" className="form-label small fw-semibold">{ta ? 'கடவுச்சொல்லை உறுதிசெய்' : 'Confirm password'} *</label>
+          <label htmlFor="confirm_password" className="form-label small fw-semibold">{t('joinForm.confirmPassword')} *</label>
           <Field id="confirm_password" name="confirm_password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" className={`form-control ${invalid('confirm_password')}`} />
           <ErrorMessage name="confirm_password" component="div" className="invalid-feedback" />
         </div>
         <div className="col-md-6">
-          <label htmlFor="blood_group" className="form-label small fw-semibold">{ta ? 'இரத்த வகை' : 'Blood group'}</label>
+          <label htmlFor="blood_group" className="form-label small fw-semibold">{t('joinForm.bloodGroup')}</label>
           <Field as="select" id="blood_group" name="blood_group" className="form-select">
             {bloodGroups.map((bg) => (
-              <option key={bg} value={bg}>{bg === 'Unknown' ? (ta ? 'தெரியவில்லை' : 'Not sure') : bg}</option>
+              <option key={bg} value={bg}>{bg === 'Unknown' ? t('joinForm.bloodGroupUnknown') : bg}</option>
             ))}
           </Field>
         </div>
@@ -212,7 +212,7 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
 
       <div className="mt-4 pt-3 border-top d-flex justify-content-end">
         <button type="button" className="btn btn-maroon px-4" onClick={onNext}>
-          {ta ? 'அடுத்து' : 'Continue'} <i className="bi bi-arrow-right ms-1"></i>
+          {t('joinForm.continue')} <i className="bi bi-arrow-right ms-1"></i>
         </button>
       </div>
     </div>

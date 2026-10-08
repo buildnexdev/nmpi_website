@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Language, translate } from '../context/LanguageContext';
 
 export const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 export const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || 'http://localhost:3001';
@@ -26,9 +27,13 @@ apiClient.interceptors.response.use(
   }
 );
 
-export function errorMessage(err: any, fallback = 'Something went wrong. Please try again.'): string {
-  if (!err?.response) return 'Cannot reach the server right now. Please try again shortly.';
-  return err.response?.data?.message || fallback;
+function storedLang(): Language {
+  return localStorage.getItem('nmpi_lang') === 'en' ? 'en' : 'ta';
+}
+
+export function errorMessage(err: any, fallback?: string): string {
+  if (!err?.response) return translate(storedLang(), 'errors.network');
+  return err.response?.data?.message || (fallback ?? translate(storedLang(), 'errors.generic'));
 }
 
 /** Always return an array so list pages never crash on `.length`. */

@@ -1,47 +1,34 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import eng from '../lang/eng.json';
+import tam from '../lang/tam.json';
 
 export type Language = 'ta' | 'en';
+export type TranslateVars = Record<string, string | number>;
 
-interface Translations {
-  [key: string]: {
-    ta: string;
-    en: string;
-  };
+const dictionaries: Record<Language, unknown> = { en: eng, ta: tam };
+
+function lookup(dict: unknown, key: string): unknown {
+  return key.split('.').reduce<unknown>((node, part) => (node && typeof node === 'object' ? (node as Record<string, unknown>)[part] : undefined), dict);
 }
 
-export const translations: Translations = {
-  brandName: {
-    ta: 'நேதாஜி மக்கள் பாதுகாப்பு இயக்கம்',
-    en: 'Netaji Makkal Pathukappu Iyakkam',
-  },
-  brandSubtitle: {
-    ta: 'தமிழ்நாடு மாநில மையம்',
-    en: 'Tamil Nadu State Assembly',
-  },
-  navHome: { ta: 'முகப்பு', en: 'Home' },
-  navParty: { ta: 'இயக்கம்', en: 'Iyakkam' },
-  navAboutParty: { ta: 'இயக்கம் பற்றி', en: 'About Iyakkam' },
-  navIdeology: { ta: 'கொள்கைகள்', en: 'Ideology & Principles' },
-  navActions: { ta: 'செயல்பாடுகள்', en: 'Actions & Initiatives' },
-  navLeadership: { ta: 'நிர்வாகிகள்', en: 'Leadership' },
-  navAchievements: { ta: 'சாதனைகள்', en: 'Achievements' },
-  navOrganization: { ta: 'அமைப்பு', en: 'Organization' },
-  navMore: { ta: 'மேலும்', en: 'More' },
-  navEvents: { ta: 'நிகழ்வுகள்', en: 'Events' },
-  navNews: { ta: 'செய்திகள்', en: 'News & Bulletins' },
-  navGallery: { ta: 'புகைப்படங்கள்', en: 'Gallery' },
-  navHistory: { ta: 'வரலாறு', en: 'History' },
-  navFaq: { ta: 'கேள்விகள்', en: 'FAQ' },
-  navContact: { ta: 'தொடர்பு', en: 'Contact' },
-  joinUs: { ta: 'இணையுங்கள்', en: 'Join Us' },
-  memberLogin: { ta: 'உறுப்பினர் உள்நுழைவு', en: 'Member Login' },
-  selectLang: { ta: 'மொழி', en: 'Language' },
-};
+/** Raw value (string, array or object) for a dotted key in src/lang; falls back to English. */
+export function translateRaw<T = unknown>(lang: Language, key: string): T | undefined {
+  const value = lookup(dictionaries[lang], key);
+  return (value !== undefined ? value : lookup(dictionaries.en, key)) as T | undefined;
+}
+
+/** Text for a dotted key in src/lang, e.g. translate('ta', 'nav.home'); {name} placeholders are filled from vars. */
+export function translate(lang: Language, key: string, vars?: TranslateVars): string {
+  const value = translateRaw(lang, key);
+  if (typeof value !== 'string') return key;
+  return vars ? value.replace(/\{(\w+)\}/g, (match, name: string) => (name in vars ? String(vars[name]) : match)) : value;
+}
 
 interface LanguageContextType {
   lang: Language;
   setLang: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, vars?: TranslateVars) => string;
+  tRaw: <T = unknown>(key: string) => T | undefined;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -53,15 +40,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     setLangState(next);
   };
 
-  const t = (key: string): string => {
-    if (translations[key]) {
-      return translations[key][lang] || translations[key]['en'];
-    }
-    return key;
-  };
+  const t = (key: string, vars?: TranslateVars): string => translate(lang, key, vars);
+  const tRaw = <T = unknown,>(key: string): T | undefined => translateRaw<T>(lang, key);
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, tRaw }}>
       {children}
     </LanguageContext.Provider>
   );

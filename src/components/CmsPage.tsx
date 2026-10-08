@@ -11,19 +11,26 @@ interface CmsPageData {
   content_ta: string | null;
 }
 
+type LocalizedText = string | { ta: string; en: string };
+
 /**
  * Renders a page whose text is managed from the admin "Pages" screen.
- * `fallback` is shown if the page hasn't been created in the CMS yet.
+ * `fallbackTitle` / `fallbackTitleKey` is shown if the page hasn't been created in the CMS yet.
+ * The `*Key` props take a translation key and win over the plain/`{ta, en}` props.
  */
 export const CmsPage: React.FC<{
   pageKey: string;
-  eyebrow: { ta: string; en: string };
-  fallbackTitle: { ta: string; en: string };
+  eyebrow?: LocalizedText;
+  eyebrowKey?: string;
+  fallbackTitle?: LocalizedText;
+  fallbackTitleKey?: string;
   image?: string;
   aside?: React.ReactNode;
   children?: React.ReactNode;
-}> = ({ pageKey, eyebrow, fallbackTitle, image, aside, children }) => {
-  const { lang } = useLanguage();
+}> = ({ pageKey, eyebrow, eyebrowKey, fallbackTitle, fallbackTitleKey, image, aside, children }) => {
+  const { lang, t } = useLanguage();
+  const resolve = (key?: string, text?: LocalizedText): string =>
+    key ? t(key) : typeof text === 'string' ? text : text ? text[lang] : '';
   const [page, setPage] = useState<CmsPageData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,11 +43,11 @@ export const CmsPage: React.FC<{
       .finally(() => setLoading(false));
   }, [pageKey]);
 
-  const title = page ? pick(page, 'title', lang) : fallbackTitle[lang];
+  const title = page ? pick(page, 'title', lang) : resolve(fallbackTitleKey, fallbackTitle);
 
   return (
     <>
-      <PageHero eyebrow={eyebrow[lang]} title={title} image={image} />
+      <PageHero eyebrow={resolve(eyebrowKey, eyebrow) || undefined} title={title} image={image} />
       <section className="page-body">
         <div className="container">
           <div className="row g-5">
@@ -51,7 +58,7 @@ export const CmsPage: React.FC<{
                 ) : page ? (
                   <div className="rich-text" dangerouslySetInnerHTML={{ __html: pick(page, 'content', lang) }} />
                 ) : (
-                  <p className="text-muted mb-0">{lang === 'ta' ? 'இந்தப் பக்கம் விரைவில் புதுப்பிக்கப்படும்.' : 'This page will be updated soon.'}</p>
+                  <p className="text-muted mb-0">{t('common.pageUpdatedSoon')}</p>
                 )}
               </div>
               {children}

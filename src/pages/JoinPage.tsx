@@ -1,9 +1,9 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, FormikErrors, FormikTouched } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
-import { useLanguage } from '../context/LanguageContext';
+import { Language, translate, useLanguage } from '../context/LanguageContext';
 import { memberService, RegisterMemberPayload, RegisteredMember } from '../services/memberService';
 import { errorMessage } from '../services/apiClient';
 import { PageHero } from '../components/ui';
@@ -47,11 +47,11 @@ function isCheckable(field: DuplicateField, value: string): boolean {
   }
 }
 
-const DUP_MESSAGES: Record<DuplicateField, { en: string; ta: string }> = {
-  phone_number: { en: 'This mobile number is already registered.', ta: 'இந்தக் கைபேசி எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
-  email: { en: 'This email address is already registered.', ta: 'இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
-  aadhaar_number: { en: 'This Aadhaar number is already registered.', ta: 'இந்த ஆதார் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
-  voter_id: { en: 'This Voter ID is already registered.', ta: 'இந்த வாக்காளர் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.' },
+const DUP_MESSAGE_KEYS: Record<DuplicateField, string> = {
+  phone_number: 'joinPage.duplicates.phoneNumber',
+  email: 'joinPage.duplicates.email',
+  aadhaar_number: 'joinPage.duplicates.aadhaarNumber',
+  voter_id: 'joinPage.duplicates.voterId',
 };
 
 function isAdult(value?: string) {
@@ -63,46 +63,46 @@ function isAdult(value?: string) {
   return adult <= new Date();
 }
 
-const buildSchemas = (ta: boolean) => {
-  const req = (en: string, t: string) => (ta ? t : en);
+const buildSchemas = (lang: Language) => {
+  const msg = (key: string) => translate(lang, `joinForm.validation.${key}`);
   const tab1 = yup.object({
-    full_name: yup.string().trim().min(2, req('Enter your full name', 'முழு பெயரை உள்ளிடவும்')).required(req('Full name is required', 'முழு பெயர் அவசியம்')),
-    father_name: yup.string().trim().required(req("Father's / husband's name is required", 'தந்தை / கணவர் பெயர் அவசியம்')),
+    full_name: yup.string().trim().min(2, msg('fullNameMin')).required(msg('fullNameRequired')),
+    father_name: yup.string().trim().required(msg('fatherNameRequired')),
     date_of_birth: yup
       .string()
-      .required(req('Date of birth is required', 'பிறந்த தேதி அவசியம்'))
-      .test('adult', req('You must be at least 18 years old to join', 'இணைய குறைந்தது 18 வயது இருக்க வேண்டும்'), isAdult),
+      .required(msg('dobRequired'))
+      .test('adult', msg('dobAdult'), isAdult),
     gender: yup.string().oneOf(['MALE', 'FEMALE', 'OTHER']).required(),
     country_code: yup.string().required(),
     phone_number: yup
       .string()
       .transform((v) => (v ? v.replace(/\D/g, '') : v))
-      .matches(/^\d{10}$/, req('Enter a 10-digit mobile number', '10 இலக்க கைபேசி எண்ணை உள்ளிடவும்'))
-      .required(req('Mobile number is required', 'கைபேசி எண் அவசியம்')),
-    email: yup.string().trim().email(req('Enter a valid email address', 'சரியான மின்னஞ்சலை உள்ளிடவும்')).required(req('Email is required', 'மின்னஞ்சல் அவசியம்')),
-    password: yup.string().min(8, req('Password must be at least 8 characters', 'கடவுச்சொல் குறைந்தது 8 எழுத்துகள்')).required(req('Password is required', 'கடவுச்சொல் அவசியம்')),
+      .matches(/^\d{10}$/, msg('phoneInvalid'))
+      .required(msg('phoneRequired')),
+    email: yup.string().trim().email(msg('emailInvalid')).required(msg('emailRequired')),
+    password: yup.string().min(8, msg('passwordMin')).required(msg('passwordRequired')),
     confirm_password: yup
       .string()
-      .oneOf([yup.ref('password')], req('Passwords do not match', 'கடவுச்சொற்கள் பொருந்தவில்லை'))
-      .required(req('Please confirm your password', 'கடவுச்சொல்லை உறுதிசெய்யவும்')),
+      .oneOf([yup.ref('password')], msg('passwordMismatch'))
+      .required(msg('confirmPasswordRequired')),
   });
-  const selectRequired = (en: string, t: string) =>
-    yup.number().transform((v, orig) => (orig === '' ? undefined : v)).typeError(req(en, t)).positive(req(en, t)).required(req(en, t));
+  const selectRequired = (key: string) =>
+    yup.number().transform((v, orig) => (orig === '' ? undefined : v)).typeError(msg(key)).positive(msg(key)).required(msg(key));
   const tab2 = yup.object({
     aadhaar_number: yup
       .string()
       .transform((v) => (v ? String(v).replace(/\D/g, '') : ''))
-      .test('aadhaar-12', req('Aadhaar number must be 12 digits', 'ஆதார் எண் 12 இலக்கங்கள் இருக்க வேண்டும்'), (v) => /^\d{12}$/.test(v || ''))
-      .required(req('Aadhaar number is required', 'ஆதார் எண் அவசியம்')),
+      .test('aadhaar-12', msg('aadhaarInvalid'), (v) => /^\d{12}$/.test(v || ''))
+      .required(msg('aadhaarRequired')),
     voter_id: yup
       .string()
       .transform((v) => (v ? String(v).replace(/[^A-Za-z0-9]/g, '').toUpperCase() : ''))
-      .min(6, req('Voter ID must be at least 6 characters', 'வாக்காளர் எண் குறைந்தது 6 எழுத்துகள்'))
-      .required(req('Voter ID is required', 'வாக்காளர் எண் அவசியம்')),
-    parliament_constituency_id: selectRequired('Select your parliament constituency', 'நாடாளுமன்றத் தொகுதியைத் தேர்ந்தெடுக்கவும்'),
-    district_id: selectRequired('Select your district', 'மாவட்டத்தைத் தேர்ந்தெடுக்கவும்'),
-    block_id: selectRequired('Select your taluk / block', 'தாலுகா / ஒன்றியத்தைத் தேர்ந்தெடுக்கவும்'),
-    consent_terms: yup.boolean().oneOf([true], req('Please accept the Privacy Policy and Terms to continue', 'தொடர தனியுரிமைக் கொள்கை மற்றும் விதிமுறைகளை ஏற்கவும்')),
+      .min(6, msg('voterIdMin'))
+      .required(msg('voterIdRequired')),
+    parliament_constituency_id: selectRequired('parliamentRequired'),
+    district_id: selectRequired('districtRequired'),
+    block_id: selectRequired('blockRequired'),
+    consent_terms: yup.boolean().oneOf([true], msg('consentRequired')),
   });
   return { tab1, tab2 };
 };
@@ -134,13 +134,12 @@ const initialValues: JoinValues = {
 };
 
 export const JoinPage: React.FC = () => {
-  const { lang } = useLanguage();
-  const ta = lang === 'ta';
+  const { lang, t, tRaw } = useLanguage();
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState(1);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [registeredMember, setRegisteredMember] = useState<RegisteredMember | null>(null);
-  const { tab1, tab2 } = buildSchemas(ta);
+  const { tab1, tab2 } = useMemo(() => buildSchemas(lang), [lang]);
 
   // ---- Live duplicate checks (phone / email / Aadhaar / Voter ID) ----
   const [dupErrors, setDupErrors] = useState<Partial<Record<DuplicateField, string>>>({});
@@ -168,7 +167,7 @@ export const JoinPage: React.FC = () => {
       const cacheKey = field === 'phone_number' ? `${values.country_code}|${value}` : value;
       const cached = lastChecked.current[field];
       if (cached && cached.value === cacheKey) {
-        if (cached.exists) setDupErrors((prev) => ({ ...prev, [field]: DUP_MESSAGES[field][ta ? 'ta' : 'en'] }));
+        if (cached.exists) setDupErrors((prev) => ({ ...prev, [field]: translate(lang, DUP_MESSAGE_KEYS[field]) }));
         return cached.exists;
       }
       setDupChecking((prev) => ({ ...prev, [field]: true }));
@@ -179,7 +178,7 @@ export const JoinPage: React.FC = () => {
         else if (field === 'aadhaar_number') exists = (await memberService.checkAadhaar(value)).exists;
         else exists = (await memberService.checkVoterId(value)).exists;
         lastChecked.current[field] = { value: cacheKey, exists };
-        if (exists) setDupErrors((prev) => ({ ...prev, [field]: DUP_MESSAGES[field][ta ? 'ta' : 'en'] }));
+        if (exists) setDupErrors((prev) => ({ ...prev, [field]: translate(lang, DUP_MESSAGE_KEYS[field]) }));
         else clearDuplicate(field);
         return exists;
       } catch {
@@ -188,7 +187,7 @@ export const JoinPage: React.FC = () => {
         setDupChecking((prev) => ({ ...prev, [field]: false }));
       }
     },
-    [clearDuplicate, ta]
+    [clearDuplicate, lang]
   );
 
   const duplicates: DuplicateChecker = { errors: dupErrors, checking: dupChecking, check: checkDuplicate, clear: clearDuplicate };
@@ -211,7 +210,7 @@ export const JoinPage: React.FC = () => {
   const failOn = (field: string, message: string, setFieldError: (f: string, m: string) => void) => {
     setSubmitError(message);
     setFieldError(field, message);
-    if (field in DUP_MESSAGES) setDupErrors((prev) => ({ ...prev, [field]: message }));
+    if (field in DUP_MESSAGE_KEYS) setDupErrors((prev) => ({ ...prev, [field]: message }));
     if (TAB1_FIELDS.includes(field)) goToTab(1);
   };
 
@@ -228,7 +227,7 @@ export const JoinPage: React.FC = () => {
       const results = await Promise.all(allDup.map((f) => checkDuplicate(f, values)));
       const firstDup = allDup.find((_, i) => results[i]);
       if (firstDup) {
-        return failOn(firstDup, DUP_MESSAGES[firstDup][ta ? 'ta' : 'en'], setFieldError);
+        return failOn(firstDup, t(DUP_MESSAGE_KEYS[firstDup]), setFieldError);
       }
       const result = await memberService.registerMember({
         ...values,
@@ -240,7 +239,7 @@ export const JoinPage: React.FC = () => {
       setRegisteredMember(result);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-      const msg = errorMessage(err, ta ? 'பதிவைச் சமர்ப்பிக்க முடியவில்லை.' : 'Could not submit your registration.');
+      const msg = errorMessage(err, t('joinPage.submitFailed'));
       const field = axios.isAxiosError(err) ? (err.response?.data as any)?.error?.details?.field : undefined;
       if (field) failOn(field, msg, setFieldError);
       else setSubmitError(msg);
@@ -253,8 +252,8 @@ export const JoinPage: React.FC = () => {
     return (
       <section className="page-body">
         <div className="container">
-          <RegistrationProgress currentTab={3} lang={lang} />
-          <RegistrationSuccess member={registeredMember} lang={lang} onLogin={() => navigate('/login')} />
+          <RegistrationProgress currentTab={3} />
+          <RegistrationSuccess member={registeredMember} onLogin={() => navigate('/login')} />
         </div>
       </section>
     );
@@ -263,16 +262,16 @@ export const JoinPage: React.FC = () => {
   return (
     <>
       <PageHero
-        eyebrow={ta ? 'உறுப்பினர் சேர்க்கை' : 'Membership'}
-        title={ta ? 'இயக்கத்தில் இணையுங்கள்' : 'Join the movement'}
-        subtitle={ta ? 'இலவசப் பதிவு — இரண்டு எளிய படிகளில் உங்கள் QR சரிபார்ப்பு டிஜிட்டல் அடையாள அட்டையைப் பெறுங்கள்.' : 'Free registration — get your QR-verified digital ID card in two simple steps.'}
+        eyebrow={t('joinPage.eyebrow')}
+        title={t('common.joinMovement')}
+        subtitle={t('joinPage.subtitle')}
       />
       <section className="page-body">
         <div className="container">
           <div className="row g-4 justify-content-center">
             <div className="col-lg-8">
               <div className="card-custom p-4 p-md-5">
-                <RegistrationProgress currentTab={currentTab} lang={lang} />
+                <RegistrationProgress currentTab={currentTab} />
                 {submitError && (
                   <div className="alert alert-danger d-flex align-items-center gap-2" role="alert">
                     <i className="bi bi-exclamation-triangle-fill"></i>
@@ -283,9 +282,9 @@ export const JoinPage: React.FC = () => {
                   {({ values, validateForm, setTouched, isSubmitting }) => (
                     <Form noValidate>
                       {currentTab === 1 ? (
-                        <PersonalInformationForm lang={lang} duplicates={duplicates} onNext={() => handleNext(values, validateForm, setTouched)} />
+                        <PersonalInformationForm duplicates={duplicates} onNext={() => handleNext(values, validateForm, setTouched)} />
                       ) : (
-                        <IdentityLocationForm lang={lang} duplicates={duplicates} onBack={() => goToTab(1)} isSubmitting={isSubmitting} />
+                        <IdentityLocationForm duplicates={duplicates} onBack={() => goToTab(1)} isSubmitting={isSubmitting} />
                       )}
                     </Form>
                   )}
@@ -294,19 +293,16 @@ export const JoinPage: React.FC = () => {
             </div>
             <div className="col-lg-4">
               <div className="card-custom p-4 mb-4">
-                <h2 className="h6 mb-3">{ta ? 'நீங்கள் பெறுவது' : 'What you get'}</h2>
+                <h2 className="h6 mb-3">{t('joinPage.whatYouGet')}</h2>
                 <ul className="check-list mb-0 small">
-                  <li>{ta ? 'தனித்துவமான உறுப்பினர் எண்' : 'A unique member ID'}</li>
-                  <li>{ta ? 'QR சரிபார்ப்புடன் டிஜிட்டல் அடையாள அட்டை' : 'Digital ID card with QR verification'}</li>
-                  <li>{ta ? 'நிகழ்வுகள் மற்றும் செய்திகள் பற்றிய தகவல்' : 'Updates on events and news'}</li>
-                  <li>{ta ? 'மாவட்ட நிர்வாகிகளுடன் தொடர்பு' : 'A direct line to district leaders'}</li>
+                  {(tRaw<string[]>('joinPage.benefits') ?? []).map((item) => <li key={item}>{item}</li>)}
                 </ul>
               </div>
               <div className="card-custom p-4">
-                <h2 className="h6 mb-2">{ta ? 'தேவையான ஆவணங்கள்' : 'Keep these ready'}</h2>
-                <p className="small text-muted mb-2">{ta ? 'ஆதார் எண், வாக்காளர் அடையாள எண், மற்றும் விருப்பமாக ஒரு புகைப்படம்.' : 'Your Aadhaar number, Voter ID number and, optionally, a photo.'}</p>
+                <h2 className="h6 mb-2">{t('joinPage.keepReady')}</h2>
+                <p className="small text-muted mb-2">{t('joinPage.keepReadyText')}</p>
                 <p className="small mb-0">
-                  {ta ? 'ஏற்கனவே உறுப்பினரா?' : 'Already a member?'} <Link to="/login" className="fw-semibold">{ta ? 'உள்நுழைக' : 'Log in'}</Link>
+                  {t('joinPage.alreadyMember')} <Link to="/login" className="fw-semibold">{t('joinPage.logIn')}</Link>
                 </p>
               </div>
             </div>

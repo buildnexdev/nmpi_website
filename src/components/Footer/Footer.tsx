@@ -1,44 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
+import { translate, useLanguage } from '../../context/LanguageContext';
 import { ADMIN_URL } from '../../services/apiClient';
-import { CONTACT_ADDRESS, CONTACT_ADDRESS_TA, CONTACT_PHONE, CONTACT_PHONE_TEL, SOCIAL_LINKS } from '../../constants/contact';
+import { CONTACT_PHONE, CONTACT_PHONE_TEL, SOCIAL_LINKS } from '../../constants/contact';
 import './Footer.css';
 
-export const Footer: React.FC = () => {
-  const { lang } = useLanguage();
-  const ta = lang === 'ta';
+const COLUMNS = [
+  {
+    titleKey: 'footer.movement',
+    links: [
+      { to: '/about', labelKey: 'header.nav.aboutUs' },
+      { to: '/ideology', labelKey: 'header.nav.ideology' },
+      { to: '/history', labelKey: 'nav.history' },
+      { to: '/leadership', labelKey: 'header.nav.districtExecutives' },
+      { to: '/achievements', labelKey: 'nav.achievements' },
+    ],
+  },
+  {
+    titleKey: 'footer.members',
+    links: [
+      { to: '/join', labelKey: 'footer.becomeMember' },
+      { to: '/login', labelKey: 'common.memberLogin' },
+      { to: '/membership', labelKey: 'footer.membershipBenefits' },
+      { to: '/faq', labelKey: 'nav.faq' },
+    ],
+  },
+  {
+    titleKey: 'footer.newsMedia',
+    links: [
+      { to: '/news', labelKey: 'header.nav.news' },
+      { to: '/events', labelKey: 'nav.events' },
+      { to: '/gallery', labelKey: 'nav.gallery' },
+      { to: '/contact', labelKey: 'header.nav.contact' },
+    ],
+  },
+];
 
-  const columns = [
-    {
-      title: ta ? 'இயக்கம்' : 'The Movement',
-      links: [
-        { to: '/about', label: ta ? 'இயக்கம் பற்றி' : 'About Us' },
-        { to: '/ideology', label: ta ? 'கொள்கைகள்' : 'Ideology' },
-        { to: '/history', label: ta ? 'வரலாறு' : 'History' },
-        { to: '/leadership', label: ta ? 'மாவட்ட நிர்வாகிகள்' : 'District Executives' },
-        { to: '/achievements', label: ta ? 'சாதனைகள்' : 'Achievements' },
-      ],
-    },
-    {
-      title: ta ? 'உறுப்பினர்கள்' : 'Members',
-      links: [
-        { to: '/join', label: ta ? 'உறுப்பினராக இணையுங்கள்' : 'Become a Member' },
-        { to: '/login', label: ta ? 'உறுப்பினர் உள்நுழைவு' : 'Member Login' },
-        { to: '/membership', label: ta ? 'உறுப்பினர் நன்மைகள்' : 'Membership Benefits' },
-        { to: '/faq', label: ta ? 'கேள்விகள்' : 'FAQ' },
-      ],
-    },
-    {
-      title: ta ? 'செய்திகள் & ஊடகம்' : 'News & Media',
-      links: [
-        { to: '/news', label: ta ? 'செய்திகள்' : 'News' },
-        { to: '/events', label: ta ? 'நிகழ்வுகள்' : 'Events' },
-        { to: '/gallery', label: ta ? 'புகைப்படங்கள்' : 'Gallery' },
-        { to: '/contact', label: ta ? 'தொடர்புக்கு' : 'Contact' },
-      ],
-    },
-  ];
+export const Footer: React.FC = () => {
+  const { t } = useLanguage();
 
   return (
     <footer className="site-footer">
@@ -48,15 +47,11 @@ export const Footer: React.FC = () => {
             <div className="footer-brand">
               <img src="/logo.jpg" alt="" />
               <div>
-                <div className="footer-brand-ta">நேதாஜி மக்கள் பாதுகாப்பு இயக்கம்</div>
-                <div className="footer-brand-en">Netaji Makkal Pathukappu Iyakkam</div>
+                <div className="footer-brand-ta">{translate('ta', 'common.brandName')}</div>
+                <div className="footer-brand-en">{translate('en', 'common.brandName')}</div>
               </div>
             </div>
-            <p className="footer-text">
-              {ta
-                ? 'நேதாஜி சுபாஷ் சந்திர போஸ் அவர்களின் வழியில் மக்களின் உரிமைகள், சமூக நலன் மற்றும் பாதுகாப்பிற்காக செயல்படும் மக்கள் இயக்கம்.'
-                : "A people's movement working for the rights, welfare and safety of the public in the spirit of Netaji Subhas Chandra Bose."}
-            </p>
+            <p className="footer-text">{t('footer.tagline')}</p>
             <div className="footer-social">
               {SOCIAL_LINKS.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label}>
@@ -66,21 +61,21 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {columns.map((col) => (
-            <div className="col-6 col-md-4 col-lg-2" key={col.title}>
-              <h5 className="footer-heading">{col.title}</h5>
+          {COLUMNS.map((col) => (
+            <div className="col-6 col-md-4 col-lg-2" key={col.titleKey}>
+              <h5 className="footer-heading">{t(col.titleKey)}</h5>
               <ul className="footer-links">
                 {col.links.map((l) => (
-                  <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
+                  <li key={l.to}><Link to={l.to}>{t(l.labelKey)}</Link></li>
                 ))}
               </ul>
             </div>
           ))}
 
           <div className="col-md-12 col-lg-3">
-            <h5 className="footer-heading">{ta ? 'தலைமை அலுவலகம்' : 'Head Office'}</h5>
+            <h5 className="footer-heading">{t('footer.headOffice')}</h5>
             <ul className="footer-contact">
-              <li><i className="bi bi-geo-alt"></i><span>{ta ? CONTACT_ADDRESS_TA : CONTACT_ADDRESS}</span></li>
+              <li><i className="bi bi-geo-alt"></i><span>{t('contactInfo.address')}</span></li>
               <li><i className="bi bi-telephone"></i><a href={CONTACT_PHONE_TEL}>{CONTACT_PHONE}</a></li>
               <li><i className="bi bi-envelope"></i><a href="mailto:nmpiofficial2026@gmail.com">nmpiofficial2026@gmail.com</a></li>
             </ul>
@@ -90,13 +85,13 @@ export const Footer: React.FC = () => {
 
       <div className="footer-bottom">
         <div className="container d-flex flex-column flex-md-row gap-2 justify-content-between align-items-center">
-          <span>© {new Date().getFullYear()} {ta ? 'நேதாஜி மக்கள் பாதுகாப்பு இயக்கம்' : 'Netaji Makkal Pathukappu Iyakkam'}</span>
+          <span>© {new Date().getFullYear()} {t('common.brandName')}</span>
           <span className="d-flex flex-wrap gap-3 justify-content-center">
-            <Link to="/privacy-policy">{ta ? 'தனியுரிமை' : 'Privacy'}</Link>
-            <Link to="/terms">{ta ? 'விதிமுறைகள்' : 'Terms'}</Link>
-            <a href={ADMIN_URL} target="_blank" rel="noreferrer">{ta ? 'நிர்வாகி உள்நுழைவு' : 'Admin portal'}</a>
+            <Link to="/privacy-policy">{t('footer.privacy')}</Link>
+            <Link to="/terms">{t('footer.terms')}</Link>
+            <a href={ADMIN_URL} target="_blank" rel="noreferrer">{t('footer.adminPortal')}</a>
             <span>
-              {ta ? 'உருவாக்கம்:' : 'Built by'}{' '}
+              {t('footer.builtBy')}{' '}
               <a href="https://buildnexdev.in" target="_blank" rel="noreferrer">buildnexdev.in</a>
             </span>
           </span>

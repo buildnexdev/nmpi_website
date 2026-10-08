@@ -9,7 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 export const MainLayout: React.FC = () => {
   const location = useLocation();
   const dispatch = useDispatch();
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
@@ -27,7 +27,7 @@ export const MainLayout: React.FC = () => {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      <a href="#main" className="skip-link">{lang === 'ta' ? 'உள்ளடக்கத்திற்குச் செல்லவும்' : 'Skip to content'}</a>
+      <a href="#main" className="skip-link">{t('layout.skipToContent')}</a>
       <Header />
       <main id="main" className="flex-grow-1">
         <Outlet />

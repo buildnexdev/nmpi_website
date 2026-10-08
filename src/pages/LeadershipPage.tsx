@@ -19,8 +19,7 @@ interface Executive {
 }
 
 export const LeadershipPage: React.FC = () => {
-  const { lang } = useLanguage();
-  const ta = lang === 'ta';
+  const { lang, t } = useLanguage();
   const [items, setItems] = useState<Executive[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -50,26 +49,26 @@ export const LeadershipPage: React.FC = () => {
   return (
     <>
       <PageHero
-        eyebrow={ta ? 'தலைமை' : 'Leadership'}
-        title={ta ? 'மாவட்ட நிர்வாகிகள்' : 'District Executives'}
-        subtitle={ta ? 'தமிழகம் முழுவதும் இயக்கத்தை வழிநடத்தும் மாவட்டச் செயலாளர்கள் மற்றும் பொறுப்பாளர்கள்.' : 'The district secretaries and office-bearers leading the movement across Tamil Nadu.'}
+        eyebrow={t('leadershipPage.eyebrow')}
+        title={t('leadershipPage.title')}
+        subtitle={t('leadershipPage.subtitle')}
       />
       <section className="page-body">
         <div className="container">
           <div className="card-custom p-3 mb-4 d-flex flex-wrap gap-2 align-items-center">
             <div className="input-group flex-grow-1" style={{ maxWidth: 420 }}>
               <span className="input-group-text"><i className="bi bi-search"></i></span>
-              <input className="form-control" placeholder={ta ? 'பெயர் அல்லது மாவட்டம் மூலம் தேடுங்கள்' : 'Search by name or district'} value={search} onChange={(e) => setSearch(e.target.value)} aria-label={ta ? 'தேடல்' : 'Search'} />
+              <input className="form-control" placeholder={t('leadershipPage.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} aria-label={t('leadershipPage.searchAria')} />
             </div>
             {districts.length > 1 && (
-              <select className="form-select" style={{ maxWidth: 260 }} value={district} onChange={(e) => setDistrict(e.target.value)} aria-label={ta ? 'மாவட்டம்' : 'District'}>
-                <option value="">{ta ? 'அனைத்து மாவட்டங்களும்' : 'All districts'}</option>
+              <select className="form-select" style={{ maxWidth: 260 }} value={district} onChange={(e) => setDistrict(e.target.value)} aria-label={t('leadershipPage.districtAria')}>
+                <option value="">{t('leadershipPage.allDistricts')}</option>
                 {districts.map((d) => (
                   <option key={d.district!} value={d.district!}>{pick(d, 'district', lang)}</option>
                 ))}
               </select>
             )}
-            {items && <span className="ms-auto small text-muted">{visible.length} {ta ? 'நிர்வாகிகள்' : 'executives'}</span>}
+            {items && <span className="ms-auto small text-muted">{t('leadershipPage.count', { count: visible.length })}</span>}
           </div>
 
           {error ? (
@@ -77,7 +76,7 @@ export const LeadershipPage: React.FC = () => {
           ) : !items ? (
             <Loader />
           ) : visible.length === 0 ? (
-            <EmptyState icon="bi-people" title={ta ? 'பொருந்தும் நிர்வாகிகள் இல்லை' : 'No executives match your search'} />
+            <EmptyState icon="bi-people" title={t('leadershipPage.emptyTitle')} />
           ) : (
             <div className="row g-4">
               {visible.map((l) => (
@@ -92,12 +91,12 @@ export const LeadershipPage: React.FC = () => {
                     )}
                     {l.bio && <p className="small text-muted mt-3 mb-0">{l.bio}</p>}
                     <div className="d-flex justify-content-center gap-2 mt-auto pt-3">
-                      <a href={CONTACT_PHONE_TEL} className="btn btn-sm btn-outline-maroon" aria-label={`${ta ? 'அழைக்க' : 'Call'} ${CONTACT_PHONE}`}>
+                      <a href={CONTACT_PHONE_TEL} className="btn btn-sm btn-outline-maroon" aria-label={t('leadershipPage.callAria', { phone: CONTACT_PHONE })}>
                         <i className="bi bi-telephone"></i>
                         <span className="ms-1">{CONTACT_PHONE}</span>
                       </a>
                       {l.email && (
-                        <a href={`mailto:${l.email}`} className="btn btn-sm btn-outline-maroon" aria-label={`Email ${l.name}`}>
+                        <a href={`mailto:${l.email}`} className="btn btn-sm btn-outline-maroon" aria-label={t('leadershipPage.emailAria', { name: pick(l, 'name', lang) })}>
                           <i className="bi bi-envelope"></i>
                         </a>
                       )}

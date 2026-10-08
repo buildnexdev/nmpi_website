@@ -10,8 +10,7 @@ function toCalendarStamp(date: string, time?: string | null) {
 
 export const EventDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { lang } = useLanguage();
-  const ta = lang === 'ta';
+  const { lang, t } = useLanguage();
   const [item, setItem] = useState<EventItem | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,8 +26,8 @@ export const EventDetailsPage: React.FC = () => {
   if (error) {
     return (
       <div className="container page-body">
-        <EmptyState icon="bi-calendar-x" title={error === 'NOT_FOUND' ? (ta ? 'நிகழ்வு கிடைக்கவில்லை' : 'Event not found') : error}>
-          <Link to="/events" className="btn btn-maroon btn-sm mt-2">{ta ? 'அனைத்து நிகழ்வுகளும்' : 'Back to events'}</Link>
+        <EmptyState icon="bi-calendar-x" title={error === 'NOT_FOUND' ? t('eventDetailsPage.notFound') : error}>
+          <Link to="/events" className="btn btn-maroon btn-sm mt-2">{t('eventDetailsPage.backToEvents')}</Link>
         </EmptyState>
       </div>
     );
@@ -51,9 +50,9 @@ export const EventDetailsPage: React.FC = () => {
       <header className="page-hero" style={cover ? ({ '--page-hero-image': `url(${cover})` } as React.CSSProperties) : undefined}>
         <div className="container position-relative" style={{ zIndex: 1 }}>
           <nav className="breadcrumb-lite mb-3">
-            <Link to="/">{ta ? 'முகப்பு' : 'Home'}</Link><span>/</span><Link to="/events">{ta ? 'நிகழ்வுகள்' : 'Events'}</Link>
+            <Link to="/">{t('common.home')}</Link><span>/</span><Link to="/events">{t('eventDetailsPage.breadcrumbEvents')}</Link>
           </nav>
-          {status && <span className="chip mb-3" style={{ background: 'var(--accent-gold)', color: 'var(--ink)' }}>{status[lang]}</span>}
+          {status && <span className="chip mb-3" style={{ background: 'var(--accent-gold)', color: 'var(--ink)' }}>{t(status.key)}</span>}
           <h1>{pick(item, 'title', lang)}</h1>
           <p><i className="bi bi-geo-alt me-1"></i>{item.location}</p>
         </div>
@@ -65,7 +64,7 @@ export const EventDetailsPage: React.FC = () => {
             <div className="col-lg-8">
               <div className="card-custom p-4 p-md-5">
                 {cover && <img src={cover} alt="" className="w-100 rounded-4 mb-4" style={{ maxHeight: 440, objectFit: 'cover' }} />}
-                <h2 className="h4 mb-3">{ta ? 'நிகழ்வு பற்றி' : 'About this event'}</h2>
+                <h2 className="h4 mb-3">{t('eventDetailsPage.aboutEvent')}</h2>
                 <div className="rich-text" style={{ whiteSpace: 'pre-line' }}>{pick(item, 'description', lang)}</div>
               </div>
             </div>
@@ -82,18 +81,18 @@ export const EventDetailsPage: React.FC = () => {
                 </div>
                 <ul className="list-unstyled event-meta flex-column gap-3 mb-4">
                   <li><i className="bi bi-geo-alt"></i><strong className="text-ink">{item.location}</strong>{item.venue_address && <div className="ms-4">{item.venue_address}</div>}</li>
-                  {item.capacity ? <li><i className="bi bi-people"></i>{ta ? `${item.capacity} பேர் வரை` : `Up to ${item.capacity} people`}</li> : null}
+                  {item.capacity ? <li><i className="bi bi-people"></i>{t('eventDetailsPage.capacity', { count: item.capacity })}</li> : null}
                 </ul>
                 <div className="d-grid gap-2">
                   {item.status !== 'CANCELLED' && item.status !== 'COMPLETED' && (
                     <a href={calendarUrl} target="_blank" rel="noreferrer" className="btn btn-maroon">
-                      <i className="bi bi-calendar-plus me-2"></i>{ta ? 'நாட்காட்டியில் சேர்' : 'Add to calendar'}
+                      <i className="bi bi-calendar-plus me-2"></i>{t('eventDetailsPage.addToCalendar')}
                     </a>
                   )}
                   <a href={mapsUrl} target="_blank" rel="noreferrer" className="btn btn-outline-maroon">
-                    <i className="bi bi-map me-2"></i>{ta ? 'வரைபடத்தில் காண்க' : 'Open in Maps'}
+                    <i className="bi bi-map me-2"></i>{t('eventDetailsPage.openInMaps')}
                   </a>
-                  <Link to="/events" className="btn btn-link text-decoration-none">{ta ? '← அனைத்து நிகழ்வுகளும்' : '← All events'}</Link>
+                  <Link to="/events" className="btn btn-link text-decoration-none">{t('eventDetailsPage.allEvents')}</Link>
                 </div>
               </div>
             </div>
