@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { apiClient, asArray, errorMessage, formatDate, mediaUrl, pick } from '../services/apiClient';
+import { apiClient, asArray, errorMessage, formatDate, formatTime, mediaUrl, pick } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { EmptyState, Loader, NewsCard, NewsItem } from '../components/ui';
 
@@ -45,6 +45,10 @@ export const NewsDetailsPage: React.FC = () => {
   if (!item) return <div className="container page-body"><Loader /></div>;
 
   const cover = mediaUrl(item.cover_image);
+  const place = pick(item, 'place', lang);
+  const when = item.news_date
+    ? `${formatDate(item.news_date, lang)}${item.news_time ? ` · ${formatTime(item.news_time)}` : ''}`
+    : formatDate(item.published_at, lang);
 
   return (
     <>
@@ -57,7 +61,8 @@ export const NewsDetailsPage: React.FC = () => {
             <span className="chip mb-3" style={{ background: 'var(--accent-gold)', color: 'var(--ink)' }}>{item.category}</span>
             <h1>{pick(item, 'title', lang)}</h1>
             <p className="d-flex flex-wrap gap-3 small">
-              <span><i className="bi bi-calendar3 me-1"></i>{formatDate(item.published_at, lang)}</span>
+              <span><i className="bi bi-calendar3 me-1"></i>{when}</span>
+              {place && <span><i className="bi bi-geo-alt me-1"></i>{place}</span>}
               {item.author_name && <span><i className="bi bi-person me-1"></i>{item.author_name}</span>}
             </p>
           </div>

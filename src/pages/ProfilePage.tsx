@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ADMIN_URL, apiClient, downloadFile, errorMessage, formatDate, pick } from '../services/apiClient';
 import { EmptyState, ErrorBox, Loader, PageHero } from '../components/ui';
 import { DigitalIdCard } from '../components/DigitalIdCard';
+import { formatIdCardDesignation, formatIdCardExpiry } from '../utils/idCardFormat';
 
 interface MemberProfile {
   id: number;
@@ -163,7 +164,6 @@ export const ProfilePage: React.FC = () => {
     );
   }
 
-  const location2 = profile ? [profile.village_name || profile.village_custom, pick(profile, 'block_name', lang), pick(profile, 'district_name', lang)].filter(Boolean).join(', ') : '';
   const details: [string, React.ReactNode][] = profile
     ? [
         [t('profilePage.fields.memberId'), <code className="text-maroon">{profile.member_id}</code>],
@@ -200,8 +200,10 @@ export const ProfilePage: React.FC = () => {
                   <DigitalIdCard
                     fullName={profile.full_name}
                     memberId={profile.member_id}
-                    roleName={profile.role_name}
-                    location={location2}
+                    designation={formatIdCardDesignation(profile)}
+                    validUntil={formatIdCardExpiry(profile.created_at)}
+                    phone={profile.phone_number}
+                    countryCode={profile.country_code}
                     bloodGroup={profile.blood_group}
                     profileImage={profile.profile_image}
                     qrDataUrl={profile.qr_data_url}

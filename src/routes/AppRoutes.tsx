@@ -1,9 +1,8 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from '../layouts/MainLayout';
 import { HomePage } from '../pages/HomePage';
 import { AboutPage } from '../pages/AboutPage';
-import { HistoryPage } from '../pages/HistoryPage';
 import { StructurePage } from '../pages/StructurePage';
 import { LeadershipPage } from '../pages/LeadershipPage';
 import { NewsPage } from '../pages/NewsPage';
@@ -32,10 +31,10 @@ export const AppRoutes: React.FC = () => {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<HomePage />} />
         <Route path="about" element={<AboutPage />} />
+        <Route path="history" element={<Navigate to="/about" replace />} />
         <Route path="ideology" element={<IdeologyPage />} />
         <Route path="actions" element={<ActionsPage />} />
         <Route path="achievements" element={<AchievementsPage />} />
-        <Route path="history" element={<HistoryPage />} />
         <Route path="structure" element={<StructurePage />} />
         <Route path="leadership" element={<LeadershipPage />} />
         <Route path="wings" element={<WingsPage />} />

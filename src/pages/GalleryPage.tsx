@@ -1,29 +1,41 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { apiClient, asArray, errorMessage, mediaUrl } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { EmptyState, ErrorBox, Loader, PageHero } from '../components/ui';
 
 interface UploadImage {
   filename: string;
+  folder: string;
   path: string;
   updated_at: string;
 }
 
+/** Loose files in uploads/ come back as "General"; on the website they count as photos. */
+const FILTERS: { folder: string; labelKey: string }[] = [
+  { folder: '', labelKey: 'galleryPage.all' },
+  { folder: 'Gallery', labelKey: 'galleryPage.photos' },
+  { folder: 'Events', labelKey: 'nav.events' },
+  { folder: 'News', labelKey: 'header.nav.news' },
+];
+const groupOf = (img: UploadImage) => (img.folder === 'General' ? 'Gallery' : img.folder);
+
 export const GalleryPage: React.FC = () => {
   const { t } = useLanguage();
-  const [images, setImages] = useState<UploadImage[] | null>(null);
+  const [all, setAll] = useState<UploadImage[] | null>(null);
+  const [filter, setFilter] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<number | null>(null);
 
   const load = useCallback(() => {
     setError(null);
     apiClient
-      .get('/uploads/list')
-      .then((res) => setImages(asArray<UploadImage>(res.data.data).filter((img) => !/logo/i.test(img.filename))))
+      .get('/uploads/list', { params: { folder: 'Gallery,Events,News,General' } })
+      .then((res) => setAll(asArray<UploadImage>(res.data.data).filter((img) => !/logo/i.test(img.filename))))
       .catch((err) => setError(errorMessage(err)));
   }, []);
   useEffect(load, [load]);
 
+  const images = useMemo(() => (all ? all.filter((img) => !filter || groupOf(img) === filter) : null), [all, filter]);
   const count = images?.length || 0;
   const step = useCallback((delta: number) => setActive((i) => (i === null ? i : (i + delta + count) % count)), [count]);
 
@@ -53,6 +65,24 @@ export const GalleryPage: React.FC = () => {
       />
       <section className="page-body">
         <div className="container">
+          {all && all.length > 0 && (
+            <div className="gallery-filters" role="group" aria-label={t('galleryPage.title')}>
+              {FILTERS.map((f) => {
+                const n = f.folder ? all.filter((img) => groupOf(img) === f.folder).length : all.length;
+                return (
+                  <button
+                    key={f.folder || 'all'}
+                    type="button"
+                    aria-pressed={filter === f.folder}
+                    className={`gallery-filter ${filter === f.folder ? 'active' : ''}`}
+                    onClick={() => { setFilter(f.folder); setActive(null); }}
+                  >
+                    {t(f.labelKey)} <span>{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           {error ? (
             <ErrorBox message={error} onRetry={load} />
           ) : !images ? (
@@ -62,7 +92,7 @@ export const GalleryPage: React.FC = () => {
           ) : (
             <div className="gallery-grid">
               {images.map((img, idx) => (
-                <button type="button" className="gallery-item border-0 p-0 w-100 bg-transparent" key={img.filename} onClick={() => setActive(idx)} aria-label={t('galleryPage.openPhotoAria', { number: idx + 1 })}>
+                <button type="button" className="gallery-item border-0 p-0 w-100 bg-transparent" key={img.path} onClick={() => setActive(idx)} aria-label={t('galleryPage.openPhotoAria', { number: idx + 1 })}>
                   <img src={mediaUrl(img.path)} alt="" loading="lazy" />
                 </button>
               ))}

@@ -5,7 +5,6 @@ import { useLanguage } from '../../context/LanguageContext';
 
 interface PersonalInformationFormProps {
   duplicates: DuplicateChecker;
-  onNext: () => void;
 }
 
 const countryCodes = [
@@ -20,7 +19,7 @@ const countryCodes = [
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'Unknown'];
 
-export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = ({ duplicates, onNext }) => {
+export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = ({ duplicates }) => {
   const { t } = useLanguage();
   const { values, setFieldValue, setFieldTouched, errors, touched } = useFormikContext<any>();
   const [showPassword, setShowPassword] = useState(false);
@@ -96,7 +95,7 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
           )}
         </div>
         <div className="flex-grow-1">
-          <div className="fw-semibold">{t('joinForm.profilePhoto')} <span className="text-muted fw-normal small">({t('joinForm.optional')})</span></div>
+          <div className="fw-semibold">{t('joinForm.profilePhoto')} *</div>
           <div className="small text-muted mb-2">{t('joinForm.profilePhotoHint')}</div>
           <div className="d-flex gap-2">
             <label className="btn btn-sm btn-outline-maroon mb-0">
@@ -110,6 +109,7 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
             )}
           </div>
           {imageError && <div className="text-danger small mt-1">{imageError}</div>}
+          <ErrorMessage name="profile_image" component="div" className="text-danger small mt-1" />
         </div>
       </div>
 
@@ -210,11 +210,6 @@ export const PersonalInformationForm: React.FC<PersonalInformationFormProps> = (
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-top d-flex justify-content-end">
-        <button type="button" className="btn btn-maroon px-4" onClick={onNext}>
-          {t('joinForm.continue')} <i className="bi bi-arrow-right ms-1"></i>
-        </button>
-      </div>
     </div>
   );
 };

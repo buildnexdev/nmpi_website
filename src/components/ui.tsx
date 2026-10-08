@@ -3,27 +3,40 @@ import { Link } from 'react-router-dom';
 import { formatDate, formatTime, mediaUrl, pick } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 
-export const PageHero: React.FC<{ eyebrow?: string; title: string; subtitle?: string; image?: string; children?: React.ReactNode }> = ({
-  eyebrow,
-  title,
-  subtitle,
-  image,
-  children,
-}) => {
+const PAGE_HERO_PHOTO = '/uploads/Gallery/IMG-20260925-WA0072.jpg';
+
+export const PageHero: React.FC<{
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  image?: string;
+  icon?: string;
+  children?: React.ReactNode;
+}> = ({ eyebrow, title, subtitle, image = PAGE_HERO_PHOTO, icon, children }) => {
   const { t } = useLanguage();
   return (
-    <section className="page-hero" style={image ? ({ '--page-hero-image': `url(${image})` } as React.CSSProperties) : undefined}>
-      <div className="container position-relative" style={{ zIndex: 1 }}>
-        <nav className="breadcrumb-lite mb-3" aria-label={t('ui.breadcrumbAria')}>
-          <Link to="/">{t('common.home')}</Link>
-          <span>/</span>
+    <section className="page-hero">
+      <div className="page-hero-photo" style={{ backgroundImage: `url("${mediaUrl(image)}")` }} aria-hidden="true"></div>
+      <div className="page-hero-glow" aria-hidden="true"></div>
+      <div className="container page-hero-inner">
+        <nav className="breadcrumb-lite" aria-label={t('ui.breadcrumbAria')}>
+          <Link to="/"><i className="bi bi-house-door-fill"></i>{t('common.home')}</Link>
+          <i className="bi bi-chevron-right"></i>
           <span>{title}</span>
         </nav>
-        {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-        <h1>{title}</h1>
+        <div className="page-hero-heading">
+          {icon && <span className="page-hero-icon"><i className={`bi ${icon}`}></i></span>}
+          <div>
+            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
+            <h1>{title}</h1>
+          </div>
+        </div>
         {subtitle && <p>{subtitle}</p>}
-        {children}
+        {children && <div className="page-hero-extra">{children}</div>}
       </div>
+      <svg className="page-hero-wave" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,40 C240,80 480,0 720,24 C960,48 1200,70 1440,30 L1440,70 L0,70 Z" />
+      </svg>
     </section>
   );
 };
@@ -86,14 +99,27 @@ export interface NewsItem {
   content?: string;
   content_ta?: string | null;
   cover_image?: string | null;
+  place?: string | null;
+  place_ta?: string | null;
+  news_date?: string | null;
+  news_time?: string | null;
   is_featured?: number;
   published_at: string;
   author_name?: string | null;
 }
 
+function newsWhen(item: NewsItem, lang: 'ta' | 'en'): string {
+  if (item.news_date) {
+    const d = formatDate(item.news_date, lang);
+    return item.news_time ? `${d} · ${formatTime(item.news_time)}` : d;
+  }
+  return formatDate(item.published_at, lang);
+}
+
 export const NewsCard: React.FC<{ item: NewsItem }> = ({ item }) => {
   const { lang, t } = useLanguage();
   const cover = mediaUrl(item.cover_image);
+  const place = pick(item, 'place', lang);
   return (
     <Link to={`/news/${item.id}`} className="card-custom card-hover news-card">
       <div className="news-card-media">
@@ -101,7 +127,8 @@ export const NewsCard: React.FC<{ item: NewsItem }> = ({ item }) => {
         <span className="chip">{item.category}</span>
       </div>
       <div className="news-card-body">
-        <div className="news-card-date"><i className="bi bi-calendar3 me-1"></i>{formatDate(item.published_at, lang)}</div>
+        <div className="news-card-date"><i className="bi bi-calendar3 me-1"></i>{newsWhen(item, lang)}</div>
+        {place && <div className="news-card-place small text-muted mb-1"><i className="bi bi-geo-alt me-1"></i>{place}</div>}
         <h3 className="news-card-title">{pick(item, 'title', lang)}</h3>
         <p className="news-card-summary">{pick(item, 'summary', lang)}</p>
         <span className="read-more">
@@ -158,6 +185,7 @@ export const EventCard: React.FC<{ item: EventItem }> = ({ item }) => {
           {t('common.viewDetails')} <i className="bi bi-arrow-right"></i>
         </span>
       </div>
+      {item.cover_image && <img className="event-card-cover" src={mediaUrl(item.cover_image)} alt="" loading="lazy" />}
     </Link>
   );
 };

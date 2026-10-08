@@ -8,11 +8,8 @@
   .page-hero { padding: 52px 0 44px; }
   .page-body { padding: 36px 0 64px; }
   .event-card { flex-direction: column; }
+  .event-card-cover { order: -1; width: 100%; aspect-ratio: 16 / 9; }
   .date-tile { width: 64px; }
-  .id-card { padding: 16px; aspect-ratio: auto; min-height: 210px; }
-  .id-card-main { gap: 12px; }
-  .id-card-photo { width: 64px; height: 80px; }
-  .id-card-qr { width: 72px; height: 72px; }
-  .id-card-name { font-size: 1.05rem; }
+  .nmpi-id-card { max-width: 100%; }
   .wizard-step span.label { display: none; }
 }

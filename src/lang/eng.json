@@ -135,10 +135,18 @@
     },
     "fields": {
       "memberId": "Member ID",
+      "fatherName": "Father's / husband's name",
+      "dateOfBirth": "Date of birth",
+      "gender": "Gender",
+      "phone": "Mobile number",
+      "email": "Email",
       "role": "Role",
+      "address": "Address",
+      "village": "Village / panchayat",
       "district": "District",
       "block": "Block / taluk",
       "parliament": "Parliament constituency",
+      "assembly": "Assembly constituency",
       "bloodGroup": "Blood group",
       "memberSince": "Member since"
     }
@@ -213,7 +221,7 @@
       "A direct line to district leaders"
     ],
     "keepReady": "Keep these ready",
-    "keepReadyText": "Your Aadhaar number, Voter ID number and, optionally, a photo.",
+    "keepReadyText": "Your Aadhaar number, Voter ID number, and a passport-style photo (JPG/PNG, up to 5 MB).",
     "alreadyMember": "Already a member?",
     "logIn": "Log in"
   },
@@ -239,7 +247,9 @@
       "parliamentRequired": "Select your parliament constituency",
       "districtRequired": "Select your district",
       "blockRequired": "Select your taluk / block",
-      "consentRequired": "Please accept the Privacy Policy and Terms to continue"
+      "roleRequired": "Select how you want to join",
+      "consentRequired": "Please accept the Privacy Policy and Terms to continue",
+      "profilePhotoRequired": "A profile photo is required for your ID card"
     },
     "profilePhoto": "Profile photo",
     "optional": "optional",
@@ -268,7 +278,11 @@
     "bloodGroup": "Blood group",
     "bloodGroupUnknown": "Not sure",
     "continue": "Continue",
-    "loadError": "Could not load constituency and district lists. Please refresh the page.",
+    "loadError": "Could not load constituency and district lists. Make sure the API server is running, then try again.",
+    "loadErrorPartial": "Some location lists are empty. Check your connection or try again.",
+    "loadingLists": "Loading constituencies, districts, and roles…",
+    "retryLoad": "Retry",
+    "reloadingLists": "Loading…",
     "identity": "Identity",
     "aadhaarNumber": "Aadhaar number",
     "voterId": "Voter ID (EPIC) number",
@@ -415,7 +429,9 @@
     "openPhotoAria": "Open photo {number}",
     "viewerAria": "Photo viewer",
     "previousAria": "Previous",
-    "nextAria": "Next"
+    "nextAria": "Next",
+    "all": "All",
+    "photos": "Photos"
   },
   "faqPage": {
     "eyebrow": "Help",
@@ -467,35 +483,8 @@
     "defaultSubject": "Website enquiry"
   },
   "homePage": {
-    "aboutImageAlt": "State general council",
-    "badgeTitle": "In the path of Netaji",
-    "badgeValues": "Discipline · Service · Sacrifice",
-    "aboutEyebrow": "Who we are",
-    "aboutTitle": "United for every citizen's rights and safety",
-    "aboutLead": "Netaji Makkal Pathukappu Iyakkam works on the ground in every district of Tamil Nadu for livelihoods, public safety and social justice.",
-    "aboutPoints": [
-      "Structured leadership in every district",
-      "Legal aid and rights protection",
-      "Digital ID card with QR verification"
-    ],
+    "statsAria": "Movement at a glance",
     "districtExecutives": "District executives",
-    "benefitsEyebrow": "Member benefits",
-    "benefitsTitle": "Why join the movement?",
-    "benefitsLead": "Membership is free. Your digital ID card is issued the moment you register.",
-    "benefits": [
-      {
-        "title": "Digital ID card",
-        "text": "An official member card with a unique ID and QR verification — also available in the mobile app."
-      },
-      {
-        "title": "Legal aid & protection",
-        "text": "Support for members' rights through the movement's legal wing."
-      },
-      {
-        "title": "District network",
-        "text": "Connect directly with your district, taluk and unit coordinators."
-      }
-    ],
     "newsEyebrow": "Latest updates",
     "newsTitle": "News & announcements",
     "allNews": "All news",
@@ -506,19 +495,26 @@
     "noEvents": "No upcoming events right now — check back soon.",
     "leadershipEyebrow": "Leadership",
     "ctaTitle": "Join the movement today",
-    "ctaText": "Free registration · Instant member number · Digital ID card with QR verification"
+    "ctaText": "Free registration · Instant member number · Digital ID card with QR verification",
+    "videosTitle": "Movement videos"
   },
   "aboutPage": {
     "eyebrow": "About us",
-    "fallbackTitle": "About Netaji Makkal Pathukappu Iyakkam",
-    "valuesTitle": "Our core values",
+    "fallbackTitle": "About Netaji Makkal Pathukappu Iyakkam – Tamil Nadu",
+    "valuesTitle": "Our motto",
     "values": [
-      "Public safety",
+      "People's rights",
       "Social justice",
-      "Transparent administration",
-      "Discipline and service"
+      "People's protection",
+      "Public welfare"
     ],
-    "ctaText": "Free registration and an instant digital ID card."
+    "tagline": "A people's movement for rights, social justice, legal protection and public welfare across Tamil Nadu.",
+    "registrationStartedLabel": "Movement started",
+    "registrationNumberLabel": "Registration no.",
+    "registrationStarted": "Movement started: 12.02.2025",
+    "registrationNumber": "Movement registration no.: 132/2026",
+    "ctaText": "Free registration and an instant digital ID card.",
+    "readPolicies": "Policies & principles"
   },
   "ideologyPage": {
     "eyebrow": "Ideology",
@@ -605,7 +601,9 @@
         "title": "Free Legal Consultation Centres",
         "text": "With the assistance of police personnel and legal professionals, free legal consultation centres should be established in every district to help people with legal issues."
       }
-    ]
+    ],
+    "policiesShort": "Policies",
+    "welfareShort": "Welfare activities"
   },
   "founder": {
     "eyebrow": "Our message",
@@ -784,27 +782,9 @@
     "builtBy": "Built by"
   },
   "hero": {
-    "pill": "Tamil Nadu's people's protection movement",
-    "titleLead": "Netaji Makkal",
-    "titleHighlight": "Pathukappu Iyakkam",
-    "lead": "A disciplined people's movement for public rights, social welfare and safety — guided by the ideals of Netaji Subhas Chandra Bose.",
-    "becomeMember": "Become a member",
-    "aboutMovement": "About the movement",
     "slideAria": "Slide {number}",
     "prevSlide": "Previous photo",
     "nextSlide": "Next photo",
-    "points": [
-      "Free membership",
-      "QR-verified digital ID card",
-      "Leadership in every district"
-    ],
-    "values": "Discipline · Service · Sacrifice",
-    "slides": {
-      "stateGeneralCouncil": "State General Council",
-      "zonalConference": "Zonal Conference & Rally",
-      "districtMeeting": "District Executives Meeting",
-      "protectionCampaign": "Public Protection Campaign"
-    },
     "stats": {
       "members": "Verified members",
       "leaders": "District executives",

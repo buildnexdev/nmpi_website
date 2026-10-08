@@ -11,7 +11,6 @@ const COLUMNS = [
     links: [
       { to: '/about', labelKey: 'header.nav.aboutUs' },
       { to: '/ideology', labelKey: 'header.nav.ideology' },
-      { to: '/history', labelKey: 'nav.history' },
       { to: '/leadership', labelKey: 'header.nav.districtExecutives' },
       { to: '/achievements', labelKey: 'nav.achievements' },
     ],

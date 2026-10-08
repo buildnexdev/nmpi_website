@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { downloadFile, errorMessage, pick } from '../../services/apiClient';
+import { downloadFile, errorMessage } from '../../services/apiClient';
+import { formatIdCardDesignation, formatIdCardExpiry } from '../../utils/idCardFormat';
 import { RegisteredMember } from '../../services/memberService';
 import { DigitalIdCard } from '../DigitalIdCard';
 import { useLanguage } from '../../context/LanguageContext';
@@ -10,7 +11,7 @@ interface RegistrationSuccessProps {
 }
 
 export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({ member, onLogin }) => {
-  const { lang, t } = useLanguage();
+  const { t } = useLanguage();
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,8 +31,6 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({ member
     }
   };
 
-  const location = [member.village_name || member.village_custom, pick(member, 'block_name', lang), pick(member, 'district_name', lang)].filter(Boolean).join(', ');
-
   return (
     <div className="card-custom p-4 p-md-5 mx-auto" style={{ maxWidth: 680 }}>
       <div className="text-center mb-4">
@@ -48,9 +47,11 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({ member
         <DigitalIdCard
           fullName={member.full_name}
           memberId={member.member_id}
-          roleName={member.role_name}
-          location={location}
-          bloodGroup={member.blood_group !== 'Unknown' ? member.blood_group : null}
+          designation={formatIdCardDesignation(member)}
+          validUntil={formatIdCardExpiry(member.created_at)}
+          phone={member.phone_number}
+          countryCode={member.country_code}
+          bloodGroup={member.blood_group}
           profileImage={member.profile_image}
         />
       </div>

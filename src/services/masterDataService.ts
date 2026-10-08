@@ -1,4 +1,4 @@
-import { apiClient } from './apiClient';
+import { apiClient, asArray } from './apiClient';
 
 export interface StateOption {
   id: number;
@@ -56,37 +56,38 @@ export interface RoleOption {
 export const masterDataService = {
   getStates: async (): Promise<StateOption[]> => {
     const response = await apiClient.get('/master-data/states');
-    return response.data.data || [];
+    return asArray<StateOption>(response.data?.data);
   },
 
-  getParliaments: async (stateId: number = 1): Promise<ParliamentOption[]> => {
-    const response = await apiClient.get(`/master-data/parliaments?stateId=${stateId}`);
-    return response.data.data || [];
+  getParliaments: async (stateId?: number): Promise<ParliamentOption[]> => {
+    const qs = stateId && stateId > 0 ? `?stateId=${stateId}` : '';
+    const response = await apiClient.get(`/master-data/parliaments${qs}`);
+    return asArray<ParliamentOption>(response.data?.data);
   },
 
   getAssemblies: async (parliamentId?: number): Promise<AssemblyOption[]> => {
     const url = parliamentId ? `/master-data/assemblies?parliamentId=${parliamentId}` : '/master-data/assemblies';
     const response = await apiClient.get(url);
-    return response.data.data || [];
+    return asArray<AssemblyOption>(response.data?.data);
   },
 
   getDistricts: async (): Promise<DistrictOption[]> => {
     const response = await apiClient.get('/master-data/districts');
-    return response.data.data || [];
+    return asArray<DistrictOption>(response.data?.data);
   },
 
   getBlocks: async (districtId: number): Promise<BlockOption[]> => {
     const response = await apiClient.get(`/master-data/blocks?districtId=${districtId}`);
-    return response.data.data || [];
+    return asArray<BlockOption>(response.data?.data);
   },
 
   getVillages: async (blockId: number): Promise<VillageOption[]> => {
     const response = await apiClient.get(`/master-data/villages?blockId=${blockId}`);
-    return response.data.data || [];
+    return asArray<VillageOption>(response.data?.data);
   },
 
   getRoles: async (): Promise<RoleOption[]> => {
     const response = await apiClient.get('/master-data/roles');
-    return response.data.data || [];
+    return asArray<RoleOption>(response.data?.data);
   },
 };

@@ -18,6 +18,26 @@ const WINGS_DATA: Wing[] = [
   { id: 'farmers', icon: 'bi-tree-fill', color: '#16A34A' },
 ];
 
+/** The organisation's wings as coloured cards. */
+export const WingsGrid: React.FC<{ headingLevel?: 'h2' | 'h3' }> = ({ headingLevel: Heading = 'h2' }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="row g-4">
+      {WINGS_DATA.map((w) => (
+        <div className="col-md-6 col-lg-4" key={w.id}>
+          <div className="card-custom card-hover feature-tile h-100" style={{ borderTop: `4px solid ${w.color}` }}>
+            <div className="feature-icon" style={{ background: `${w.color}1a`, color: w.color }}>
+              <i className={`bi ${w.icon}`}></i>
+            </div>
+            <Heading className="h5">{t(`wingsPage.wings.${w.id}.name`)}</Heading>
+            <p className="mb-0">{t(`wingsPage.wings.${w.id}.description`)}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const WingsPage: React.FC = () => {
   const { t } = useLanguage();
 
@@ -30,19 +50,7 @@ export const WingsPage: React.FC = () => {
       />
       <section className="page-body">
         <div className="container">
-          <div className="row g-4">
-            {WINGS_DATA.map((w) => (
-              <div className="col-md-6 col-lg-4" key={w.id}>
-                <div className="card-custom card-hover feature-tile h-100" style={{ borderTop: `4px solid ${w.color}` }}>
-                  <div className="feature-icon" style={{ background: `${w.color}1a`, color: w.color }}>
-                    <i className={`bi ${w.icon}`}></i>
-                  </div>
-                  <h2 className="h5">{t(`wingsPage.wings.${w.id}.name`)}</h2>
-                  <p className="mb-0">{t(`wingsPage.wings.${w.id}.description`)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <WingsGrid />
           <div className="cta-band mt-5 d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
               <h2 className="h4 mb-1">{t('wingsPage.ctaTitle')}</h2>

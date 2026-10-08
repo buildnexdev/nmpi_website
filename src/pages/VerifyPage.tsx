@@ -8,9 +8,16 @@ import { Loader } from '../components/ui';
 interface VerifiedMember {
   member_id: string;
   full_name: string;
+  father_name: string | null;
+  date_of_birth: string | null;
   gender: string | null;
+  country_code: string | null;
+  phone_number: string | null;
+  email: string | null;
   profile_image: string | null;
   blood_group: string | null;
+  address_line1: string | null;
+  village_custom: string | null;
   status: string;
   created_at: string;
   parliament_name: string | null;
@@ -49,14 +56,39 @@ export const VerifyPage: React.FC = () => {
 
   const verdictKey = member && VERDICT[member.status] ? member.status : 'PENDING';
   const verdict = member ? VERDICT[verdictKey] : null;
+  const formatPhone = (m: VerifiedMember) => {
+    const digits = (m.phone_number || '').replace(/\D/g, '');
+    if (!digits) return null;
+    const cc = (m.country_code || '+91').trim();
+    return `${cc} ${digits}`;
+  };
+
+  const formatGender = (g: string | null) => {
+    if (!g) return null;
+    const key = `joinForm.gender${g === 'MALE' ? 'Male' : g === 'FEMALE' ? 'Female' : 'Other'}` as const;
+    return t(key);
+  };
+
+  const villageLabel = member
+    ? member.village_name || member.village_custom || null
+    : null;
+
   const rows: [string, string | null][] = member
     ? [
         [t('verifyPage.fields.memberId'), member.member_id],
+        [t('verifyPage.fields.fatherName'), member.father_name],
+        [t('verifyPage.fields.dateOfBirth'), member.date_of_birth ? formatDate(member.date_of_birth, lang) : null],
+        [t('verifyPage.fields.gender'), formatGender(member.gender)],
+        [t('verifyPage.fields.phone'), formatPhone(member)],
+        [t('verifyPage.fields.email'), member.email],
+        [t('verifyPage.fields.bloodGroup'), member.blood_group && member.blood_group !== 'Unknown' ? member.blood_group : null],
+        [t('verifyPage.fields.address'), member.address_line1],
+        [t('verifyPage.fields.village'), villageLabel],
         [t('verifyPage.fields.role'), member.role_name],
+        [t('verifyPage.fields.parliament'), pick(member, 'parliament_name', lang)],
+        [t('verifyPage.fields.assembly'), pick(member, 'assembly_name', lang)],
         [t('verifyPage.fields.district'), pick(member, 'district_name', lang)],
         [t('verifyPage.fields.block'), pick(member, 'block_name', lang)],
-        [t('verifyPage.fields.parliament'), pick(member, 'parliament_name', lang)],
-        [t('verifyPage.fields.bloodGroup'), member.blood_group],
         [t('verifyPage.fields.memberSince'), formatDate(member.created_at, lang)],
       ]
     : [];

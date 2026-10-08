@@ -1,0 +1,121 @@
+.nmpi-id-card {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  aspect-ratio: 683 / 1024;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: #fff;
+}
+
+.nmpi-id-card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+.nmpi-id-card-photo-wrap {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  background: #fff;
+  overflow: hidden;
+}
+
+.nmpi-id-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+.nmpi-id-card-photo-wrap.is-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ececec;
+  color: #9ca3af;
+  font-size: 2rem;
+}
+
+.nmpi-id-card-slot {
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  padding: 0 1px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: #111;
+  font-weight: 700;
+  line-height: 1.1;
+  box-sizing: border-box;
+}
+
+.nmpi-id-card-slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.92);
+  z-index: -1;
+}
+
+.nmpi-id-card-slot span {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nmpi-id-card-slot.name {
+  font-family: var(--font-heading);
+  font-size: clamp(0.58rem, 2.75vw, 0.82rem);
+}
+
+.nmpi-id-card-slot.member-id {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: clamp(0.55rem, 2.55vw, 0.72rem);
+}
+
+.nmpi-id-card-slot.phone,
+.nmpi-id-card-slot.blood,
+.nmpi-id-card-slot.expiry {
+  font-size: clamp(0.52rem, 2.4vw, 0.68rem);
+}
+
+.nmpi-id-card-slot.designation {
+  font-family: var(--font-heading);
+  font-size: clamp(0.5rem, 2.25vw, 0.64rem);
+  font-weight: 600;
+  align-items: center;
+}
+
+.nmpi-id-card-slot.designation span {
+  white-space: nowrap;
+}
+
+.nmpi-id-card-qr-wrap {
+  position: absolute;
+  z-index: 2;
+  aspect-ratio: 1;
+  background: #fff;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.nmpi-id-card-qr {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

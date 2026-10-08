@@ -1,47 +1,69 @@
 import React from 'react';
 import { mediaUrl } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
+import { formatIdCardBloodGroup, formatIdCardPhone } from '../utils/idCardFormat';
+import { idCardBoxStyle, idCardPhotoStyle, idCardQrStyle } from '../utils/idCardLayout';
+import './DigitalIdCard.css';
 
 interface Props {
   fullName: string;
   memberId: string;
-  roleName?: string | null;
-  location?: string | null;
+  designation: string;
+  validUntil: string;
+  phone?: string | null;
+  countryCode?: string | null;
   bloodGroup?: string | null;
   profileImage?: string | null;
   qrDataUrl?: string | null;
 }
 
-export const DigitalIdCard: React.FC<Props> = ({ fullName, memberId, roleName, location, bloodGroup, profileImage, qrDataUrl }) => {
+export const DigitalIdCard: React.FC<Props> = ({
+  fullName,
+  memberId,
+  designation,
+  validUntil,
+  phone,
+  countryCode,
+  bloodGroup,
+  profileImage,
+  qrDataUrl,
+}) => {
   const { t } = useLanguage();
+  const photo = mediaUrl(profileImage);
+
   return (
-    <div className="id-card" aria-label={t('idCard.ariaLabel')}>
-      <div className="id-card-head">
-        <img src="/logo.jpg" alt="" />
-        <div className="id-card-org">
-          {t('common.brandName')}
-          <small>{t('idCard.subtitle')}</small>
-        </div>
-      </div>
-      <div className="id-card-main">
-        {profileImage ? (
-          <img className="id-card-photo" src={mediaUrl(profileImage)} alt={fullName} />
+    <div className="nmpi-id-card" aria-label={t('idCard.ariaLabel')}>
+      <img className="nmpi-id-card-bg" src="/id-card-template.jpg" alt="" draggable={false} />
+      <div className={`nmpi-id-card-photo-wrap ${photo ? '' : 'is-empty'}`} style={idCardPhotoStyle()}>
+        {photo ? (
+          <img className="nmpi-id-card-photo" src={photo} alt={fullName} loading="lazy" />
         ) : (
-          <div className="id-card-photo d-flex align-items-center justify-content-center">
-            <i className="bi bi-person fs-1 text-white-50"></i>
-          </div>
+          <i className="bi bi-person" aria-hidden="true"></i>
         )}
-        <div className="min-w-0 flex-grow-1">
-          <div className="id-card-name text-truncate">{fullName}</div>
-          <div className="id-card-id">{memberId}</div>
-          <div className="id-card-meta mt-1">
-            {roleName || t('idCard.defaultRole')}
-            {bloodGroup && <> · <i className="bi bi-droplet-fill"></i> {bloodGroup}</>}
-          </div>
-          {location && <div className="id-card-meta text-truncate">{location}</div>}
-        </div>
-        {qrDataUrl && <img className="id-card-qr" src={qrDataUrl} alt={t('idCard.qrAlt')} />}
       </div>
+      <p className="nmpi-id-card-slot name" style={idCardBoxStyle('name')}>
+        <span>{fullName.trim() || '—'}</span>
+      </p>
+      <p className="nmpi-id-card-slot member-id" style={idCardBoxStyle('memberId')}>
+        <span>{memberId}</span>
+      </p>
+      <p className="nmpi-id-card-slot phone" style={idCardBoxStyle('phone')}>
+        <span>{formatIdCardPhone(countryCode, phone)}</span>
+      </p>
+      <p className="nmpi-id-card-slot blood" style={idCardBoxStyle('bloodGroup')}>
+        <span>{formatIdCardBloodGroup(bloodGroup)}</span>
+      </p>
+      <p className="nmpi-id-card-slot designation" style={idCardBoxStyle('designation')}>
+        <span>{designation}</span>
+      </p>
+      <p className="nmpi-id-card-slot expiry" style={idCardBoxStyle('expiry')}>
+        <span>{validUntil}</span>
+      </p>
+      {qrDataUrl && (
+        <div className="nmpi-id-card-qr-wrap" style={idCardQrStyle()}>
+          <img className="nmpi-id-card-qr" src={qrDataUrl} alt={t('idCard.qrAlt')} />
+        </div>
+      )}
     </div>
   );
 };

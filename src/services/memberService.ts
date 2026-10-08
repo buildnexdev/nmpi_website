@@ -96,6 +96,7 @@ export interface RegisteredMember {
   assembly_name?: string | null;
   role_name?: string | null;
   status: string;
+  created_at?: string;
   verification_token: string;
   id_card_token: string;
 }

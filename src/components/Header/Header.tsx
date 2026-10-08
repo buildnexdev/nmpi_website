@@ -11,7 +11,7 @@ import './Header.css';
 interface NavEntry {
   labelKey: string;
   to?: string;
-  children?: { labelKey: string; to: string; icon: string }[];
+  children?: { labelKey: string; to: string }[];
 }
 
 const NAV: NavEntry[] = [
@@ -19,32 +19,30 @@ const NAV: NavEntry[] = [
   {
     labelKey: 'header.nav.movement',
     children: [
-      { labelKey: 'header.nav.aboutUs', to: '/about', icon: 'bi-info-circle' },
-      { labelKey: 'header.nav.ideology', to: '/ideology', icon: 'bi-compass' },
-      { labelKey: 'nav.history', to: '/history', icon: 'bi-hourglass-split' },
-      { labelKey: 'nav.achievements', to: '/achievements', icon: 'bi-trophy' },
-      { labelKey: 'header.nav.actions', to: '/actions', icon: 'bi-lightning-charge' },
+      { labelKey: 'header.nav.aboutUs', to: '/about' },
+      { labelKey: 'header.nav.ideology', to: '/ideology' },
+      { labelKey: 'nav.achievements', to: '/achievements' },
+      { labelKey: 'header.nav.actions', to: '/actions' },
     ],
   },
   {
     labelKey: 'header.nav.organisation',
     children: [
-      { labelKey: 'header.nav.districtExecutives', to: '/leadership', icon: 'bi-people' },
-      { labelKey: 'header.nav.structure', to: '/structure', icon: 'bi-diagram-3' },
-      { labelKey: 'header.nav.wings', to: '/wings', icon: 'bi-grid' },
+      { labelKey: 'header.nav.districtExecutives', to: '/leadership' },
+      { labelKey: 'header.nav.structure', to: '/structure' },
+      { labelKey: 'header.nav.wings', to: '/wings' },
     ],
   },
   {
     labelKey: 'header.nav.media',
     children: [
-      { labelKey: 'header.nav.news', to: '/news', icon: 'bi-newspaper' },
-      { labelKey: 'nav.events', to: '/events', icon: 'bi-calendar-event' },
-      { labelKey: 'nav.gallery', to: '/gallery', icon: 'bi-images' },
+      { labelKey: 'header.nav.news', to: '/news' },
+      { labelKey: 'nav.events', to: '/events' },
+      { labelKey: 'nav.gallery', to: '/gallery' },
     ],
   },
   { labelKey: 'header.nav.contact', to: '/contact' },
 ];
-
 
 export const Header: React.FC = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -54,7 +52,7 @@ export const Header: React.FC = () => {
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const [compact, setCompact] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -63,7 +61,8 @@ export const Header: React.FC = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    // Hysteresis so the collapsing utility bar can't make the header flicker at the threshold.
+    const onScroll = () => setCompact((was) => (was ? window.scrollY > 20 : window.scrollY > 80));
     const onClick = (e: MouseEvent) => {
       if (headerRef.current && !headerRef.current.contains(e.target as Node)) setOpenMenu(null);
     };
@@ -73,6 +72,7 @@ export const Header: React.FC = () => {
         setDrawerOpen(false);
       }
     };
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('mousedown', onClick);
     document.addEventListener('keydown', onKey);
@@ -114,14 +114,12 @@ export const Header: React.FC = () => {
   );
 
   return (
-    <header ref={headerRef} className={`site-header ${scrolled ? 'scrolled' : ''}`}>
+    <header ref={headerRef} className={`site-header ${compact ? 'is-compact' : ''}`}>
       <div className="topbar d-none d-lg-block">
         <div className="container d-flex align-items-center justify-content-between">
-          <span>
-            <i className="bi bi-geo-alt-fill me-1"></i>
-            {t('contactInfo.city')}
-            <span className="mx-3 opacity-50">|</span>
-            <a href={CONTACT_PHONE_TEL}><i className="bi bi-telephone-fill me-1"></i>{CONTACT_PHONE}</a>
+          <span className="topbar-info">
+            <span><i className="bi bi-geo-alt-fill"></i>{t('contactInfo.city')}</span>
+            <a href={CONTACT_PHONE_TEL}><i className="bi bi-telephone-fill"></i>{CONTACT_PHONE}</a>
           </span>
           <div className="d-flex align-items-center gap-3">
             <div className="d-flex gap-1">
@@ -139,7 +137,7 @@ export const Header: React.FC = () => {
       <div className="mainbar">
         <div className="container d-flex align-items-center gap-3">
           <Link to="/" className="brand" aria-label={t('header.brandHomeAria')}>
-            <img src="/logo.jpg" alt="" />
+            <span className="brand-logo"><img src="/logo.jpg" alt="" /></span>
             <span className="brand-text">
               <span className="brand-ta">{brandTa}</span>
               <span className="brand-en">{brandEn}</span>
@@ -159,9 +157,8 @@ export const Header: React.FC = () => {
                     {t(entry.labelKey)} <i className="bi bi-chevron-down caret"></i>
                   </button>
                   <div className="nav-dropdown" role="menu">
-                    {entry.children.map((c) => (
-                      <NavLink key={c.to} to={c.to} className="nav-dropdown-link" role="menuitem">
-                        <i className={`bi ${c.icon}`}></i>
+                    {entry.children.map((c, i) => (
+                      <NavLink key={c.to} to={c.to} className="nav-dropdown-link" role="menuitem" style={{ transitionDelay: `${i * 35}ms` }}>
                         {t(c.labelKey)}
                       </NavLink>
                     ))}
@@ -177,7 +174,7 @@ export const Header: React.FC = () => {
 
           <div className="header-actions ms-auto">
             <div className="d-lg-none">{LangToggle}</div>
-            {isAuthenticated ? (
+            {isAuthenticated && (
               <div className={`nav-group account-menu d-none d-md-block ${openMenu === 'account' ? 'open' : ''}`}>
                 <button type="button" className="account-chip" onClick={() => setOpenMenu((m) => (m === 'account' ? null : 'account'))} aria-expanded={openMenu === 'account'}>
                   {user?.member?.profile_image ? (
@@ -190,22 +187,15 @@ export const Header: React.FC = () => {
                 </button>
                 <div className="nav-dropdown nav-dropdown-end" role="menu">
                   <Link to="/profile" className="nav-dropdown-link" role="menuitem">
-                    <i className="bi bi-person-vcard"></i>
                     {t('header.myDigitalId')}
                   </Link>
                   <button type="button" className="nav-dropdown-link text-danger" onClick={handleLogout} role="menuitem">
-                    <i className="bi bi-box-arrow-right"></i>
                     {t('header.signOut')}
                   </button>
                 </div>
               </div>
-            ) : (
-              <Link to="/login" className="btn btn-outline-maroon btn-sm d-none d-md-inline-flex align-items-center gap-1" aria-label={t('header.login')}>
-                <i className="bi bi-person"></i>
-                <span className="login-label">{t('header.login')}</span>
-              </Link>
             )}
-            <Link to="/join" className="btn btn-gold btn-sm d-none d-sm-inline-flex align-items-center gap-1">
+            <Link to="/join" className="btn btn-gold btn-sm btn-join d-none d-sm-inline-flex align-items-center gap-1">
               <i className="bi bi-person-plus-fill"></i>
               {t('header.join')}
             </Link>
@@ -232,7 +222,6 @@ export const Header: React.FC = () => {
                 <div className="drawer-group-title">{t(entry.labelKey)}</div>
                 {entry.children.map((c) => (
                   <NavLink key={c.to} to={c.to} className="drawer-link">
-                    <i className={`bi ${c.icon}`}></i>
                     {t(c.labelKey)}
                   </NavLink>
                 ))}
@@ -248,7 +237,6 @@ export const Header: React.FC = () => {
           {isAuthenticated ? (
             <>
               <Link to="/profile" className="btn btn-maroon w-100 mb-2">
-                <i className="bi bi-person-vcard me-2"></i>
                 {t('header.myDigitalId')}
               </Link>
               <button type="button" className="btn btn-outline-maroon w-100" onClick={handleLogout}>
@@ -256,10 +244,7 @@ export const Header: React.FC = () => {
               </button>
             </>
           ) : (
-            <div className="d-flex gap-2">
-              <Link to="/login" className="btn btn-outline-maroon flex-fill">{t('header.login')}</Link>
-              <Link to="/join" className="btn btn-gold flex-fill">{t('header.join')}</Link>
-            </div>
+            <Link to="/join" className="btn btn-gold w-100">{t('header.join')}</Link>
           )}
           <a href={CONTACT_PHONE_TEL} className="d-flex justify-content-center align-items-center gap-2 mt-3 text-decoration-none">
             <i className="bi bi-telephone-fill"></i>{CONTACT_PHONE}

@@ -1,13 +1,12 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Formik, Form, FormikErrors, FormikTouched } from 'formik';
+import { useNavigate } from 'react-router-dom';
+import { Formik, Form, FormikTouched } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
 import { Language, translate, useLanguage } from '../context/LanguageContext';
 import { memberService, RegisterMemberPayload, RegisteredMember } from '../services/memberService';
 import { errorMessage } from '../services/apiClient';
 import { PageHero } from '../components/ui';
-import { RegistrationProgress } from '../components/join/RegistrationProgress';
 import { PersonalInformationForm } from '../components/join/PersonalInformationForm';
 import { IdentityLocationForm } from '../components/join/IdentityLocationForm';
 import { RegistrationSuccess } from '../components/join/RegistrationSuccess';
@@ -15,11 +14,13 @@ import { DuplicateChecker, DuplicateField } from '../components/join/duplicateCh
 
 type JoinValues = RegisterMemberPayload & { confirm_password: string; consent_terms: boolean };
 
-const TAB1_FIELDS = ['full_name', 'father_name', 'date_of_birth', 'gender', 'country_code', 'phone_number', 'email', 'password', 'confirm_password', 'blood_group', 'profile_image'];
-const TAB1_DUP_FIELDS: DuplicateField[] = ['phone_number', 'email'];
-const TAB2_DUP_FIELDS: DuplicateField[] = ['aadhaar_number', 'voter_id'];
+const ALL_FIELDS = [
+  'full_name', 'father_name', 'date_of_birth', 'gender', 'country_code', 'phone_number', 'email',
+  'password', 'confirm_password', 'blood_group', 'profile_image',
+  'aadhaar_number', 'voter_id', 'parliament_constituency_id', 'district_id', 'block_id', 'role_id', 'consent_terms',
+];
+const DUP_FIELDS: DuplicateField[] = ['phone_number', 'email', 'aadhaar_number', 'voter_id'];
 
-/** Normalise a field exactly the way the backend does before it is compared / stored. */
 function cleanValue(field: DuplicateField, values: JoinValues): string {
   switch (field) {
     case 'phone_number':
@@ -33,7 +34,6 @@ function cleanValue(field: DuplicateField, values: JoinValues): string {
   }
 }
 
-/** Only hit the server once the value is complete enough to be a real candidate. */
 function isCheckable(field: DuplicateField, value: string): boolean {
   switch (field) {
     case 'phone_number':
@@ -63,37 +63,26 @@ function isAdult(value?: string) {
   return adult <= new Date();
 }
 
-const buildSchemas = (lang: Language) => {
+const buildSchema = (lang: Language) => {
   const msg = (key: string) => translate(lang, `joinForm.validation.${key}`);
-  const tab1 = yup.object({
-    full_name: yup.string().trim().min(2, msg('fullNameMin')).required(msg('fullNameRequired')),
-    father_name: yup.string().trim().required(msg('fatherNameRequired')),
-    date_of_birth: yup
-      .string()
-      .required(msg('dobRequired'))
-      .test('adult', msg('dobAdult'), isAdult),
-    gender: yup.string().oneOf(['MALE', 'FEMALE', 'OTHER']).required(),
-    country_code: yup.string().required(),
-    phone_number: yup
-      .string()
-      .transform((v) => (v ? v.replace(/\D/g, '') : v))
-      .matches(/^\d{10}$/, msg('phoneInvalid'))
-      .required(msg('phoneRequired')),
-    email: yup.string().trim().email(msg('emailInvalid')).required(msg('emailRequired')),
-    password: yup.string().min(8, msg('passwordMin')).required(msg('passwordRequired')),
-    confirm_password: yup
-      .string()
-      .oneOf([yup.ref('password')], msg('passwordMismatch'))
-      .required(msg('confirmPasswordRequired')),
-  });
   const selectRequired = (key: string) =>
     yup.number().transform((v, orig) => (orig === '' ? undefined : v)).typeError(msg(key)).positive(msg(key)).required(msg(key));
-  const tab2 = yup.object({
+
+  return yup.object({
+    full_name: yup.string().trim().min(2, msg('fullNameMin')).required(msg('fullNameRequired')),
+    father_name: yup.string().trim().required(msg('fatherNameRequired')),
+    date_of_birth: yup.string().required(msg('dobRequired')).test('adult', msg('dobAdult'), isAdult),
+    gender: yup.string().oneOf(['MALE', 'FEMALE', 'OTHER']).required(),
+    country_code: yup.string().required(),
+    phone_number: yup.string().transform((v) => (v ? v.replace(/\D/g, '') : v)).matches(/^\d{10}$/, msg('phoneInvalid')).required(msg('phoneRequired')),
+    email: yup.string().trim().email(msg('emailInvalid')).required(msg('emailRequired')),
+    password: yup.string().min(8, msg('passwordMin')).required(msg('passwordRequired')),
+    confirm_password: yup.string().oneOf([yup.ref('password')], msg('passwordMismatch')).required(msg('confirmPasswordRequired')),
+    profile_image: yup.mixed().required(msg('profilePhotoRequired')).test('file', msg('profilePhotoRequired'), (v) => v instanceof File),
     aadhaar_number: yup
       .string()
-      .transform((v) => (v ? String(v).replace(/\D/g, '') : ''))
-      .test('aadhaar-12', msg('aadhaarInvalid'), (v) => /^\d{12}$/.test(v || ''))
-      .required(msg('aadhaarRequired')),
+      .required(msg('aadhaarRequired'))
+      .matches(/^\d{12}$/, msg('aadhaarInvalid')),
     voter_id: yup
       .string()
       .transform((v) => (v ? String(v).replace(/[^A-Za-z0-9]/g, '').toUpperCase() : ''))
@@ -102,9 +91,9 @@ const buildSchemas = (lang: Language) => {
     parliament_constituency_id: selectRequired('parliamentRequired'),
     district_id: selectRequired('districtRequired'),
     block_id: selectRequired('blockRequired'),
+    role_id: selectRequired('roleRequired'),
     consent_terms: yup.boolean().oneOf([true], msg('consentRequired')),
   });
-  return { tab1, tab2 };
 };
 
 const initialValues: JoinValues = {
@@ -134,17 +123,14 @@ const initialValues: JoinValues = {
 };
 
 export const JoinPage: React.FC = () => {
-  const { lang, t, tRaw } = useLanguage();
+  const { lang, t } = useLanguage();
   const navigate = useNavigate();
-  const [currentTab, setCurrentTab] = useState(1);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [registeredMember, setRegisteredMember] = useState<RegisteredMember | null>(null);
-  const { tab1, tab2 } = useMemo(() => buildSchemas(lang), [lang]);
+  const schema = useMemo(() => buildSchema(lang), [lang]);
 
-  // ---- Live duplicate checks (phone / email / Aadhaar / Voter ID) ----
   const [dupErrors, setDupErrors] = useState<Partial<Record<DuplicateField, string>>>({});
   const [dupChecking, setDupChecking] = useState<Partial<Record<DuplicateField, boolean>>>({});
-  // Remembers the last value that was checked per field so we don't re-query the same value.
   const lastChecked = useRef<Partial<Record<DuplicateField, { value: string; exists: boolean }>>>({});
 
   const clearDuplicate = useCallback((field: DuplicateField) => {
@@ -156,7 +142,6 @@ export const JoinPage: React.FC = () => {
     });
   }, []);
 
-  /** Returns true when the value is already registered. Network failures resolve to false (the server re-checks on submit). */
   const checkDuplicate = useCallback(
     async (field: DuplicateField, values: JoinValues): Promise<boolean> => {
       const value = cleanValue(field, values);
@@ -192,43 +177,20 @@ export const JoinPage: React.FC = () => {
 
   const duplicates: DuplicateChecker = { errors: dupErrors, checking: dupChecking, check: checkDuplicate, clear: clearDuplicate };
 
-  const goToTab = (tab: number) => {
-    setCurrentTab(tab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleNext = async (values: JoinValues, validateForm: () => Promise<FormikErrors<JoinValues>>, setTouched: (t: FormikTouched<JoinValues>) => void) => {
-    setTouched(Object.fromEntries(TAB1_FIELDS.map((f) => [f, true])) as FormikTouched<JoinValues>);
-    const errors = await validateForm();
-    if (Object.keys(errors).length > 0) return;
-    const results = await Promise.all(TAB1_DUP_FIELDS.map((f) => checkDuplicate(f, values)));
-    if (results.some(Boolean)) return;
-    setSubmitError(null);
-    goToTab(2);
-  };
-
   const failOn = (field: string, message: string, setFieldError: (f: string, m: string) => void) => {
     setSubmitError(message);
     setFieldError(field, message);
     if (field in DUP_MESSAGE_KEYS) setDupErrors((prev) => ({ ...prev, [field]: message }));
-    if (TAB1_FIELDS.includes(field)) goToTab(1);
   };
 
   const handleSubmit = async (values: JoinValues, { setSubmitting, setFieldError, setTouched }: any) => {
     setSubmitError(null);
-    if (currentTab === 1) {
-      setTouched({}, false);
-      setSubmitting(false);
-      return goToTab(2);
-    }
+    setTouched(Object.fromEntries(ALL_FIELDS.map((f) => [f, true])) as FormikTouched<JoinValues>);
     try {
-      // Re-run every duplicate check right before submitting (values may have changed since the blur checks)
-      const allDup: DuplicateField[] = [...TAB1_DUP_FIELDS, ...TAB2_DUP_FIELDS];
-      const results = await Promise.all(allDup.map((f) => checkDuplicate(f, values)));
-      const firstDup = allDup.find((_, i) => results[i]);
-      if (firstDup) {
-        return failOn(firstDup, t(DUP_MESSAGE_KEYS[firstDup]), setFieldError);
-      }
+      const results = await Promise.all(DUP_FIELDS.map((f) => checkDuplicate(f, values)));
+      const firstDup = DUP_FIELDS.find((_, i) => results[i]);
+      if (firstDup) return failOn(firstDup, t(DUP_MESSAGE_KEYS[firstDup]), setFieldError);
+
       const result = await memberService.registerMember({
         ...values,
         phone_number: cleanValue('phone_number', values),
@@ -252,7 +214,6 @@ export const JoinPage: React.FC = () => {
     return (
       <section className="page-body">
         <div className="container">
-          <RegistrationProgress currentTab={3} />
           <RegistrationSuccess member={registeredMember} onLogin={() => navigate('/login')} />
         </div>
       </section>
@@ -261,51 +222,25 @@ export const JoinPage: React.FC = () => {
 
   return (
     <>
-      <PageHero
-        eyebrow={t('joinPage.eyebrow')}
-        title={t('common.joinMovement')}
-        subtitle={t('joinPage.subtitle')}
-      />
+      <PageHero eyebrow={t('joinPage.eyebrow')} title={t('common.joinMovement')} subtitle={t('joinPage.subtitle')} />
       <section className="page-body">
         <div className="container">
-          <div className="row g-4 justify-content-center">
-            <div className="col-lg-8">
-              <div className="card-custom p-4 p-md-5">
-                <RegistrationProgress currentTab={currentTab} />
-                {submitError && (
-                  <div className="alert alert-danger d-flex align-items-center gap-2" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill"></i>
-                    <div>{submitError}</div>
-                  </div>
-                )}
-                <Formik initialValues={initialValues} validationSchema={currentTab === 1 ? tab1 : tab2} onSubmit={handleSubmit}>
-                  {({ values, validateForm, setTouched, isSubmitting }) => (
-                    <Form noValidate>
-                      {currentTab === 1 ? (
-                        <PersonalInformationForm duplicates={duplicates} onNext={() => handleNext(values, validateForm, setTouched)} />
-                      ) : (
-                        <IdentityLocationForm duplicates={duplicates} onBack={() => goToTab(1)} isSubmitting={isSubmitting} />
-                      )}
-                    </Form>
-                  )}
-                </Formik>
+          <div className="card-custom p-4 p-md-5">
+            {submitError && (
+              <div className="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                <i className="bi bi-exclamation-triangle-fill"></i>
+                <div>{submitError}</div>
               </div>
-            </div>
-            <div className="col-lg-4">
-              <div className="card-custom p-4 mb-4">
-                <h2 className="h6 mb-3">{t('joinPage.whatYouGet')}</h2>
-                <ul className="check-list mb-0 small">
-                  {(tRaw<string[]>('joinPage.benefits') ?? []).map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-              <div className="card-custom p-4">
-                <h2 className="h6 mb-2">{t('joinPage.keepReady')}</h2>
-                <p className="small text-muted mb-2">{t('joinPage.keepReadyText')}</p>
-                <p className="small mb-0">
-                  {t('joinPage.alreadyMember')} <Link to="/login" className="fw-semibold">{t('joinPage.logIn')}</Link>
-                </p>
-              </div>
-            </div>
+            )}
+            <Formik initialValues={initialValues} validationSchema={schema} onSubmit={handleSubmit} validateOnBlur validateOnChange>
+              {({ isSubmitting }) => (
+                <Form noValidate>
+                  <PersonalInformationForm duplicates={duplicates} />
+                  <hr className="my-4" />
+                  <IdentityLocationForm duplicates={duplicates} isSubmitting={isSubmitting} />
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       </section>

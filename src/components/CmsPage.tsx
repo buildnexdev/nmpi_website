@@ -3,7 +3,7 @@ import { apiClient, pick } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { Loader, PageHero } from './ui';
 
-interface CmsPageData {
+export interface CmsPageData {
   page_key: string;
   title: string;
   title_ta: string | null;
@@ -12,6 +12,31 @@ interface CmsPageData {
 }
 
 type LocalizedText = string | { ta: string; en: string };
+
+/** Loads a page managed from the admin "Pages" screen; `page` is null when it hasn't been created yet. */
+export function useCmsPage(pageKey: string): { page: CmsPageData | null; loading: boolean } {
+  const [page, setPage] = useState<CmsPageData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    apiClient
+      .get(`/pages/${pageKey}`)
+      .then((res) => setPage(res.data.data))
+      .catch(() => setPage(null))
+      .finally(() => setLoading(false));
+  }, [pageKey]);
+
+  return { page, loading };
+}
+
+/** The rich-text body of a CMS page (loader / content / "coming soon"). */
+export const CmsBody: React.FC<{ page: CmsPageData | null; loading: boolean }> = ({ page, loading }) => {
+  const { lang, t } = useLanguage();
+  if (loading) return <Loader />;
+  if (!page) return <p className="text-muted mb-0">{t('common.pageUpdatedSoon')}</p>;
+  return <div className="rich-text" dangerouslySetInnerHTML={{ __html: pick(page, 'content', lang) }} />;
+};
 
 /**
  * Renders a page whose text is managed from the admin "Pages" screen.
@@ -31,17 +56,7 @@ export const CmsPage: React.FC<{
   const { lang, t } = useLanguage();
   const resolve = (key?: string, text?: LocalizedText): string =>
     key ? t(key) : typeof text === 'string' ? text : text ? text[lang] : '';
-  const [page, setPage] = useState<CmsPageData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    apiClient
-      .get(`/pages/${pageKey}`)
-      .then((res) => setPage(res.data.data))
-      .catch(() => setPage(null))
-      .finally(() => setLoading(false));
-  }, [pageKey]);
+  const { page, loading } = useCmsPage(pageKey);
 
   const title = page ? pick(page, 'title', lang) : resolve(fallbackTitleKey, fallbackTitle);
 
@@ -53,13 +68,7 @@ export const CmsPage: React.FC<{
           <div className="row g-5">
             <div className={aside ? 'col-lg-8' : 'col-lg-10 mx-auto'}>
               <div className="card-custom p-4 p-md-5">
-                {loading ? (
-                  <Loader />
-                ) : page ? (
-                  <div className="rich-text" dangerouslySetInnerHTML={{ __html: pick(page, 'content', lang) }} />
-                ) : (
-                  <p className="text-muted mb-0">{t('common.pageUpdatedSoon')}</p>
-                )}
+                <CmsBody page={page} loading={loading} />
               </div>
               {children}
             </div>

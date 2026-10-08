@@ -1,7 +1,11 @@
 import axios from 'axios';
 import { Language, translate } from '../context/LanguageContext';
 
-export const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+/** In dev, use same-origin `/api` via Vite proxy unless VITE_API_URL is set. */
+export const API_ORIGIN = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? '' : 'http://localhost:5000')
+).replace(/\/$/, '');
 export const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || 'http://localhost:3001';
 
 export const TOKEN_KEY = 'nmpi_member_token';
