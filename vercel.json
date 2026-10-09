@@ -1,5 +1,11 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "framework": "vite",
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://api.nmpi.in"
+    }
+  },
+  "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }]
 }
