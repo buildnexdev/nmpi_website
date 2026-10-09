@@ -49,10 +49,9 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({ member
           memberId={member.member_id}
           designation={formatIdCardDesignation(member)}
           validUntil={formatIdCardExpiry(member.created_at)}
-          phone={member.phone_number}
-          countryCode={member.country_code}
           bloodGroup={member.blood_group}
           profileImage={member.profile_image}
+          qrDataUrl={member.qr_data_url}
         />
       </div>
 

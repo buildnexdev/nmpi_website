@@ -99,4 +99,5 @@ export interface RegisteredMember {
   created_at?: string;
   verification_token: string;
   id_card_token: string;
+  qr_data_url?: string | null;
 }

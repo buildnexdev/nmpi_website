@@ -1,43 +1,49 @@
-/** Must match backend/src/utils/idCardLayout.ts — ratios for id-card-template.jpg (~683×1024). */
+/** Must match backend/src/utils/idCardLayout.ts — ratios for id-card-template.jpg (683×1024). */
 export const ID_CARD_LAYOUT = {
-  photo: { x: 0.042, y: 0.395, w: 0.242, h: 0.202 },
-  name: { x: 0.545, y: 0.365, w: 0.42, h: 0.028 },
-  memberId: { x: 0.545, y: 0.398, w: 0.42, h: 0.026 },
-  phone: { x: 0.545, y: 0.431, w: 0.42, h: 0.026 },
-  bloodGroup: { x: 0.545, y: 0.464, w: 0.42, h: 0.026 },
-  designation: { x: 0.545, y: 0.497, w: 0.42, h: 0.032 },
-  expiry: { x: 0.718, y: 0.548, w: 0.22, h: 0.026 },
-  qr: { x: 0.055, y: 0.748, size: 0.198 },
+  photo: { x: 0.051, y: 0.389, w: 0.366, h: 0.349, radiusTop: 10, radiusBottom: 12 },
+  name: { x: 0.449, y: 0.421, w: 0.33, h: 0.044 },
+  bloodGroup: { x: 0.79, y: 0.421, w: 0.16, h: 0.034 },
+  memberId: { x: 0.449, y: 0.511, w: 0.48, h: 0.034 },
+  designation: { x: 0.449, y: 0.607, w: 0.50, h: 0.058 },
+  expiry: { x: 0.449, y: 0.715, w: 0.50, h: 0.03 },
+  qr: { x: 0.051, y: 0.758, size: 0.14 },
 } as const;
 
 export type IdCardFieldKey = keyof Omit<typeof ID_CARD_LAYOUT, 'qr'>;
 
+function pct(n: number) {
+  return `${n * 100}%`;
+}
+
 export function idCardBoxStyle(key: IdCardFieldKey) {
   const r = ID_CARD_LAYOUT[key];
   return {
-    left: `${r.x * 100}%`,
-    top: `${r.y * 100}%`,
-    width: `${r.w * 100}%`,
-    height: `${r.h * 100}%`,
+    left: pct(r.x),
+    top: pct(r.y),
+    width: pct(r.w),
+    height: pct(r.h),
   } as const;
 }
 
-export function idCardPhotoStyle() {
+export function idCardPhotoStyle(): React.CSSProperties {
   const p = ID_CARD_LAYOUT.photo;
   return {
-    left: `${p.x * 100}%`,
-    top: `${p.y * 100}%`,
-    width: `${p.w * 100}%`,
-    height: `${p.h * 100}%`,
-  } as const;
+    left: pct(p.x),
+    top: pct(p.y),
+    width: pct(p.w),
+    height: pct(p.h),
+    borderTopLeftRadius: `${p.radiusTop}px`,
+    borderTopRightRadius: `${p.radiusTop}px`,
+    borderBottomLeftRadius: `${p.radiusBottom}px`,
+    borderBottomRightRadius: `${p.radiusBottom}px`,
+  };
 }
 
 export function idCardQrStyle() {
   const q = ID_CARD_LAYOUT.qr;
-  const size = q.size * 100;
   return {
-    left: `${q.x * 100}%`,
-    top: `${q.y * 100}%`,
-    width: `${size}%`,
+    left: pct(q.x),
+    top: pct(q.y),
+    width: pct(q.size),
   } as const;
 }
