@@ -1,7 +1,7 @@
 import React from 'react';
 import { mediaUrl } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
-import { formatIdCardBloodGroup, formatIdCardPhone } from '../utils/idCardFormat';
+import { formatIdCardBloodGroup } from '../utils/idCardFormat';
 import { idCardBoxStyle, idCardPhotoStyle, idCardQrStyle } from '../utils/idCardLayout';
 import './DigitalIdCard.css';
 
@@ -10,8 +10,6 @@ interface Props {
   memberId: string;
   designation: string;
   validUntil: string;
-  phone?: string | null;
-  countryCode?: string | null;
   bloodGroup?: string | null;
   profileImage?: string | null;
   qrDataUrl?: string | null;
@@ -22,8 +20,6 @@ export const DigitalIdCard: React.FC<Props> = ({
   memberId,
   designation,
   validUntil,
-  phone,
-  countryCode,
   bloodGroup,
   profileImage,
   qrDataUrl,
@@ -47,14 +43,11 @@ export const DigitalIdCard: React.FC<Props> = ({
       <p className="nmpi-id-card-slot member-id" style={idCardBoxStyle('memberId')}>
         <span>{memberId}</span>
       </p>
-      <p className="nmpi-id-card-slot phone" style={idCardBoxStyle('phone')}>
-        <span>{formatIdCardPhone(countryCode, phone)}</span>
+      <p className="nmpi-id-card-slot designation" style={idCardBoxStyle('designation')}>
+        <span>{designation}</span>
       </p>
       <p className="nmpi-id-card-slot blood" style={idCardBoxStyle('bloodGroup')}>
         <span>{formatIdCardBloodGroup(bloodGroup)}</span>
-      </p>
-      <p className="nmpi-id-card-slot designation" style={idCardBoxStyle('designation')}>
-        <span>{designation}</span>
       </p>
       <p className="nmpi-id-card-slot expiry" style={idCardBoxStyle('expiry')}>
         <span>{validUntil}</span>

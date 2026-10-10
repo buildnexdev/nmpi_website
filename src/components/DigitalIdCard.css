@@ -1,10 +1,10 @@
 .nmpi-id-card {
   position: relative;
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   margin: 0 auto;
   aspect-ratio: 683 / 1024;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   background: #fff;
@@ -24,8 +24,8 @@
   position: absolute;
   z-index: 1;
   box-sizing: border-box;
-  background: #fff;
   overflow: hidden;
+  background: #ececec;
 }
 
 .nmpi-id-card-photo {
@@ -34,7 +34,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center center;
+  object-position: center top;
   display: block;
 }
 
@@ -42,65 +42,79 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ececec;
   color: #9ca3af;
-  font-size: 2rem;
+  font-size: 2.2rem;
 }
 
 .nmpi-id-card-slot {
   position: absolute;
   z-index: 2;
   margin: 0;
-  padding: 0 1px;
+  padding: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   overflow: hidden;
   color: #111;
-  font-weight: 700;
-  line-height: 1.1;
+  font-weight: 800;
+  line-height: 1.15;
   box-sizing: border-box;
-}
-
-.nmpi-id-card-slot::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.92);
-  z-index: -1;
+  font-family: 'Noto Sans Tamil', 'Catamaran', sans-serif;
+  background: transparent;
 }
 
 .nmpi-id-card-slot span {
   display: block;
   width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .nmpi-id-card-slot.name {
-  font-family: var(--font-heading);
-  font-size: clamp(0.58rem, 2.75vw, 0.82rem);
+  font-size: clamp(0.72rem, 3.15vw, 0.95rem);
+}
+
+.nmpi-id-card-slot.name span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .nmpi-id-card-slot.member-id {
   font-family: ui-monospace, Consolas, monospace;
-  font-size: clamp(0.55rem, 2.55vw, 0.72rem);
+  font-size: clamp(0.62rem, 2.7vw, 0.8rem);
+  letter-spacing: 0.02em;
 }
 
-.nmpi-id-card-slot.phone,
-.nmpi-id-card-slot.blood,
-.nmpi-id-card-slot.expiry {
-  font-size: clamp(0.52rem, 2.4vw, 0.68rem);
+.nmpi-id-card-slot.member-id span {
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .nmpi-id-card-slot.designation {
-  font-family: var(--font-heading);
-  font-size: clamp(0.5rem, 2.25vw, 0.64rem);
-  font-weight: 600;
-  align-items: center;
+  font-size: clamp(0.58rem, 2.55vw, 0.76rem);
+  font-weight: 700;
 }
 
 .nmpi-id-card-slot.designation span {
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.nmpi-id-card-slot.blood {
+  z-index: 3;
+  font-size: clamp(0.62rem, 2.7vw, 0.8rem);
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.nmpi-id-card-slot.expiry {
+  font-size: clamp(0.62rem, 2.7vw, 0.8rem);
+  align-items: center;
+}
+
+.nmpi-id-card-slot.expiry span,
+.nmpi-id-card-slot.blood span {
   white-space: nowrap;
 }
 

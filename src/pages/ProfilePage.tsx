@@ -202,8 +202,6 @@ export const ProfilePage: React.FC = () => {
                     memberId={profile.member_id}
                     designation={formatIdCardDesignation(profile)}
                     validUntil={formatIdCardExpiry(profile.created_at)}
-                    phone={profile.phone_number}
-                    countryCode={profile.country_code}
                     bloodGroup={profile.blood_group}
                     profileImage={profile.profile_image}
                     qrDataUrl={profile.qr_data_url}
