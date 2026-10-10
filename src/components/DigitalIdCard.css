@@ -121,10 +121,12 @@
 .nmpi-id-card-qr-wrap {
   position: absolute;
   z-index: 2;
-  aspect-ratio: 1;
   background: #fff;
-  padding: 2px;
-  box-sizing: border-box;
+  /* Expand 3px beyond the layout box to fully cover template's printed QR border */
+  padding: 3px;
+  margin: -3px;
+  box-sizing: content-box;
+  overflow: hidden;
 }
 
 .nmpi-id-card-qr {

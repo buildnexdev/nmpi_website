@@ -6,7 +6,7 @@ export const ID_CARD_LAYOUT = {
   memberId: { x: 0.449, y: 0.511, w: 0.48, h: 0.034 },
   designation: { x: 0.449, y: 0.607, w: 0.50, h: 0.058 },
   expiry: { x: 0.449, y: 0.715, w: 0.50, h: 0.03 },
-  qr: { x: 0.038, y: 0.745, size: 0.163 },
+  qr: { x: 0.040, y: 0.760, size: 0.176 },
 } as const;
 
 export type IdCardFieldKey = keyof Omit<typeof ID_CARD_LAYOUT, 'qr'>;
@@ -41,9 +41,13 @@ export function idCardPhotoStyle(): React.CSSProperties {
 
 export function idCardQrStyle() {
   const q = ID_CARD_LAYOUT.qr;
+  // QR is square in pixels; size is fraction of card width (683).
+  // Height as % of card height = size * (683/1024) so the QR stays square.
+  const heightPct = q.size * (683 / 1024);
   return {
     left: pct(q.x),
     top: pct(q.y),
     width: pct(q.size),
+    height: pct(heightPct),
   } as const;
 }
