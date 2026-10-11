@@ -108,10 +108,15 @@ export interface NewsItem {
   author_name?: string | null;
 }
 
+export function newsCategoryLabel(category: string, t: (key: string) => string): string {
+  const translated = t(`newsPage.categories.${category}`);
+  return translated.startsWith('newsPage.categories.') ? category : translated;
+}
+
 function newsWhen(item: NewsItem, lang: 'ta' | 'en'): string {
   if (item.news_date) {
     const d = formatDate(item.news_date, lang);
-    return item.news_time ? `${d} · ${formatTime(item.news_time)}` : d;
+    return item.news_time ? `${d} · ${formatTime(item.news_time, lang)}` : d;
   }
   return formatDate(item.published_at, lang);
 }
@@ -124,7 +129,7 @@ export const NewsCard: React.FC<{ item: NewsItem }> = ({ item }) => {
     <Link to={`/news/${item.id}`} className="card-custom card-hover news-card">
       <div className="news-card-media">
         {cover ? <img src={cover} alt="" loading="lazy" /> : <div className="news-card-placeholder"><i className="bi bi-newspaper"></i></div>}
-        <span className="chip">{item.category}</span>
+        <span className="chip">{newsCategoryLabel(item.category, t)}</span>
       </div>
       <div className="news-card-body">
         <div className="news-card-date"><i className="bi bi-calendar3 me-1"></i>{newsWhen(item, lang)}</div>
@@ -178,7 +183,7 @@ export const EventCard: React.FC<{ item: EventItem }> = ({ item }) => {
         {status && item.status !== 'UPCOMING' && <span className={`chip ${status.cls} align-self-start mb-2`}>{t(status.key)}</span>}
         <h3 className="h5 mb-2">{pick(item, 'title', lang)}</h3>
         <div className="event-meta mb-2">
-          <span><i className="bi bi-clock"></i>{formatTime(item.start_time)}{item.end_time ? ` – ${formatTime(item.end_time)}` : ''}</span>
+          <span><i className="bi bi-clock"></i>{formatTime(item.start_time, lang)}{item.end_time ? ` – ${formatTime(item.end_time, lang)}` : ''}</span>
           <span><i className="bi bi-geo-alt"></i>{item.location}</span>
         </div>
         <span className="read-more mt-auto">

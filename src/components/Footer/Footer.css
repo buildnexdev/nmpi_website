@@ -30,6 +30,11 @@
   color: var(--accent-gold);
   font-weight: 700;
 }
+.footer-brand-en.is-tamil {
+  letter-spacing: normal;
+  text-transform: none;
+  font-size: 0.78rem;
+}
 .footer-text {
   font-size: 0.92rem;
   max-width: 380px;

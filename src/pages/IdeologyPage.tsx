@@ -5,7 +5,7 @@ import { FounderSection } from '../components/FounderSection';
 
 type Policy = { title: string; text: string };
 
-const PRINCIPLE_ICONS = ['bi-ban', 'bi-shield-check', 'bi-mortarboard', 'bi-truck', 'bi-briefcase', 'bi-basket', 'bi-people', 'bi-bank', 'bi-heart-pulse', 'bi-eye'];
+const PRINCIPLE_ICONS = ['bi-ban', 'bi-shield-check', 'bi-mortarboard', 'bi-truck', 'bi-briefcase', 'bi-egg-fried', 'bi-people', 'bi-bank', 'bi-heart-pulse', 'bi-eye'];
 const WELFARE_ICONS = ['bi-check2-square', 'bi-signpost-2', 'bi-heart', 'bi-droplet', 'bi-flag', 'bi-person-x', 'bi-book', 'bi-building', 'bi-file-earmark-text', 'bi-stars'];
 
 /** Vertical timeline; the centre line fills with gold and nodes light up as the reader scrolls past them. */

@@ -5,6 +5,23 @@ export interface CheckResponse {
   message?: string;
 }
 
+export interface UpdateMemberProfilePayload {
+  full_name: string;
+  father_name: string;
+  date_of_birth: string;
+  gender: string;
+  blood_group: string;
+  state_id: number;
+  parliament_constituency_id: number;
+  assembly_constituency_id?: number;
+  district_id: number;
+  block_id: number;
+  village_id?: number | string;
+  village_custom?: string;
+  address_line1?: string;
+  role_id: number | string;
+}
+
 export interface RegisterMemberPayload {
   full_name: string;
   father_name: string;
@@ -49,6 +66,21 @@ export const memberService = {
   checkVoterId: async (voterId: string): Promise<CheckResponse> => {
     const res = await apiClient.get(`/members/check-voter-id?voterId=${encodeURIComponent(voterId)}`);
     return res.data.data;
+  },
+
+  updateMyProfile: async (payload: UpdateMemberProfilePayload & { profile_image?: File | null }): Promise<any> => {
+    const formData = new FormData();
+    Object.keys(payload).forEach((key) => {
+      const val = (payload as any)[key];
+      if (val === undefined || val === null || val === '') return;
+      if (key === 'profile_image') {
+        if (val instanceof File) formData.append('profile_image', val);
+        return;
+      }
+      formData.append(key, String(val).trim());
+    });
+    const response = await apiClient.patch('/members/me', formData);
+    return response.data.data;
   },
 
   registerMember: async (payload: RegisterMemberPayload): Promise<RegisteredMember> => {

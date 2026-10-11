@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { apiClient, asArray, errorMessage, formatDate, formatTime, mediaUrl, pick } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
-import { EmptyState, Loader, NewsCard, NewsItem } from '../components/ui';
+import { EmptyState, Loader, NewsCard, NewsItem, newsCategoryLabel } from '../components/ui';
 
 export const NewsDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,7 +47,7 @@ export const NewsDetailsPage: React.FC = () => {
   const cover = mediaUrl(item.cover_image);
   const place = pick(item, 'place', lang);
   const when = item.news_date
-    ? `${formatDate(item.news_date, lang)}${item.news_time ? ` · ${formatTime(item.news_time)}` : ''}`
+    ? `${formatDate(item.news_date, lang)}${item.news_time ? ` · ${formatTime(item.news_time, lang)}` : ''}`
     : formatDate(item.published_at, lang);
 
   return (
@@ -58,7 +58,7 @@ export const NewsDetailsPage: React.FC = () => {
             <nav className="breadcrumb-lite mb-3">
               <Link to="/">{t('common.home')}</Link><span>/</span><Link to="/news">{t('newsDetailsPage.breadcrumbNews')}</Link>
             </nav>
-            <span className="chip mb-3" style={{ background: 'var(--accent-gold)', color: 'var(--ink)' }}>{item.category}</span>
+            <span className="chip mb-3" style={{ background: 'var(--accent-gold)', color: 'var(--ink)' }}>{newsCategoryLabel(item.category, t)}</span>
             <h1>{pick(item, 'title', lang)}</h1>
             <p className="d-flex flex-wrap gap-3 small">
               <span><i className="bi bi-calendar3 me-1"></i>{when}</span>

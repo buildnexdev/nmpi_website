@@ -36,7 +36,9 @@ const COLUMNS = [
 ];
 
 export const Footer: React.FC = () => {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
+  const brandPrimary = lang === 'ta' ? translate('ta', 'common.brandName') : translate('en', 'common.brandName');
+  const brandSecondary = lang === 'ta' ? translate('en', 'common.brandName') : translate('ta', 'common.brandName');
 
   return (
     <footer className="site-footer">
@@ -46,8 +48,8 @@ export const Footer: React.FC = () => {
             <div className="footer-brand">
               <img src="/logo.jpg" alt="" />
               <div>
-                <div className="footer-brand-ta">{translate('ta', 'common.brandName')}</div>
-                <div className="footer-brand-en">{translate('en', 'common.brandName')}</div>
+                <div className="footer-brand-ta">{brandPrimary}</div>
+                <div className={`footer-brand-en${lang === 'en' ? ' is-tamil' : ''}`}>{brandSecondary}</div>
               </div>
             </div>
             <p className="footer-text">{t('footer.tagline')}</p>

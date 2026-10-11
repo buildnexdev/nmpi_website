@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Header } from '../components/Header/Header';
 import { Footer } from '../components/Footer/Footer';
 import { logout } from '../store/authSlice';
-import { useLanguage } from '../context/LanguageContext';
+import { translate, useLanguage } from '../context/LanguageContext';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
 export const MainLayout: React.FC = () => {
@@ -28,6 +28,9 @@ export const MainLayout: React.FC = () => {
 
   useEffect(() => {
     document.documentElement.lang = lang;
+    const primary = translate(lang, 'common.brandName');
+    const secondary = translate(lang === 'ta' ? 'en' : 'ta', 'common.brandName');
+    document.title = `${primary} | ${secondary}`;
   }, [lang]);
 
   return (

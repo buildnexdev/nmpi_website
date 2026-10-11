@@ -62,14 +62,19 @@
   font-weight: 700;
   line-height: 1;
 }
-.lang-toggle span {
+.lang-toggle button {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
   padding: 4px 9px;
   border-radius: 999px;
   color: #fff;
   opacity: 0.85;
   transition: background var(--transition-fast);
 }
-.lang-toggle span.on {
+.lang-toggle button.on {
   background: var(--accent-gold);
   color: #fff;
   opacity: 1;
@@ -79,8 +84,8 @@
   color: var(--ink-2);
   background: #fff;
 }
-.mainbar .lang-toggle span { color: var(--ink-2); }
-.mainbar .lang-toggle span.on { color: #fff; }
+.mainbar .lang-toggle button { color: var(--ink-2); }
+.mainbar .lang-toggle button.on { color: #fff; }
 
 /* Main bar */
 .mainbar {
@@ -155,6 +160,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.brand-en.is-tamil {
+  letter-spacing: normal;
+  text-transform: none;
+  font-size: 0.72rem;
 }
 
 /* Desktop nav */

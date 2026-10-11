@@ -11,13 +11,14 @@ import { PersonalInformationForm } from '../components/join/PersonalInformationF
 import { IdentityLocationForm } from '../components/join/IdentityLocationForm';
 import { RegistrationSuccess } from '../components/join/RegistrationSuccess';
 import { DuplicateChecker, DuplicateField } from '../components/join/duplicateCheck';
+import { roleIdFromJoinAsText } from '../components/join/joinAsRole';
 
-type JoinValues = RegisterMemberPayload & { confirm_password: string; consent_terms: boolean };
+type JoinValues = RegisterMemberPayload & { confirm_password: string; consent_terms: boolean; join_as: string };
 
 const ALL_FIELDS = [
   'full_name', 'father_name', 'date_of_birth', 'gender', 'country_code', 'phone_number', 'email',
   'password', 'confirm_password', 'blood_group', 'profile_image',
-  'aadhaar_number', 'voter_id', 'parliament_constituency_id', 'district_id', 'block_id', 'role_id', 'consent_terms',
+  'aadhaar_number', 'voter_id', 'join_as', 'parliament_constituency_id', 'district_id', 'block_id', 'consent_terms',
 ];
 const DUP_FIELDS: DuplicateField[] = ['phone_number', 'email', 'aadhaar_number', 'voter_id'];
 
@@ -91,7 +92,7 @@ const buildSchema = (lang: Language) => {
     parliament_constituency_id: selectRequired('parliamentRequired'),
     district_id: selectRequired('districtRequired'),
     block_id: selectRequired('blockRequired'),
-    role_id: selectRequired('roleRequired'),
+    join_as: yup.string().trim().min(2, msg('roleRequired')).max(100).required(msg('roleRequired')),
     consent_terms: yup.boolean().oneOf([true], msg('consentRequired')),
   });
 };
@@ -118,7 +119,8 @@ const initialValues: JoinValues = {
   village_id: '',
   village_custom: '',
   address_line1: '',
-  role_id: '1',
+  join_as: '',
+  role_id: 1,
   consent_terms: false,
 };
 
@@ -191,8 +193,10 @@ export const JoinPage: React.FC = () => {
       const firstDup = DUP_FIELDS.find((_, i) => results[i]);
       if (firstDup) return failOn(firstDup, t(DUP_MESSAGE_KEYS[firstDup]), setFieldError);
 
+      const { join_as, confirm_password, consent_terms, ...rest } = values;
       const result = await memberService.registerMember({
-        ...values,
+        ...rest,
+        role_id: roleIdFromJoinAsText(join_as),
         phone_number: cleanValue('phone_number', values),
         aadhaar_number: cleanValue('aadhaar_number', values),
         voter_id: cleanValue('voter_id', values),

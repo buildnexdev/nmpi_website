@@ -11,7 +11,7 @@ export const API_ORIGIN = (
 
 export const ADMIN_URL =
   import.meta.env.VITE_ADMIN_URL ||
-  (import.meta.env.DEV ? 'http://localhost:3001' : 'https://admin.nmpi.in');
+  (import.meta.env.DEV ? 'http://localhost:3001' : 'https://app.nmpi.in');
 
 export const TOKEN_KEY = 'nmpi_member_token';
 export const USER_KEY = 'nmpi_member_user';
@@ -102,12 +102,12 @@ export function formatDate(value?: string | null, lang: 'ta' | 'en' = 'en', with
   });
 }
 
-export function formatTime(value?: string | null): string {
+export function formatTime(value?: string | null, lang: 'ta' | 'en' = 'en'): string {
   if (!value) return '';
   const [h, m] = value.split(':').map(Number);
   const d = new Date();
   d.setHours(h, m || 0);
-  return d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  return d.toLocaleTimeString(lang === 'ta' ? 'ta-IN' : 'en-IN', { hour: 'numeric', minute: '2-digit' });
 }
 
 /** Pick the Tamil field when Tamil is active and it has content, otherwise the English one. */

@@ -75,7 +75,7 @@ export const EventDetailsPage: React.FC = () => {
                   <div>
                     <div className="fw-bold text-ink">{formatDate(item.event_date, lang)}</div>
                     <div className="text-muted small">
-                      {formatTime(item.start_time)}{item.end_time ? ` – ${formatTime(item.end_time)}` : ''}
+                      {formatTime(item.start_time, lang)}{item.end_time ? ` – ${formatTime(item.end_time, lang)}` : ''}
                     </div>
                   </div>
                 </div>

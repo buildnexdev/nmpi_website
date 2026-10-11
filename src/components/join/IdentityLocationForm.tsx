@@ -8,10 +8,10 @@ import {
   DistrictOption,
   BlockOption,
   VillageOption,
-  RoleOption,
 } from '../../services/masterDataService';
 import { errorMessage } from '../../services/apiClient';
 import { DuplicateChecker } from './duplicateCheck';
+import { JoinAsTextField } from './JoinAsTextField';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface IdentityLocationFormProps {
@@ -30,16 +30,10 @@ export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ dupl
   const [districts, setDistricts] = useState<DistrictOption[]>([]);
   const [blocks, setBlocks] = useState<BlockOption[]>([]);
   const [villages, setVillages] = useState<VillageOption[]>([]);
-  const [roles, setRoles] = useState<RoleOption[]>([]);
   const [loadingBlocks, setLoadingBlocks] = useState(false);
   const [loadingVillages, setLoadingVillages] = useState(false);
   const [loadingMaster, setLoadingMaster] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  const roleLabel = (role: RoleOption) => {
-    const key = role.name === 'Volunteer' ? 'joinForm.roleVolunteer' : 'joinForm.roleMember';
-    return t(key);
-  };
 
   const invalid = (name: string) => (touched[name] && errors[name]) || (duplicates.errors as any)[name] ? 'is-invalid' : '';
   const dupFeedback = (name: 'aadhaar_number' | 'voter_id') =>
@@ -76,17 +70,8 @@ export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ dupl
     setLoadingMaster(true);
     setLoadError(null);
     try {
-      const [states, districts, roleList] = await Promise.all([
-        masterDataService.getStates(),
-        masterDataService.getDistricts(),
-        masterDataService.getRoles(),
-      ]);
+      const [states, districts] = await Promise.all([masterDataService.getStates(), masterDataService.getDistricts()]);
       setDistricts(districts);
-      const rolesToUse = roleList.length ? roleList : [{ id: 1, name: 'Member', description: '' }];
-      setRoles(rolesToUse);
-      if (!values.role_id && rolesToUse.length) {
-        setFieldValue('role_id', rolesToUse[0].id);
-      }
 
       const preferredState =
         states.find((s) => s.code === 'TN')?.id ||
@@ -204,6 +189,9 @@ export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ dupl
         </div>
       </div>
 
+      <h3 className="h6 text-uppercase text-muted fw-bold mt-4 mb-2" style={{ letterSpacing: '.08em' }}>{t('joinForm.joinAs')} *</h3>
+      <JoinAsTextField invalidClass={invalid('join_as')} />
+
       <h3 className="h6 text-uppercase text-muted fw-bold mt-4 mb-3" style={{ letterSpacing: '.08em' }}>{t('joinForm.constituencyAddress')}</h3>
       <div className="row g-3">
         <div className="col-md-6">
@@ -253,18 +241,6 @@ export const IdentityLocationForm: React.FC<IdentityLocationFormProps> = ({ dupl
               {villages.map((v) => <option key={v.id} value={v.id}>{v.name_en}</option>)}
             </Field>
           )}
-        </div>
-        <div className="col-md-6">
-          <label htmlFor="role_id" className="form-label small fw-semibold">{t('joinForm.joinAs')} *</label>
-          <Field as="select" id="role_id" name="role_id" className={`form-select ${invalid('role_id')}`} disabled={loadingMaster && !roles.length}>
-            <option value="">{t('joinForm.selectPlaceholder')}</option>
-            {roles.map((role) => (
-              <option key={role.id} value={role.id}>
-                {roleLabel(role)}
-              </option>
-            ))}
-          </Field>
-          <ErrorMessage name="role_id" component="div" className="invalid-feedback" />
         </div>
         <div className="col-12">
           <label htmlFor="address_line1" className="form-label small fw-semibold">{t('joinForm.address')}</label>

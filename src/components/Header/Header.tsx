@@ -100,17 +100,18 @@ export const Header: React.FC = () => {
   const firstName = user?.member?.full_name?.split(' ')[0] || t('header.myAccount');
   const brandTa = translate('ta', 'common.brandName');
   const brandEn = translate('en', 'common.brandName');
+  const brandPrimary = lang === 'ta' ? brandTa : brandEn;
+  const brandSecondary = lang === 'ta' ? brandEn : brandTa;
 
   const LangToggle = (
-    <button
-      type="button"
-      className="lang-toggle"
-      onClick={() => setLang(lang === 'ta' ? 'en' : 'ta')}
-      aria-label={t('header.switchLanguage')}
-    >
-      <span className={lang === 'ta' ? 'on' : ''}>{t('common.langTamil')}</span>
-      <span className={lang === 'en' ? 'on' : ''}>{t('header.langEnShort')}</span>
-    </button>
+    <div className="lang-toggle" role="group" aria-label={t('common.language')}>
+      <button type="button" className={lang === 'ta' ? 'on' : ''} aria-pressed={lang === 'ta'} onClick={() => setLang('ta')}>
+        {t('common.langTamil')}
+      </button>
+      <button type="button" className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>
+        {t('header.langEnShort')}
+      </button>
+    </div>
   );
 
   return (
@@ -139,8 +140,8 @@ export const Header: React.FC = () => {
           <Link to="/" className="brand" aria-label={t('header.brandHomeAria')}>
             <span className="brand-logo"><img src="/logo.jpg" alt="" /></span>
             <span className="brand-text">
-              <span className="brand-ta">{brandTa}</span>
-              <span className="brand-en">{brandEn}</span>
+              <span className="brand-ta">{brandPrimary}</span>
+              <span className={`brand-en${lang === 'en' ? ' is-tamil' : ''}`}>{brandSecondary}</span>
             </span>
           </Link>
 
@@ -210,7 +211,7 @@ export const Header: React.FC = () => {
       <aside className={`mobile-drawer ${drawerOpen ? 'open' : ''}`} aria-hidden={!drawerOpen}>
         <div className="drawer-head">
           <img src="/logo.jpg" alt="" />
-          <span className="brand-ta">{brandTa}</span>
+          <span className="brand-ta">{brandPrimary}</span>
           <button type="button" className="menu-toggle ms-auto" onClick={() => setDrawerOpen(false)} aria-label={t('header.closeMenu')}>
             <i className="bi bi-x-lg"></i>
           </button>

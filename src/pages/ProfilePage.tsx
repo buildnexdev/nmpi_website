@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ADMIN_URL, apiClient, downloadFile, errorMessage, formatDate, pick } from '../services/apiClient';
 import { EmptyState, ErrorBox, Loader, PageHero } from '../components/ui';
 import { DigitalIdCard } from '../components/DigitalIdCard';
+import { MemberProfileEditForm } from '../components/profile/MemberProfileEditForm';
 import { formatIdCardDesignation, formatIdCardExpiry } from '../utils/idCardFormat';
 
 interface MemberProfile {
@@ -34,6 +35,13 @@ interface MemberProfile {
   parliament_name: string | null;
   parliament_name_ta: string | null;
   role_name: string | null;
+  role_id?: number;
+  state_id?: number;
+  parliament_constituency_id?: number;
+  assembly_constituency_id?: number | null;
+  district_id?: number;
+  block_id?: number;
+  village_id?: number | null;
   status: string;
   created_at: string;
   aadhaar_masked: string;
@@ -107,6 +115,7 @@ export const ProfilePage: React.FC = () => {
   const [noMember, setNoMember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const load = useCallback(() => {
     if (!isAuthenticated) return;
@@ -181,6 +190,7 @@ export const ProfilePage: React.FC = () => {
         [t('profilePage.fields.block'), pick(profile, 'block_name', lang) || '—'],
         [t('profilePage.fields.village'), profile.village_name || profile.village_custom || '—'],
         [t('profilePage.fields.address'), profile.address_line1 || '—'],
+        [t('profilePage.fields.role'), profile.role_name || '—'],
         [t('profilePage.fields.joined'), formatDate(profile.created_at, lang)],
       ]
     : [];
@@ -224,22 +234,46 @@ export const ProfilePage: React.FC = () => {
               <div className="col-lg-7 d-flex flex-column gap-4">
                 <div className="card-custom p-4">
                   <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-                    <h2 className="h5 mb-0"><i className="bi bi-person-vcard me-2 text-maroon"></i>{t('profilePage.membershipDetails')}</h2>
-                    <span className={`chip ${STATUS_CHIP[profile.status] || ''}`}>{tRaw<Record<string, string>>('profilePage.status')?.[profile.status] || profile.status}</span>
+                    <h2 className="h5 mb-0">
+                      <i className="bi bi-person-vcard me-2 text-maroon"></i>
+                      {editing ? t('profilePage.edit.title') : t('profilePage.membershipDetails')}
+                    </h2>
+                    <div className="d-flex flex-wrap align-items-center gap-2">
+                      {!editing && (
+                        <button type="button" className="btn btn-sm btn-outline-maroon" onClick={() => setEditing(true)}>
+                          <i className="bi bi-pencil-square me-1"></i>
+                          {t('profilePage.edit.open')}
+                        </button>
+                      )}
+                      <span className={`chip ${STATUS_CHIP[profile.status] || ''}`}>
+                        {tRaw<Record<string, string>>('profilePage.status')?.[profile.status] || profile.status}
+                      </span>
+                    </div>
                   </div>
-                  {profile.status === 'PENDING' && (
+                  {profile.status === 'PENDING' && !editing && (
                     <div className="alert alert-warning small">
                       {t('profilePage.pendingNotice')}
                     </div>
                   )}
-                  <dl className="detail-grid mb-0">
-                    {details.map(([label, value]) => (
-                      <div key={label}>
-                        <dt>{label}</dt>
-                        <dd>{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                  {editing ? (
+                    <MemberProfileEditForm
+                      profile={profile}
+                      onCancel={() => setEditing(false)}
+                      onSaved={(updated) => {
+                        setProfile(updated);
+                        setEditing(false);
+                      }}
+                    />
+                  ) : (
+                    <dl className="detail-grid mb-0">
+                      {details.map(([label, value]) => (
+                        <div key={label}>
+                          <dt>{label}</dt>
+                          <dd>{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
                 </div>
                 <ChangePasswordCard />
               </div>

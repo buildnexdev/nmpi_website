@@ -93,7 +93,19 @@
       "block": "Block / taluk",
       "village": "Village / ward",
       "address": "Address",
+      "role": "Membership type",
       "joined": "Joined"
+    },
+    "edit": {
+      "open": "Edit profile",
+      "title": "Edit membership details",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "saveFailed": "Could not save your profile. Please check the form and try again.",
+      "changePhoto": "Change photo",
+      "photoOptional": "Optional — leave unchanged to keep your current photo.",
+      "lockedFieldsNote": "Mobile, email, Aadhaar and Voter ID cannot be changed here. Contact your district office if those details are wrong."
     },
     "changePassword": {
       "title": "Change password",
@@ -247,7 +259,7 @@
       "parliamentRequired": "Select your parliament constituency",
       "districtRequired": "Select your district",
       "blockRequired": "Select your taluk / block",
-      "roleRequired": "Select how you want to join",
+      "roleRequired": "Enter how you want to join (e.g. Member or Volunteer)",
       "consentRequired": "Please accept the Privacy Policy and Terms to continue",
       "profilePhotoRequired": "A profile photo is required for your ID card"
     },
@@ -296,8 +308,12 @@
     "village": "Village / panchayat",
     "villagePlaceholder": "Type your village name",
     "joinAs": "I want to join as",
+    "joinAsPlaceholder": "Type here — e.g. Member or Volunteer",
+    "joinAsHint": "Type Member or Volunteer (or Tamil: உறுப்பினர் / தன்னார்வலர்). Other text registers as general Member.",
     "roleMember": "Member",
+    "roleMemberHint": "General membership with digital ID and QR verification.",
     "roleVolunteer": "Volunteer",
+    "roleVolunteerHint": "Active volunteer role; shown on your membership profile and ID.",
     "address": "Door no. & street address",
     "consentPrefix": "I confirm the information above is accurate and I agree to the ",
     "consentPrivacy": "Privacy Policy",
@@ -408,6 +424,9 @@
     "searchPlaceholder": "Search news",
     "searchAria": "Search",
     "allCategories": "All",
+    "categories": {
+      "Announcement": "Announcement"
+    },
     "emptyNoMatch": "No matching news",
     "emptyNoNews": "No news yet"
   },

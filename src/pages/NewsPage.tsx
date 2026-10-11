@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { apiClient, asArray, errorMessage } from '../services/apiClient';
 import { useLanguage } from '../context/LanguageContext';
-import { EmptyState, ErrorBox, Loader, NewsCard, NewsItem, PageHero } from '../components/ui';
+import { EmptyState, ErrorBox, Loader, NewsCard, NewsItem, PageHero, newsCategoryLabel } from '../components/ui';
 
 export const NewsPage: React.FC = () => {
   const { t } = useLanguage();
@@ -47,7 +47,7 @@ export const NewsPage: React.FC = () => {
               <div className="d-flex flex-wrap gap-2">
                 <button className={`btn btn-sm ${!category ? 'btn-maroon' : 'btn-outline-maroon'}`} onClick={() => setCategory('')}>{t('newsPage.allCategories')}</button>
                 {categories.map((c) => (
-                  <button key={c} className={`btn btn-sm ${category === c ? 'btn-maroon' : 'btn-outline-maroon'}`} onClick={() => setCategory(c)}>{c}</button>
+                  <button key={c} className={`btn btn-sm ${category === c ? 'btn-maroon' : 'btn-outline-maroon'}`} onClick={() => setCategory(c)}>{newsCategoryLabel(c, t)}</button>
                 ))}
               </div>
             )}

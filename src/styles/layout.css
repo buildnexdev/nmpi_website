@@ -32,13 +32,23 @@ img {
   background: var(--accent-gold-light);
   color: var(--ink);
 }
-/* Tracking splits Tamil vowel signs from their consonants. */
+/* Tracking and uppercase split Tamil vowel signs from their consonants. */
 html[lang='ta'] .eyebrow,
+html[lang='ta'] .home-hero-eyebrow,
+html[lang='ta'] .home-about-eyebrow,
+html[lang='ta'] .home-about-visual-label,
+html[lang='ta'] .home-about-reg dt,
 html[lang='ta'] .wizard-step,
+html[lang='ta'] .drawer-group-title,
+html[lang='ta'] .about-masthead-eyebrow,
+html[lang='ta'] .about-stat-label,
+html[lang='ta'] .founder-movement,
+html[lang='ta'] .detail-grid dt,
+html[lang='ta'] .date-tile .dt-month,
 html[lang='ta'] h1, html[lang='ta'] h2, html[lang='ta'] h3,
-html[lang='ta'] h4, html[lang='ta'] h5, html[lang='ta'] h6,
-html[lang='ta'] .drawer-group-title {
+html[lang='ta'] h4, html[lang='ta'] h5, html[lang='ta'] h6 {
   letter-spacing: normal !important;
+  text-transform: none !important;
 }
 
 /* ---------- Utilities ---------- */

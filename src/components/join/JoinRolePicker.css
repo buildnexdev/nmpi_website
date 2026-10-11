@@ -1,0 +1,76 @@
+.join-role-picker {
+  width: 100%;
+}
+
+.join-role-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+@media (min-width: 576px) {
+  .join-role-options {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.join-role-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 2px solid rgba(107, 0, 24, 0.15);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.join-role-option.is-selected {
+  border-color: var(--primary-maroon, #6b0018);
+  background: var(--maroon-50, #fdf5f6);
+  box-shadow: 0 0 0 1px rgba(107, 0, 24, 0.08);
+}
+
+.join-role-option.is-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.join-role-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.join-role-option-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.join-role-option-title {
+  display: block;
+  font-weight: 700;
+  color: var(--primary-maroon, #6b0018);
+  font-size: 0.95rem;
+}
+
+.join-role-option-hint {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--color-muted, #666);
+  margin-top: 0.15rem;
+}
+
+.join-role-option-icon {
+  font-size: 1.35rem;
+  color: var(--accent-gold-dark, #b8860b);
+  flex-shrink: 0;
+}
+
+.join-role-picker.is-invalid .join-role-option {
+  border-color: var(--bs-danger, #dc3545);
+}
