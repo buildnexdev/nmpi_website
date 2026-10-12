@@ -99,7 +99,7 @@ export const DonateCard: React.FC<DonateCardProps> = ({ compact = false }) => {
           <i className="bi bi-shield-check me-1"></i> {t('donatePage.upiCardTitle')}
         </span>
         <h3 className="h4 fw-bold mt-2 mb-1" style={{ color: 'var(--primary-maroon)' }}>
-          {DONATION_PAYEE_NAME}
+          {t('donatePage.title')}
         </h3>
         <p className="text-muted small mb-0">
           {t('donatePage.scanQr')}
