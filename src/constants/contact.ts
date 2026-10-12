@@ -7,5 +7,5 @@ export const SOCIAL_LINKS = [
   { href: 'https://www.facebook.com/p/Nethaji-Makkal-Pathukapu-Iyakkam-61594815908408/', icon: 'bi-facebook', label: 'Facebook' },
   { href: 'https://www.instagram.com/nmpi_official/', icon: 'bi-instagram', label: 'Instagram' },
   { href: 'https://x.com/nmpi_official', icon: 'bi-twitter-x', label: 'X' },
-  { href: 'https://www.youtube.com/@Nethajimakkalpathukapuiyakkam', icon: 'bi-youtube', label: 'YouTube' },
+  { href: 'https://www.youtube.com/@nethajimedia_1', icon: 'bi-youtube', label: 'YouTube' },
 ];

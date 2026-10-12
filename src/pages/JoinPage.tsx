@@ -197,6 +197,7 @@ export const JoinPage: React.FC = () => {
       const result = await memberService.registerMember({
         ...rest,
         role_id: roleIdFromJoinAsText(join_as),
+        designation: join_as,
         phone_number: cleanValue('phone_number', values),
         aadhaar_number: cleanValue('aadhaar_number', values),
         voter_id: cleanValue('voter_id', values),

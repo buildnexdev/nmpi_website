@@ -35,6 +35,7 @@ interface MemberProfile {
   parliament_name: string | null;
   parliament_name_ta: string | null;
   role_name: string | null;
+  designation?: string | null;
   role_id?: number;
   state_id?: number;
   parliament_constituency_id?: number;
@@ -190,7 +191,7 @@ export const ProfilePage: React.FC = () => {
         [t('profilePage.fields.block'), pick(profile, 'block_name', lang) || '—'],
         [t('profilePage.fields.village'), profile.village_name || profile.village_custom || '—'],
         [t('profilePage.fields.address'), profile.address_line1 || '—'],
-        [t('profilePage.fields.role'), profile.role_name || '—'],
+        [t('profilePage.fields.role'), profile.designation || profile.role_name || '—'],
         [t('profilePage.fields.joined'), formatDate(profile.created_at, lang)],
       ]
     : [];

@@ -20,6 +20,7 @@ export interface UpdateMemberProfilePayload {
   village_custom?: string;
   address_line1?: string;
   role_id: number | string;
+  designation?: string;
 }
 
 export interface RegisterMemberPayload {
@@ -44,6 +45,7 @@ export interface RegisterMemberPayload {
   village_custom?: string;
   address_line1?: string;
   role_id: number | string;
+  designation?: string;
   profile_image?: File | null;
 }
 
@@ -127,6 +129,7 @@ export interface RegisteredMember {
   parliament_name_ta?: string | null;
   assembly_name?: string | null;
   role_name?: string | null;
+  designation?: string | null;
   status: string;
   created_at?: string;
   verification_token: string;

@@ -32,6 +32,7 @@ export type ProfileForEdit = {
   address_line1?: string | null;
   role_id?: number;
   role_name?: string | null;
+  designation?: string | null;
 };
 
 type Props = {
@@ -317,7 +318,7 @@ export const MemberProfileEditForm: React.FC<Props> = ({ profile, onSaved, onCan
     village_custom: profile.village_custom || '',
     address_line1: profile.address_line1 || '',
     role_id: profile.role_id || 1,
-    join_as: profile.role_name?.trim() || (profile.role_id === 2 ? 'Volunteer' : 'Member'),
+    join_as: profile.designation?.trim() || profile.role_name?.trim() || (profile.role_id === 2 ? 'Volunteer' : 'Member'),
     profile_image: null,
   };
 
@@ -372,6 +373,7 @@ export const MemberProfileEditForm: React.FC<Props> = ({ profile, onSaved, onCan
           const updated = await memberService.updateMyProfile({
             ...rest,
             role_id: roleIdFromJoinAsText(join_as),
+            designation: join_as,
           });
           onSaved(updated);
         } catch (err) {
