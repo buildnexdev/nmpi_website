@@ -185,6 +185,41 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
+      <section id="home-donate" className="section section-cream home-block py-5">
+        <div className="container">
+          <div
+            className="p-4 p-lg-5 rounded-4 position-relative overflow-hidden shadow-sm"
+            style={{
+              background: 'linear-gradient(135deg, #7A0C16 0%, #4D050B 100%)',
+              color: '#fff',
+              border: '1px solid rgba(212, 175, 55, 0.4)',
+            }}
+          >
+            <div className="row align-items-center g-4">
+              <div className="col-lg-8">
+                <span className="badge rounded-pill px-3 py-2 text-uppercase fw-semibold mb-2" style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#FFD700', border: '1px solid rgba(212, 175, 55, 0.4)' }}>
+                  <i className="bi bi-heart-fill me-1 text-warning"></i> {t('donatePage.eyebrow')}
+                </span>
+                <h2 className="text-white fw-bold mb-2">{t('donatePage.title')}</h2>
+                <p className="text-white-50 mb-0" style={{ maxWidth: 680 }}>
+                  {t('donatePage.subtitle')}
+                </p>
+                <div className="d-flex flex-wrap gap-3 mt-3 text-white-50 small">
+                  <span><i className="bi bi-check2-circle text-warning me-1"></i> UPI: <strong>cinepage2017@okaxis</strong></span>
+                  <span><i className="bi bi-shield-check text-warning me-1"></i> GPay / PhonePe / Paytm / BHIM</span>
+                </div>
+              </div>
+              <div className="col-lg-4 text-lg-end">
+                <Link to="/donate" className="btn btn-gold btn-lg px-4 py-3 fw-bold shadow">
+                  <i className="bi bi-heart-fill me-2 text-danger"></i>
+                  {t('common.donateNow')}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="section-sm section-white">
         <div className="container">
           <div className="cta-band" data-reveal="zoom">

@@ -9,3 +9,8 @@ export const SOCIAL_LINKS = [
   { href: 'https://x.com/nmpi_official', icon: 'bi-twitter-x', label: 'X' },
   { href: 'https://www.youtube.com/@nethajimedia_1', icon: 'bi-youtube', label: 'YouTube' },
 ];
+
+export const DONATION_UPI_ID = 'cinepage2017@okaxis';
+export const DONATION_PAYEE_NAME = 'Netaji Makkal Pathukappu Iyakkam';
+export const DONATION_OFFICIAL_EMAIL = 'nmpiofficial2026@gmail.com';
+

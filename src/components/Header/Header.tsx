@@ -6,6 +6,7 @@ import { logout } from '../../store/authSlice';
 import { translate, useLanguage } from '../../context/LanguageContext';
 import { mediaUrl } from '../../services/apiClient';
 import { CONTACT_PHONE, CONTACT_PHONE_TEL, SOCIAL_LINKS } from '../../constants/contact';
+import { DonateModal } from '../Donate/DonateModal';
 import './Header.css';
 
 interface NavEntry {
@@ -54,6 +55,7 @@ export const Header: React.FC = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [compact, setCompact] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const [showDonateModal, setShowDonateModal] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -205,6 +207,15 @@ export const Header: React.FC = () => {
                 </div>
               </div>
             )}
+            <button
+              type="button"
+              className="btn btn-donate btn-sm d-inline-flex align-items-center gap-1 shadow-sm"
+              onClick={() => setShowDonateModal(true)}
+              title={t('common.donateNow')}
+            >
+              <i className="bi bi-heart-fill text-warning"></i>
+              <span>{t('common.donate')}</span>
+            </button>
             <Link to="/join" className="btn btn-gold btn-sm btn-join d-none d-sm-inline-flex align-items-center gap-1">
               <i className="bi bi-person-plus-fill"></i>
               {t('header.join')}
@@ -249,13 +260,24 @@ export const Header: React.FC = () => {
               <Link to="/profile" className="btn btn-maroon w-100 mb-2">
                 {t('header.myDigitalId')}
               </Link>
-              <button type="button" className="btn btn-outline-maroon w-100" onClick={handleLogout}>
+              <button type="button" className="btn btn-outline-maroon w-100 mb-2" onClick={handleLogout}>
                 {t('header.signOut')}
               </button>
             </>
           ) : (
-            <Link to="/join" className="btn btn-gold w-100">{t('header.join')}</Link>
+            <Link to="/join" className="btn btn-gold w-100 mb-2">{t('header.join')}</Link>
           )}
+          <button
+            type="button"
+            className="btn btn-donate w-100 mb-2 d-flex align-items-center justify-content-center gap-2 py-2"
+            onClick={() => {
+              setDrawerOpen(false);
+              setShowDonateModal(true);
+            }}
+          >
+            <i className="bi bi-heart-fill text-warning"></i>
+            <span>{t('common.donateNow')}</span>
+          </button>
           <a href={CONTACT_PHONE_TEL} className="d-flex justify-content-center align-items-center gap-2 mt-3 text-decoration-none">
             <i className="bi bi-telephone-fill"></i>{CONTACT_PHONE}
           </a>
@@ -268,6 +290,8 @@ export const Header: React.FC = () => {
           </div>
         </div>
       </aside>
+
+      <DonateModal show={showDonateModal} onClose={() => setShowDonateModal(false)} />
     </header>
   );
 };

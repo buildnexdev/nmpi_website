@@ -13,6 +13,7 @@ const COLUMNS = [
       { to: '/ideology', labelKey: 'header.nav.ideology' },
       { to: '/leadership', labelKey: 'header.nav.districtExecutives' },
       { to: '/achievements', labelKey: 'nav.achievements' },
+      { to: '/donate', labelKey: 'common.donateNow' },
     ],
   },
   {

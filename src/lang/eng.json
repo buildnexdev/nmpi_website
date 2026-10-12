@@ -15,6 +15,9 @@
     "joinUs": "Join Us",
     "joinMovement": "Join the movement",
     "memberLogin": "Member Login",
+    "donate": "Donate",
+    "donateNow": "Donate Now",
+    "supportMovement": "Support the Movement",
     "language": "Language",
     "langTamil": "தமிழ்",
     "langEnglish": "English",
@@ -849,6 +852,25 @@
   "contactInfo": {
     "address": "111, Cauvery Complex, Opp. to Rukmani Theatre, Woraiyur, Trichy 620004",
     "city": "Woraiyur, Trichy"
+  },
+  "donatePage": {
+    "eyebrow": "Donation & Support",
+    "title": "Support Our Movement & Welfare Missions",
+    "subtitle": "Contribute to Netaji Makkal Pathukappu Iyakkam's social initiatives, educational aid, and community welfare programs.",
+    "upiCardTitle": "Direct UPI Payment (GPay / PhonePe / Paytm / BHIM)",
+    "scanQr": "Scan with any UPI App to contribute instantly",
+    "upiIdLabel": "Official NMPI UPI ID",
+    "payeeNameLabel": "Payee Name",
+    "copyUpi": "Copy UPI ID",
+    "copied": "Copied to Clipboard!",
+    "payViaApp": "Pay via UPI App (GPay / PhonePe / Paytm)",
+    "selectAmount": "Select Amount (INR)",
+    "customAmount": "Custom Amount",
+    "trustTitle": "Trust & Transparency",
+    "trust1": "100% Secure & Verified Official UPI Account",
+    "trust2": "Dedicated exclusively to education aid and welfare activities",
+    "trust3": "Accountable and transparent community stewardship",
+    "note": "After donation, for acknowledgment or receipt details, please email nmpiofficial2026@gmail.com or contact +91 95669 58830."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

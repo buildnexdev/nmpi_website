@@ -23,6 +23,7 @@ import { AchievementsPage } from '../pages/AchievementsPage';
 import { IdeologyPage } from '../pages/IdeologyPage';
 import { ActionsPage } from '../pages/ActionsPage';
 import { WingsPage } from '../pages/WingsPage';
+import { DonatePage } from '../pages/DonatePage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const AppRoutes: React.FC = () => {
@@ -52,6 +53,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="privacy-policy" element={<PrivacyPage />} />
         <Route path="terms" element={<TermsPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="donate" element={<DonatePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
