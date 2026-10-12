@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { logout } from '../../store/authSlice';
 import { translate, useLanguage } from '../../context/LanguageContext';
-import { mediaUrl } from '../../services/apiClient';
 import { CONTACT_PHONE, CONTACT_PHONE_TEL, SOCIAL_LINKS } from '../../constants/contact';
 import { DonateModal } from '../Donate/DonateModal';
 import './Header.css';
@@ -46,7 +45,7 @@ const NAV: NavEntry[] = [
 ];
 
 export const Header: React.FC = () => {
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { lang, setLang, t } = useLanguage();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -54,13 +53,8 @@ export const Header: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [compact, setCompact] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    setAvatarError(false);
-  }, [user?.member?.profile_image]);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -104,7 +98,6 @@ export const Header: React.FC = () => {
   };
 
   const isGroupActive = (entry: NavEntry) => entry.children?.some((c) => location.pathname.startsWith(c.to));
-  const firstName = user?.member?.full_name?.split(' ')[0] || t('header.myAccount');
   const brandTa = translate('ta', 'common.brandName');
   const brandEn = translate('en', 'common.brandName');
   const brandPrimary = lang === 'ta' ? brandTa : brandEn;
@@ -182,31 +175,6 @@ export const Header: React.FC = () => {
 
           <div className="header-actions ms-auto">
             <div className="d-lg-none">{LangToggle}</div>
-            {isAuthenticated && (
-              <div className={`nav-group account-menu d-none d-md-block ${openMenu === 'account' ? 'open' : ''}`}>
-                <button type="button" className="account-chip" onClick={() => setOpenMenu((m) => (m === 'account' ? null : 'account'))} aria-expanded={openMenu === 'account'}>
-                  {user?.member?.profile_image && !avatarError ? (
-                    <img
-                      src={mediaUrl(user.member.profile_image)}
-                      alt=""
-                      onError={() => setAvatarError(true)}
-                    />
-                  ) : (
-                    <i className="bi bi-person-circle"></i>
-                  )}
-                  <span className="text-truncate">{firstName}</span>
-                  <i className="bi bi-chevron-down caret"></i>
-                </button>
-                <div className="nav-dropdown nav-dropdown-end" role="menu">
-                  <Link to="/profile" className="nav-dropdown-link" role="menuitem">
-                    {t('header.myDigitalId')}
-                  </Link>
-                  <button type="button" className="nav-dropdown-link text-danger" onClick={handleLogout} role="menuitem">
-                    {t('header.signOut')}
-                  </button>
-                </div>
-              </div>
-            )}
             <button
               type="button"
               className="btn btn-donate btn-sm d-inline-flex align-items-center gap-1 shadow-sm"
