@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import axios from 'axios';
 import { Language, translate, useLanguage } from '../context/LanguageContext';
 import { memberService, RegisterMemberPayload, RegisteredMember } from '../services/memberService';
-import { errorMessage } from '../services/apiClient';
+import { errorMessage, downloadFile } from '../services/apiClient';
 import { setCredentials } from '../store/authSlice';
 import { PageHero } from '../components/ui';
 import { PersonalInformationForm } from '../components/join/PersonalInformationForm';
@@ -15,6 +15,8 @@ import { RegistrationSuccess } from '../components/join/RegistrationSuccess';
 import { DuplicateChecker, DuplicateField } from '../components/join/duplicateCheck';
 import { roleIdFromJoinAsText } from '../components/join/joinAsRole';
 import { MemberProfileEditForm, ProfileForEdit } from '../components/profile/MemberProfileEditForm';
+import { DigitalIdCard } from '../components/DigitalIdCard';
+import { formatIdCardDesignation, formatIdCardExpiry } from '../utils/idCardFormat';
 
 type JoinValues = RegisterMemberPayload & { confirm_password: string; consent_terms: boolean; join_as: string };
 
@@ -138,6 +140,8 @@ export const JoinPage: React.FC = () => {
   const [lookupPhone, setLookupPhone] = useState('');
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const schema = useMemo(() => buildSchema(lang), [lang]);
 
   const profileForEdit: ProfileForEdit = useMemo(() => {
@@ -279,6 +283,23 @@ export const JoinPage: React.FC = () => {
     }
   };
 
+  const handleDownloadIdCard = async () => {
+    if (!editingMember) return;
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const token = editingMember.id_card_token || editingMember.verification_token;
+      const url = token
+        ? `/members/id-card/download?token=${encodeURIComponent(token)}`
+        : `/members/${encodeURIComponent(editingMember.member_id)}/id-card`;
+      await downloadFile(url, `${editingMember.member_id}_ID_Card.pdf`);
+    } catch (err: any) {
+      setDownloadError(errorMessage(err, t('profilePage.downloadFailed')));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (registeredMember) {
     return (
       <section className="page-body">
@@ -299,41 +320,93 @@ export const JoinPage: React.FC = () => {
         />
         <section className="page-body">
           <div className="container">
-            <div className="card-custom p-4 p-md-5">
-              <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
-                <div>
-                  <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-maroon fs-6 px-3 py-2">{editingMember.member_id}</span>
-                    <h2 className="h4 mb-0 text-dark">{editingMember.full_name}</h2>
+            <div className="row g-4">
+              {/* Left Column: ID Card Preview & Download */}
+              <div className="col-lg-5">
+                <div className="position-sticky" style={{ top: 'calc(var(--header-h, 80px) + 16px)' }}>
+                  <DigitalIdCard
+                    fullName={editingMember.full_name}
+                    memberId={editingMember.member_id}
+                    designation={formatIdCardDesignation(editingMember)}
+                    validUntil={formatIdCardExpiry(editingMember.created_at)}
+                    bloodGroup={editingMember.blood_group}
+                    profileImage={editingMember.profile_image}
+                    qrDataUrl={editingMember.qr_data_url}
+                  />
+
+                  {downloadError && (
+                    <div className="alert alert-danger small mt-3 mb-0" role="alert">
+                      {downloadError}
+                    </div>
+                  )}
+
+                  <div className="d-grid mt-3">
+                    <button
+                      type="button"
+                      className="btn btn-maroon btn-lg d-flex align-items-center justify-content-center gap-2"
+                      onClick={handleDownloadIdCard}
+                      disabled={downloading}
+                    >
+                      {downloading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          <span>{t('common.downloading') || 'Downloading...'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-file-earmark-pdf fs-5"></i>
+                          <span>{t('profilePage.downloadIdCard') || 'Download ID Card (PDF)'}</span>
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <p className="text-muted small mb-0 mt-1">
-                    <i className="bi bi-telephone me-1"></i>+91 {editingMember.phone_number} &bull; <i className="bi bi-geo-alt me-1"></i>{editingMember.district_name || ''}
+
+                  <p className="small text-muted mt-2 mb-0 text-center">
+                    <i className="bi bi-qr-code me-1"></i>
+                    {t('profilePage.qrNote')}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() => setEditingMember(null)}
-                >
-                  <i className="bi bi-arrow-left me-1"></i>
-                  {t('joinPage.backToRegister')}
-                </button>
               </div>
 
-              <MemberProfileEditForm
-                profile={profileForEdit}
-                onSaved={(updated) => {
-                  setEditingMember(null);
-                  setRegisteredMember({
-                    ...editingMember,
-                    ...updated,
-                    qr_data_url: updated.qr_data_url || editingMember.qr_data_url,
-                    id_card_token: updated.id_card_token || editingMember.id_card_token,
-                  });
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onCancel={() => setEditingMember(null)}
-              />
+              {/* Right Column: Member Profile Edit Form */}
+              <div className="col-lg-7">
+                <div className="card-custom p-4 p-md-5">
+                  <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+                    <div>
+                      <div className="d-flex align-items-center gap-2">
+                        <span className="badge bg-maroon fs-6 px-3 py-2">{editingMember.member_id}</span>
+                        <h2 className="h4 mb-0 text-dark">{editingMember.full_name}</h2>
+                      </div>
+                      <p className="text-muted small mb-0 mt-1">
+                        <i className="bi bi-telephone me-1"></i>+91 {editingMember.phone_number} &bull; <i className="bi bi-geo-alt me-1"></i>{editingMember.district_name || ''}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => setEditingMember(null)}
+                    >
+                      <i className="bi bi-arrow-left me-1"></i>
+                      {t('joinPage.backToRegister')}
+                    </button>
+                  </div>
+
+                  <MemberProfileEditForm
+                    profile={profileForEdit}
+                    onSaved={(updated) => {
+                      setEditingMember(null);
+                      setRegisteredMember({
+                        ...editingMember,
+                        ...updated,
+                        qr_data_url: updated.qr_data_url || editingMember.qr_data_url,
+                        id_card_token: updated.id_card_token || editingMember.id_card_token,
+                      });
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    onCancel={() => setEditingMember(null)}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>
