@@ -1,17 +1,20 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Formik, Form, FormikTouched } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
 import { Language, translate, useLanguage } from '../context/LanguageContext';
 import { memberService, RegisterMemberPayload, RegisteredMember } from '../services/memberService';
 import { errorMessage } from '../services/apiClient';
+import { setCredentials } from '../store/authSlice';
 import { PageHero } from '../components/ui';
 import { PersonalInformationForm } from '../components/join/PersonalInformationForm';
 import { IdentityLocationForm } from '../components/join/IdentityLocationForm';
 import { RegistrationSuccess } from '../components/join/RegistrationSuccess';
 import { DuplicateChecker, DuplicateField } from '../components/join/duplicateCheck';
 import { roleIdFromJoinAsText } from '../components/join/joinAsRole';
+import { MemberProfileEditForm, ProfileForEdit } from '../components/profile/MemberProfileEditForm';
 
 type JoinValues = RegisterMemberPayload & { confirm_password: string; consent_terms: boolean; join_as: string };
 
@@ -127,9 +130,47 @@ const initialValues: JoinValues = {
 export const JoinPage: React.FC = () => {
   const { lang, t } = useLanguage();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [registeredMember, setRegisteredMember] = useState<RegisteredMember | null>(null);
+  const [editingMember, setEditingMember] = useState<RegisteredMember | null>(null);
+  const [showLookupModal, setShowLookupModal] = useState(false);
+  const [lookupPhone, setLookupPhone] = useState('');
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
   const schema = useMemo(() => buildSchema(lang), [lang]);
+
+  const profileForEdit: ProfileForEdit = useMemo(() => {
+    if (!editingMember) {
+      return {
+        full_name: '',
+        father_name: null,
+        date_of_birth: null,
+        gender: null,
+        blood_group: null,
+        profile_image: null,
+      };
+    }
+    return {
+      full_name: editingMember.full_name,
+      father_name: editingMember.father_name || null,
+      date_of_birth: editingMember.date_of_birth || null,
+      gender: editingMember.gender || null,
+      blood_group: editingMember.blood_group || null,
+      profile_image: editingMember.profile_image || null,
+      state_id: editingMember.state_id || 1,
+      parliament_constituency_id: editingMember.parliament_constituency_id,
+      assembly_constituency_id: editingMember.assembly_constituency_id,
+      district_id: editingMember.district_id,
+      block_id: editingMember.block_id,
+      village_id: editingMember.village_id,
+      village_custom: editingMember.village_custom,
+      address_line1: editingMember.address_line1,
+      role_id: editingMember.role_id,
+      role_name: editingMember.role_name,
+      designation: editingMember.designation,
+    };
+  }, [editingMember]);
 
   const [dupErrors, setDupErrors] = useState<Partial<Record<DuplicateField, string>>>({});
   const [dupChecking, setDupChecking] = useState<Partial<Record<DuplicateField, boolean>>>({});
@@ -185,6 +226,29 @@ export const JoinPage: React.FC = () => {
     if (field in DUP_MESSAGE_KEYS) setDupErrors((prev) => ({ ...prev, [field]: message }));
   };
 
+  const handleLookupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = lookupPhone.replace(/\D/g, '');
+    if (clean.length !== 10) {
+      setLookupError(t('joinForm.validation.phoneInvalid'));
+      return;
+    }
+    setLookupLoading(true);
+    setLookupError(null);
+    try {
+      const res = await memberService.lookupByPhone(clean);
+      dispatch(setCredentials({ token: res.token, user: res.user }));
+      setEditingMember(res.member);
+      setShowLookupModal(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      const msg = errorMessage(err, t('joinPage.phoneNotFound'));
+      setLookupError(msg);
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
   const handleSubmit = async (values: JoinValues, { setSubmitting, setFieldError, setTouched }: any) => {
     setSubmitError(null);
     setTouched(Object.fromEntries(ALL_FIELDS.map((f) => [f, true])) as FormikTouched<JoinValues>);
@@ -225,12 +289,95 @@ export const JoinPage: React.FC = () => {
     );
   }
 
+  if (editingMember) {
+    return (
+      <>
+        <PageHero
+          eyebrow={t('joinPage.eyebrow')}
+          title={t('joinPage.editingTitle')}
+          subtitle={t('joinPage.editingSubtitle')}
+        />
+        <section className="page-body">
+          <div className="container">
+            <div className="card-custom p-4 p-md-5">
+              <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+                <div>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="badge bg-maroon fs-6 px-3 py-2">{editingMember.member_id}</span>
+                    <h2 className="h4 mb-0 text-dark">{editingMember.full_name}</h2>
+                  </div>
+                  <p className="text-muted small mb-0 mt-1">
+                    <i className="bi bi-telephone me-1"></i>+91 {editingMember.phone_number} &bull; <i className="bi bi-geo-alt me-1"></i>{editingMember.district_name || ''}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setEditingMember(null)}
+                >
+                  <i className="bi bi-arrow-left me-1"></i>
+                  {t('joinPage.backToRegister')}
+                </button>
+              </div>
+
+              <MemberProfileEditForm
+                profile={profileForEdit}
+                onSaved={(updated) => {
+                  setEditingMember(null);
+                  setRegisteredMember({
+                    ...editingMember,
+                    ...updated,
+                    qr_data_url: updated.qr_data_url || editingMember.qr_data_url,
+                    id_card_token: updated.id_card_token || editingMember.id_card_token,
+                  });
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onCancel={() => setEditingMember(null)}
+              />
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
       <PageHero eyebrow={t('joinPage.eyebrow')} title={t('common.joinMovement')} subtitle={t('joinPage.subtitle')} />
       <section className="page-body">
         <div className="container">
           <div className="card-custom p-4 p-md-5">
+            {/* Banner for already registered members needing to edit */}
+            <div
+              className="d-flex flex-wrap align-items-center justify-content-between p-3 mb-4 rounded-3"
+              style={{ background: '#fff9eb', border: '1px solid #ffd591' }}
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center text-white"
+                  style={{ width: 40, height: 40, background: 'linear-gradient(135deg, #b8860b, #d4af37)', flexShrink: 0 }}
+                >
+                  <i className="bi bi-person-gear fs-5"></i>
+                </div>
+                <div>
+                  <span className="fw-semibold text-dark d-block">{t('joinPage.alreadyRegisteredEdit')}</span>
+                  <span className="text-muted small">{t('joinPage.editPromptSubtitle')}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-maroon btn-sm px-3 py-2 mt-2 mt-sm-0"
+                onClick={() => {
+                  setLookupPhone('');
+                  setLookupError(null);
+                  setShowLookupModal(true);
+                }}
+              >
+                <i className="bi bi-pencil-square me-1"></i>
+                {t('joinPage.clickToEdit')}
+              </button>
+            </div>
+
             {submitError && (
               <div className="alert alert-danger d-flex align-items-center gap-2" role="alert">
                 <i className="bi bi-exclamation-triangle-fill"></i>
@@ -249,6 +396,106 @@ export const JoinPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Phone verification modal for member edit */}
+      {showLookupModal && (
+        <div
+          className="modal fade show d-block"
+          tabIndex={-1}
+          role="dialog"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', zIndex: 1060 }}
+          onClick={() => { if (!lookupLoading) setShowLookupModal(false); }}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            style={{ maxWidth: 480 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content shadow-lg border-0 rounded-4 overflow-hidden">
+              <div className="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                <div>
+                  <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+                    <i className="bi bi-person-lines-fill text-maroon fs-4"></i>
+                    {t('joinPage.editPromptTitle')}
+                  </h5>
+                  <p className="text-muted small mb-0 mt-1">
+                    {t('joinPage.editPromptSubtitle')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-close"
+                  disabled={lookupLoading}
+                  onClick={() => setShowLookupModal(false)}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <form onSubmit={handleLookupSubmit}>
+                <div className="modal-body px-4 py-3">
+                  {lookupError && (
+                    <div className="alert alert-danger small d-flex align-items-center gap-2 mb-3" role="alert">
+                      <i className="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                      <div>{lookupError}</div>
+                    </div>
+                  )}
+                  <div className="mb-3">
+                    <label htmlFor="lookupPhone" className="form-label small fw-semibold text-secondary">
+                      {t('joinPage.phoneLabel')} <span className="text-danger">*</span>
+                    </label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light fw-medium text-dark">+91</span>
+                      <input
+                        id="lookupPhone"
+                        type="tel"
+                        className="form-control form-control-lg fs-6"
+                        placeholder={t('joinPage.phonePlaceholder')}
+                        value={lookupPhone}
+                        onChange={(e) => {
+                          setLookupPhone(e.target.value.replace(/\D/g, '').slice(0, 10));
+                          setLookupError(null);
+                        }}
+                        maxLength={10}
+                        autoFocus
+                        required
+                      />
+                    </div>
+                    <div className="form-text small">
+                      {lookupPhone.length}/10 digits
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary px-3"
+                    disabled={lookupLoading}
+                    onClick={() => setShowLookupModal(false)}
+                  >
+                    {t('common.cancel') || 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-maroon px-4"
+                    disabled={lookupLoading || lookupPhone.trim().length !== 10}
+                  >
+                    {lookupLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        {t('joinPage.verifying')}
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-check2-circle me-1"></i>
+                        {t('joinPage.verifyAndEdit')}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

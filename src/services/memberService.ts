@@ -70,6 +70,14 @@ export const memberService = {
     return res.data.data;
   },
 
+  lookupByPhone: async (phone: string, countryCode = '+91'): Promise<{ token: string; user: any; member: RegisteredMember }> => {
+    const res = await apiClient.post('/members/lookup-by-phone', {
+      phone_number: phone.replace(/\D/g, ''),
+      country_code: countryCode,
+    });
+    return res.data.data;
+  },
+
   updateMyProfile: async (payload: UpdateMemberProfilePayload & { profile_image?: File | null }): Promise<any> => {
     const formData = new FormData();
     Object.keys(payload).forEach((key) => {
@@ -135,4 +143,11 @@ export interface RegisteredMember {
   verification_token: string;
   id_card_token: string;
   qr_data_url?: string | null;
+  state_id?: number;
+  parliament_constituency_id?: number;
+  assembly_constituency_id?: number | null;
+  district_id?: number;
+  block_id?: number;
+  village_id?: number | null;
+  role_id?: number;
 }

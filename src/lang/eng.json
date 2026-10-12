@@ -235,7 +235,19 @@
     "keepReady": "Keep these ready",
     "keepReadyText": "Your Aadhaar number, Voter ID number, and a passport-style photo (JPG/PNG, up to 5 MB).",
     "alreadyMember": "Already a member?",
-    "logIn": "Log in"
+    "logIn": "Log in",
+    "alreadyRegisteredEdit": "Already registered? Need to edit details?",
+    "clickToEdit": "Click here to edit",
+    "editPromptTitle": "Verify Registered Phone Number",
+    "editPromptSubtitle": "Enter your 10-digit registered phone number to view and update your details.",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "Enter 10-digit mobile number",
+    "verifyAndEdit": "Verify & Edit Details",
+    "verifying": "Verifying...",
+    "editingTitle": "Edit Member Details",
+    "editingSubtitle": "Make changes to your membership information below. Your digital ID card will update automatically.",
+    "backToRegister": "Cancel / Back to Registration",
+    "phoneNotFound": "No registered member found with this phone number. Please check the number or register as a new member."
   },
   "joinForm": {
     "validation": {
