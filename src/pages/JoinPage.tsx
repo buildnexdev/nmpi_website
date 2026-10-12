@@ -554,12 +554,12 @@ export const JoinPage: React.FC = () => {
                     {lookupLoading ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        {t('joinPage.verifying')}
+                        <span>{t('joinPage.verifying')}</span>
                       </>
                     ) : (
                       <>
                         <i className="bi bi-check2-circle me-1"></i>
-                        {t('joinPage.verifyAndEdit')}
+                        <span>{t('joinPage.verifyAndEdit')}</span>
                       </>
                     )}
                   </button>
