@@ -53,7 +53,12 @@ export const Header: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [compact, setCompact] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.member?.profile_image]);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -178,8 +183,12 @@ export const Header: React.FC = () => {
             {isAuthenticated && (
               <div className={`nav-group account-menu d-none d-md-block ${openMenu === 'account' ? 'open' : ''}`}>
                 <button type="button" className="account-chip" onClick={() => setOpenMenu((m) => (m === 'account' ? null : 'account'))} aria-expanded={openMenu === 'account'}>
-                  {user?.member?.profile_image ? (
-                    <img src={mediaUrl(user.member.profile_image)} alt="" />
+                  {user?.member?.profile_image && !avatarError ? (
+                    <img
+                      src={mediaUrl(user.member.profile_image)}
+                      alt=""
+                      onError={() => setAvatarError(true)}
+                    />
                   ) : (
                     <i className="bi bi-person-circle"></i>
                   )}

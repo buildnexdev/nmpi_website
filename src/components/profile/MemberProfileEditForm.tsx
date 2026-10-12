@@ -39,6 +39,7 @@ type Props = {
   profile: ProfileForEdit;
   onSaved: (profile: any) => void;
   onCancel: () => void;
+  onPhotoChange?: (file: File | null) => void;
 };
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'Unknown'];
@@ -53,6 +54,7 @@ type BodyProps = {
   loadError: string | null;
   onCancel: () => void;
   submitError: string | null;
+  onPhotoChange?: (file: File | null) => void;
 };
 
 const ProfileEditFormBody: React.FC<BodyProps> = ({
@@ -63,6 +65,7 @@ const ProfileEditFormBody: React.FC<BodyProps> = ({
   loadError,
   onCancel,
   submitError,
+  onPhotoChange,
 }) => {
   const { lang, t } = useLanguage();
   const tamilNames = lang === 'ta';
@@ -71,9 +74,14 @@ const ProfileEditFormBody: React.FC<BodyProps> = ({
   const [blocks, setBlocks] = useState<BlockOption[]>([]);
   const [villages, setVillages] = useState<VillageOption[]>([]);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
 
   const optionLabel = (o: { name_en: string; name_ta?: string | null }) =>
     tamilNames && o.name_ta ? `${o.name_ta} (${o.name_en})` : o.name_en;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [profile.profile_image]);
 
   useEffect(() => {
     if (!values.parliament_constituency_id) return setAssemblies([]);
@@ -97,14 +105,18 @@ const ProfileEditFormBody: React.FC<BodyProps> = ({
   useEffect(() => {
     if (!(values.profile_image instanceof File)) {
       setPhotoPreview(null);
+      onPhotoChange?.(null);
       return;
     }
     const url = URL.createObjectURL(values.profile_image);
     setPhotoPreview(url);
+    onPhotoChange?.(values.profile_image);
     return () => URL.revokeObjectURL(url);
-  }, [values.profile_image]);
+  }, [values.profile_image, onPhotoChange]);
 
   const invalid = (name: keyof EditValues) => (touched[name] && errors[name] ? 'is-invalid' : '');
+
+  const displayPhoto = photoPreview || (!imgError && mediaUrl(profile.profile_image));
 
   return (
     <Form noValidate className="member-profile-edit">
@@ -112,14 +124,23 @@ const ProfileEditFormBody: React.FC<BodyProps> = ({
       {submitError && <div className="alert alert-danger small">{submitError}</div>}
 
       <div className="d-flex flex-wrap align-items-center gap-3 mb-4">
-        <img
-          src={photoPreview || mediaUrl(profile.profile_image) || '/logo.jpg'}
-          alt=""
-          className="rounded-circle border"
-          width={72}
-          height={72}
-          style={{ objectFit: 'cover' }}
-        />
+        <div
+          className="rounded-circle border d-flex align-items-center justify-content-center bg-light overflow-hidden flex-shrink-0"
+          style={{ width: 72, height: 72 }}
+        >
+          {displayPhoto ? (
+            <img
+              src={displayPhoto}
+              alt=""
+              width={72}
+              height={72}
+              style={{ objectFit: 'cover' }}
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <i className="bi bi-person text-secondary" style={{ fontSize: '2.2rem' }}></i>
+          )}
+        </div>
         <div>
           <label className="btn btn-sm btn-outline-maroon mb-0">
             {t('profilePage.edit.changePhoto')}
@@ -295,7 +316,7 @@ const ProfileEditFormBody: React.FC<BodyProps> = ({
   );
 };
 
-export const MemberProfileEditForm: React.FC<Props> = ({ profile, onSaved, onCancel }) => {
+export const MemberProfileEditForm: React.FC<Props> = ({ profile, onSaved, onCancel, onPhotoChange }) => {
   const { t } = useLanguage();
   const [parliaments, setParliaments] = useState<ParliamentOption[]>([]);
   const [districts, setDistricts] = useState<DistrictOption[]>([]);
@@ -391,6 +412,7 @@ export const MemberProfileEditForm: React.FC<Props> = ({ profile, onSaved, onCan
         loadError={loadError}
         onCancel={onCancel}
         submitError={submitError}
+        onPhotoChange={onPhotoChange}
       />
     </Formik>
   );

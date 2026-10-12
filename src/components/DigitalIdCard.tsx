@@ -26,13 +26,24 @@ export const DigitalIdCard: React.FC<Props> = ({
 }) => {
   const { t } = useLanguage();
   const photo = mediaUrl(profileImage);
+  const [photoError, setPhotoError] = React.useState(false);
+
+  React.useEffect(() => {
+    setPhotoError(false);
+  }, [profileImage]);
 
   return (
     <div className="nmpi-id-card" aria-label={t('idCard.ariaLabel')}>
       <img className="nmpi-id-card-bg" src="/id-card-template.jpg" alt="" draggable={false} />
-      <div className={`nmpi-id-card-photo-wrap ${photo ? '' : 'is-empty'}`} style={idCardPhotoStyle()}>
-        {photo ? (
-          <img className="nmpi-id-card-photo" src={photo} alt={fullName} loading="lazy" />
+      <div className={`nmpi-id-card-photo-wrap ${photo && !photoError ? '' : 'is-empty'}`} style={idCardPhotoStyle()}>
+        {photo && !photoError ? (
+          <img
+            className="nmpi-id-card-photo"
+            src={photo}
+            alt={fullName}
+            loading="lazy"
+            onError={() => setPhotoError(true)}
+          />
         ) : (
           <i className="bi bi-person" aria-hidden="true"></i>
         )}

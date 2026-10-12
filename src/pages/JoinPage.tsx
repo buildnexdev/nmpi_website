@@ -142,6 +142,7 @@ export const JoinPage: React.FC = () => {
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [newPhotoPreview, setNewPhotoPreview] = useState<string | null>(null);
   const schema = useMemo(() => buildSchema(lang), [lang]);
 
   const profileForEdit: ProfileForEdit = useMemo(() => {
@@ -330,7 +331,7 @@ export const JoinPage: React.FC = () => {
                     designation={formatIdCardDesignation(editingMember)}
                     validUntil={formatIdCardExpiry(editingMember.created_at)}
                     bloodGroup={editingMember.blood_group}
-                    profileImage={editingMember.profile_image}
+                    profileImage={newPhotoPreview || editingMember.profile_image}
                     qrDataUrl={editingMember.qr_data_url}
                   />
 
@@ -384,7 +385,10 @@ export const JoinPage: React.FC = () => {
                     <button
                       type="button"
                       className="btn btn-outline-secondary btn-sm"
-                      onClick={() => setEditingMember(null)}
+                      onClick={() => {
+                        setNewPhotoPreview(null);
+                        setEditingMember(null);
+                      }}
                     >
                       <i className="bi bi-arrow-left me-1"></i>
                       {t('joinPage.backToRegister')}
@@ -393,7 +397,11 @@ export const JoinPage: React.FC = () => {
 
                   <MemberProfileEditForm
                     profile={profileForEdit}
+                    onPhotoChange={(file) => {
+                      setNewPhotoPreview(file ? URL.createObjectURL(file) : null);
+                    }}
                     onSaved={(updated) => {
+                      setNewPhotoPreview(null);
                       setEditingMember(null);
                       setRegisteredMember({
                         ...editingMember,
@@ -403,7 +411,10 @@ export const JoinPage: React.FC = () => {
                       });
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    onCancel={() => setEditingMember(null)}
+                    onCancel={() => {
+                      setNewPhotoPreview(null);
+                      setEditingMember(null);
+                    }}
                   />
                 </div>
               </div>
