@@ -6,6 +6,7 @@ import { CONTACT_PHONE, CONTACT_PHONE_TEL } from '../constants/contact';
 
 interface Executive {
   id: number;
+  member_id?: string | null;
   name: string;
   name_ta: string | null;
   designation: string;
@@ -14,6 +15,7 @@ interface Executive {
   district_ta: string | null;
   qualification: string | null;
   photo_url: string | null;
+  phone?: string | null;
   email: string | null;
   bio: string | null;
 }
@@ -42,7 +44,7 @@ export const LeadershipPage: React.FC = () => {
     return (items || []).filter(
       (l) =>
         (!district || l.district === district) &&
-        (!q || [l.name, l.name_ta, l.district, l.district_ta, l.designation, l.designation_ta].some((v) => v?.toLowerCase().includes(q)))
+        (!q || [l.name, l.name_ta, l.member_id, l.phone, l.district, l.district_ta, l.designation, l.designation_ta].some((v) => v?.toLowerCase().includes(q)))
     );
   }, [items, search, district]);
 
@@ -79,31 +81,40 @@ export const LeadershipPage: React.FC = () => {
             <EmptyState icon="bi-people" title={t('leadershipPage.emptyTitle')} />
           ) : (
             <div className="row g-4">
-              {visible.map((l) => (
-                <div className="col-sm-6 col-lg-4 col-xl-3" key={l.id}>
-                  <div className="card-custom card-hover leader-card d-flex flex-column">
-                    <div><LeaderPhoto src={l.photo_url} name={l.name} /></div>
-                    <h3 className="leader-name">{pick(l, 'name', lang)}</h3>
-                    {l.qualification && <div className="small text-muted">{l.qualification}</div>}
-                    <div className="leader-role mt-1">{pick(l, 'designation', lang)}</div>
-                    {l.district && (
-                      <div className="mt-2"><span className="gold-badge"><i className="bi bi-geo-alt-fill"></i>{pick(l, 'district', lang)}</span></div>
-                    )}
-                    {l.bio && <p className="small text-muted mt-3 mb-0">{l.bio}</p>}
-                    <div className="d-flex justify-content-center gap-2 mt-auto pt-3">
-                      <a href={CONTACT_PHONE_TEL} className="btn btn-sm btn-outline-maroon" aria-label={t('leadershipPage.callAria', { phone: CONTACT_PHONE })}>
-                        <i className="bi bi-telephone"></i>
-                        <span className="ms-1">{CONTACT_PHONE}</span>
-                      </a>
-                      {l.email && (
-                        <a href={`mailto:${l.email}`} className="btn btn-sm btn-outline-maroon" aria-label={t('leadershipPage.emailAria', { name: pick(l, 'name', lang) })}>
-                          <i className="bi bi-envelope"></i>
-                        </a>
+              {visible.map((l) => {
+                const phoneDisplay = l.phone?.trim() || CONTACT_PHONE;
+                const phoneTel = l.phone?.trim() ? `tel:${l.phone.replace(/\s+/g, '')}` : CONTACT_PHONE_TEL;
+                return (
+                  <div className="col-sm-6 col-lg-4 col-xl-3" key={l.id}>
+                    <div className="card-custom card-hover leader-card d-flex flex-column">
+                      <div><LeaderPhoto src={l.photo_url} name={l.name} /></div>
+                      <h3 className="leader-name">{pick(l, 'name', lang)}</h3>
+                      {l.member_id && (
+                        <div className="small text-muted font-monospace mt-1">
+                          <span className="badge bg-light text-dark border px-2 py-1">{l.member_id}</span>
+                        </div>
                       )}
+                      {l.qualification && <div className="small text-muted">{l.qualification}</div>}
+                      <div className="leader-role mt-1">{pick(l, 'designation', lang)}</div>
+                      {l.district && (
+                        <div className="mt-2"><span className="gold-badge"><i className="bi bi-geo-alt-fill"></i>{pick(l, 'district', lang)}</span></div>
+                      )}
+                      {l.bio && <p className="small text-muted mt-3 mb-0">{l.bio}</p>}
+                      <div className="d-flex justify-content-center gap-2 mt-auto pt-3">
+                        <a href={phoneTel} className="btn btn-sm btn-outline-maroon" aria-label={t('leadershipPage.callAria', { phone: phoneDisplay })}>
+                          <i className="bi bi-telephone"></i>
+                          <span className="ms-1">{phoneDisplay}</span>
+                        </a>
+                        {l.email && (
+                          <a href={`mailto:${l.email}`} className="btn btn-sm btn-outline-maroon" aria-label={t('leadershipPage.emailAria', { name: pick(l, 'name', lang) })}>
+                            <i className="bi bi-envelope"></i>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

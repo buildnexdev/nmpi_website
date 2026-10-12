@@ -196,8 +196,20 @@ export const EventCard: React.FC<{ item: EventItem }> = ({ item }) => {
 };
 
 export const LeaderPhoto: React.FC<{ src?: string | null; name: string; size?: number }> = ({ src, name, size = 112 }) => {
+  const [imgError, setImgError] = React.useState(false);
   const url = mediaUrl(src);
-  if (url) return <img src={url} alt={name} className="leader-photo" style={{ width: size, height: size }} loading="lazy" />;
+  if (url && !imgError) {
+    return (
+      <img
+        src={url}
+        alt={name}
+        className="leader-photo"
+        style={{ width: size, height: size, objectFit: 'cover' }}
+        loading="lazy"
+        onError={() => setImgError(true)}
+      />
+    );
+  }
   const words = name.replace(/^(mr|mrs|ms|dr|adv|thiru|thirumathi|selvi)\.?\s+/i, '').split(/\s+/).filter(Boolean);
   const main = words.find((w) => w.length > 2 && !w.endsWith('.')) || words[0] || '?';
   const initials = main[0].toUpperCase();
